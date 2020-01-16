@@ -1,9 +1,11 @@
 <h2 align="center">
-  Laboratorio di Reti, Corsi A e B 
-  Word Quizzle (WQ) 
-  Progetto di Fine Corso 
+  Laboratorio di Reti, Corsi A e B </br>
+  Word Quizzle (WQ) </br>
+  Progetto di Fine Corso </br>
   A.A. 2019/20
 </h2>
+
+
 
 <h2>1. Descrizione del Problema</h2>
 <p align="justify">
