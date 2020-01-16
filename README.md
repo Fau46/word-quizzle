@@ -38,6 +38,11 @@
     </li>
     <li>
       <p align="justify">
+        <b><i>logout(nickUtente)</i>:</b> effettua il logout dell’utente dal servizio.
+      <p>
+    </li>
+    <li>
+      <p align="justify">
       <p>
     </li>
   </ul>
