@@ -43,17 +43,15 @@
     </li>
     <li>
       <p align="justify">
+        <b><i>aggiungi_amico (nickUtente, nickAmico)</i>:</b> aggiungere  un amico alla cerchia di amici di un utente.<br>
+        Viene creato un arco non orientato tra i due utenti  (se A è amico di B, B è amico di A).<br>
+        Il Server risponde con un codice che indica l’avvenuta   registrazione dell’amicizia oppure con un codice di errore, 
+        se il nickname del nodo destinazione/ sorgente della richiesta non esiste, oppure se è stato richiesto di creare una relazione di  amicizia già esistente.<br> 
+        Non è necessario che il server richieda l’accettazione dell’amicizia da  parte di nickAmico.
       <p>
     </li>
-    <li>
+     <li>
       <p align="justify">
-        <b><i>aggiungi_amico (nickUtente, nickAmico)</i>:</b> registrazione di un’amicizia: aggiungere  un amico alla
-  cerchia di amici di un utente. Viene creato un arco non orientato tra i due utenti  (se A è amico
-  di B, B è amico di A). Il Server risponde con un codice che indica l’avvenuta   registrazione
-  dell’amicizia oppure con un codice di errore, se il nickname del nodo destinazione/ sorgente
-  della richiesta non esiste, oppure se è stato richiesto di creare una relazione di  amicizia già
-  esistente. Non è necessario che il server richieda l’accettazione dell’amicizia da  parte di
-  nickAmico.
       <p>
     </li>
   </ul>
