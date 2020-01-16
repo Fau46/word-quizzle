@@ -29,12 +29,15 @@
       Come specificato in seguito, le       registrazioni sono tra
       le informazioni da persistere.
     </li>
+    <li>
+      <b><i>login(nickUtente, password)</i>:</b> Login di un utente già registrato per accedere al  servizio. Il server
+  risponde con un codice che può indicare l’avvenuto login, oppure, se l’utente ha  già effettuato la
+  login o la password è errata, restituisce un messaggio d’errore.
+    </li>
   </ul>
   
   
-  login(nickUtente, password): Login di un utente già registrato per accedere al  servizio. Il server
-  risponde con un codice che può indicare l’avvenuto login, oppure, se l’utente ha  già effettuato la
-  login o la password è errata, restituisce un messaggio d’errore.
+
   logout(nickUtente): effettua il logout dell’utente dal servizio.
   aggiungi_amico (nickUtente, nickAmico): registrazione di un’amicizia: aggiungere  un amico alla
   cerchia di amici di un utente. Viene creato un arco non orientato tra i due utenti  (se A è amico
