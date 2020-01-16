@@ -22,7 +22,7 @@
 
   <ul>
     <li>
-      <b>Registrazione di un utente:</b> per inserire un nuovo utente, il server mette a disposizione una operazione <i>registra_utente(nickUtente,password)</i>. 
+      <b>Registrazione di un utente:</b> per inserire un nuovo utente, il server mette a disposizione una operazione <i>registra_utente(nickUtente,password)</i>.<br> 
       Il server risponde con un    codice   che può
       indicare l’avvenuta registrazione, oppure, se il nickname è già presente, o se    la   password è
       vuota, restituisce un messaggio d’errore. Come specificato in seguito, le       registrazioni sono tra
