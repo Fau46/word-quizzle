@@ -75,7 +75,7 @@
         il giocatore con più punti  vince la sfida ed ottiene Z punti extra.<br> Per ogni risposta non inviata (a causa della scadenza del  timer) si assegnano 0 punti.<br>
         Il punteggio ottenuto da ciascun partecipante alla fine della  partita viene chiamato punteggio partita.<br>
         I valori espressi come K, N, T1, T2, X, Y e Z sono a discrezione dello studente.<br><br>
-        <i><u>Esempio di svolgimento della partita</u></i>:
+        <u>Esempio di svolgimento della partita</u>:
   I giocatori U1 e U2 si sfidano. A inizio partita il server seleziona le parole  “Bottiglia”,
   “Quarantadue” e “Rete” dal dizionario. Interroga il servizio e memorizza le   traduzioni. Infine il
   server setta un timeout della partita di 1 minuto.
