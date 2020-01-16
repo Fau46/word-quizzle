@@ -39,32 +39,41 @@
     <li>
       <p align="justify">
         <b><i>logout(nickUtente)</i>:</b> effettua il logout dell’utente dal servizio.
-      <p>
+      </p>
     </li>
     <li>
       <p align="justify">
         <b><i>aggiungi_amico (nickUtente, nickAmico)</i>:</b> aggiungere  un amico alla cerchia di amici di un utente.<br>
         Viene creato un arco non orientato tra i due utenti  (se A è amico di B, B è amico di A).<br>
         Il Server risponde con un codice che indica l’avvenuta   registrazione dell’amicizia oppure con un codice di errore, 
-        se il nickname del nodo destinazione/ sorgente della richiesta non esiste, oppure se è stato richiesto di creare una relazione di  amicizia già esistente.<br> 
+        se il nickname del nodo destinazione/sorgente della richiesta non esiste, oppure se è stato richiesto di creare una relazione di  amicizia già esistente.<br> 
         Non è necessario che il server richieda l’accettazione dell’amicizia da  parte di nickAmico.
-      <p>
+      </p>
     </li>
      <li>
       <p align="justify">
-      <p>
+        <b><i>lista_amici(nickUtente)</i>:</b> utilizzata da un utente per visualizzare la lista dei  propri amici, 
+        fornendo le proprie generalità.<br>
+        Il server restituisce un oggetto JSON che rappresenta la   lista degli amici.
+      </p>
     </li>
+    <li>
+      <p align="justify">
+      </p>
+    </li>
+    <li>
+      <p align="justify">
+      </p>
+    </li>
+    <li>
+      <p align="justify">
+      </p>
+    </li>
+    
   </ul>
-  aggiungi_amico (nickUtente, nickAmico): registrazione di un’amicizia: aggiungere  un amico alla
-  cerchia di amici di un utente. Viene creato un arco non orientato tra i due utenti  (se A è amico
-  di B, B è amico di A). Il Server risponde con un codice che indica l’avvenuta   registrazione
-  dell’amicizia oppure con un codice di errore, se il nickname del nodo destinazione/ sorgente
-  della richiesta non esiste, oppure se è stato richiesto di creare una relazione di  amicizia già
-  esistente. Non è necessario che il server richieda l’accettazione dell’amicizia da  parte di
-  nickAmico.
-  1
-  lista_amici(nickUtente): utilizzata da un utente per visualizzare la lista dei  propri amici, fornendo
-  le proprie generalità. Il server restituisce un oggetto JSON che rappresenta la   lista degli amici.
+
+  
+
   sfida(nickUtente, nickAmico): l’utente nickUtente intende sfidare l’utente di nome  nickAmico. Il
   server controlla che nickAmico appartenga alla lista di amicizie di nickUtente, in  caso negativo
   restituisce un codice di errore e l’operazione termina. In caso positivo, il  server invia a
