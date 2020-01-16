@@ -1,9 +1,9 @@
 <h2 align="center">
-  Laboratorio di Reti, Corsi A e B </br>
-  Word Quizzle (WQ) </br>
-  Progetto di Fine Corso </br>
+  Laboratorio di Reti, Corsi A e B 
+  Word Quizzle (WQ) 
+  Progetto di Fine Corso 
   A.A. 2019/20
-</h2></br></br>
+</h2>
 
 <h2>1. Descrizione del Problema</h2>
 <p align="justify">
@@ -12,13 +12,13 @@
   scopo è quello di tradurre in inglese il maggiore numero di parole italiane   proposte dal servizio.
   Il sistema consente inoltre la gestione di una rete sociale tra gli utenti  iscritti.
   L’applicazione è implementata secondo una architettura client server.
-</p></br>
+</p>
 
 <h2>2. WQ: specifica delle operazioni</h2>
 <p align="justify">
-  Di seguito sono specificate le operazioni offerte dal servizio WQ.</br> 
+  Di seguito sono specificate le operazioni offerte dal servizio WQ.
   In sede di implementazione è possibile aggiungere ulteriori parametri se necessario.
-  
+
   Registrazione di un utente: per inserire un nuovo utente, il server mette a   disposizione una
   operazione registra_utente(nickUtente,password). Il server risponde con un codice   che può
   indicare l’avvenuta registrazione, oppure, se il nickname è già presente, o se la   password è
