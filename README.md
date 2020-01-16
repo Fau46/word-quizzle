@@ -77,7 +77,7 @@
         I valori espressi come K, N, T1, T2, X, Y e Z sono a discrezione dello studente.<br><br>
         <i>Esempio di svolgimento della partita</i>: I giocatori U1 e U2 si sfidano.<br>
         A inizio partita il server seleziona le parole  “Bottiglia”, “Quarantadue” e “Rete” dal dizionario.<br>
-        Interroga il servizio e memorizza le   traduzioni. Infine il server setta un timeout della partita di 1 minuto.<bt>
+        Interroga il servizio e memorizza le   traduzioni. Infine il server setta un timeout della partita di 1 minuto.<br>
         Il server invia “Bottiglia” ad entrambi i giocatori.<br>
         U1 risponde con “Bottle”: il   server assegna 2 punti a U1 (punteggio corrente di U1: 2) e invia “Quarantadue”.<br>
         Nel frattempo U2  risponde con “Botle”, sottrae 1 punto a U2 (punteggio corrente di U2: -1) e invia “Quarantadue” a U2.<br>
