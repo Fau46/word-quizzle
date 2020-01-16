@@ -94,7 +94,7 @@
     </li>
     <li>
       <p align="justify">
-        <b><i>mostra_classifica(nickUtente)<i/>:</b> Il server restituisce in formato JSON la classifica calcolata in base ai punteggi utente ottenuti da nickUtente e dai suoi amici.
+        <b><i>mostra_classifica(nickUtente)</i>:</b> Il server restituisce in formato JSON la classifica calcolata in base ai punteggi utente ottenuti da nickUtente e dai suoi amici.
       </p>
     </li>
     
