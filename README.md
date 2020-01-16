@@ -19,18 +19,21 @@
 <p align="justify">
   Di seguito sono specificate le operazioni offerte dal servizio WQ.
   In sede di implementazione è possibile aggiungere ulteriori parametri se necessario.
+</p>
 
   <ul>
     <li>
-      <b>Registrazione di un utente:</b> per inserire un nuovo utente, il server mette a disposizione una operazione <i>registra_utente(nickUtente,password)</i>.<br> 
-      Il server risponde con un    codice   che può
-      indicare l’avvenuta registrazione, oppure, se il nickname è già presente, o se    la   password è
-      vuota, restituisce un messaggio d’errore.<br> 
-      Come specificato in seguito, le       registrazioni sono tra
-      le informazioni da persistere.
+      <p align="justify">
+        <b>Registrazione di un utente:</b> per inserire un nuovo utente, il server  mette a disposizione una operazione <i>registra_utente(nickUtente,password)</  i>.<br> 
+        Il server risponde con un    codice   che può
+        indicare l’avvenuta registrazione, oppure, se il nickname è già presente, o   se    la   password è
+        vuota, restituisce un messaggio d’errore.<br> 
+        Come specificato in seguito, le       registrazioni sono tra
+        le informazioni da persistere.
+      </p>
     </li>
     <li>
-      <b><i>login(nickUtente, password)</i>:</b> Login di un utente già registrato per accedere al  servizio. 
+      <b><i>login(nickUtente, password)</i>:</b> Login di un utente già registrato per accedere al  servizio.<br>
       Il server risponde con un codice che può indicare l’avvenuto login, oppure, se l’utente ha  già effettuato il login o la password è errata, restituisce un messaggio d’errore.
     </li>
   </ul>
