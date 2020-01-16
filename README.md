@@ -3,8 +3,7 @@
   Word Quizzle (WQ) </br>
   Progetto di Fine Corso </br>
   A.A. 2019/20
-</h2>
-
+</h2></br></br>
 
 
 <h2>1. Descrizione del Problema</h2>
