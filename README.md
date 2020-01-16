@@ -1,4 +1,4 @@
-### Laboratorio di Reti, Corsi A e B
+<center>### Laboratorio di Reti, Corsi A e B</center>
 ### Word Quizzle (WQ)
 ### Progetto di Fine Corso
 ### A.A. 2019/20
