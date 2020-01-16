@@ -59,6 +59,33 @@
     </li>
     <li>
       <p align="justify">
+        <b><i>sfida(nickUtente, nickAmico)</i>:</b> l’utente nickUtente intende sfidare l’utente di nome  nickAmico.<br>
+        Il server controlla che nickAmico appartenga alla lista di amicizie di nickUtente, in  caso negativo restituisce un codice di errore e l’operazione termina.<br>
+        In caso positivo, il  server invia a nickAmico una richiesta di accettazione della sfida e, 
+        solo dopo che la richiesta è stata accettata, la sfida può avere inizio 
+        (se la risposta non è stata ricevuta entro un  intervallo di tempo T1 si considera la sfida come non accettata).<br> 
+        La sfida riguarda la  traduzione di una lista di parole italiane in parole inglesi, nel minimo tempo possibile.<br>
+        Il server sceglie, in modo casuale, K parole da un dizionario contenente N parole italiane da inviare successivamente, una alla volta, ai due sfidanti.<br>
+        La partita può durare al  massimo un intervallo di tempo T2. Il server invia ai partecipanti la prima parola.<br>
+        Quando il  giocatore invia la traduzione (giusta o sbagliata), il server invia la parola successiva a quel  giocatore.<br>
+        Il gioco termina quando entrambi i giocatori hanno inviato le traduzioni alle K parole o quando scade il timer.<br>
+        La correttezza della traduzione viene controllata dal server utilizzando un servizio esterno, come specificato nella sezione seguente.<br>
+        Ogni traduzione corretta assegna X punti al giocatore;
+        ogni traduzione sbagliata assegna Y punti negativi;
+        il giocatore con più punti  vince la sfida ed ottiene Z punti extra.<br> Per ogni risposta non inviata (a causa della scadenza del  timer) si assegnano 0 punti.<br>
+        Il punteggio ottenuto da ciascun partecipante alla fine della  partita viene chiamato punteggio partita.<br>
+        I valori espressi come K, N, T1, T2, X, Y e Z sono a discrezione dello studente.<br><br>
+        
+        <i>Esempio di svolgimento della partita:</i>
+  I giocatori U1 e U2 si sfidano. A inizio partita il server seleziona le parole  “Bottiglia”,
+  “Quarantadue” e “Rete” dal dizionario. Interroga il servizio e memorizza le   traduzioni. Infine il
+  server setta un timeout della partita di 1 minuto.
+  Il server invia “Bottiglia” ad entrambi i giocatori. U1 risponde con “Bottle”: il   server assegna 2
+  punti a U1 (punteggio corrente di U1: 2) e invia “Quarantadue”. Nel frattempo U2  risponde con
+  “Botle”, sottrae 1 punto a U2 (punteggio corrente di U2: -1) e invia “Quarantadue”  a U2.
+  Supponendo che U1 sbagli le 2 parole successive, alla fine della partita totalizza  un punteggio
+  di 0 punti (+2 -1 -1), e supponendo che U2 indovini entrambe le parole successive,  totalizza un
+  punteggio di 3 punti (-1 +2 +2). Il server dichiara U2 vincitore ed assegna ad U2   3 punti extra.
       </p>
     </li>
     <li>
