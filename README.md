@@ -17,7 +17,7 @@
 
 <h2>2. WQ: specifica delle operazioni</h2>
 <p align="justify">
-  Di seguito sono specificate le operazioni offerte dal servizio WQ.
+  Di seguito sono specificate le operazioni offerte dal servizio WQ.<br>
   In sede di implementazione è possibile aggiungere ulteriori parametri se necessario.
 
   Registrazione di un utente: per inserire un nuovo utente, il server mette a   disposizione una
