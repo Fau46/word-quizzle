@@ -30,9 +30,8 @@
       le informazioni da persistere.
     </li>
     <li>
-      <b><i>login(nickUtente, password)</i>:</b> Login di un utente già registrato per accedere al  servizio. Il server
-  risponde con un codice che può indicare l’avvenuto login, oppure, se l’utente ha  già effettuato la
-  login o la password è errata, restituisce un messaggio d’errore.
+      <b><i>login(nickUtente, password)</i>:</b> Login di un utente già registrato per accedere al  servizio. 
+      Il server risponde con un codice che può indicare l’avvenuto login, oppure, se l’utente ha  già effettuato il login o la password è errata, restituisce un messaggio d’errore.
     </li>
   </ul>
   
