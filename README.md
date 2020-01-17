@@ -97,10 +97,19 @@
         <b><i>mostra_classifica(nickUtente)</i>:</b> Il server restituisce in formato JSON la classifica calcolata in base ai punteggi utente ottenuti da nickUtente e dai suoi amici.
       </p>
     </li>
-    
   </ul>
 
-  
+  <h2>3. WQ: specifiche per l'implementazione</h2>
+    <p align="justify">
+      Nella realizzazione del progetto devono essere utilizzate molte tecnologie illustrate durante il corso.<br>
+      In particolare:
+    </p>
+
+      <ul>
+        <li>
+        </li>
+      </ul>
+    
 
  
 
