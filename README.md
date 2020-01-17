@@ -106,11 +106,53 @@
     </p>
       <ul>
         <li>
+          <p align="justify">
+            la fase di registrazione viene implementata mediante RMI.
+          </p>
+        </li>
+        <li>
+          <p align="justify">
+            La fase di login deve essere effettuata come prima operazione dopo aver instaurato una connessione TCP con il server.<br>
+            Su questa connessione TCP, dopo previa login effettuata con successo, avvengono le interazioni client-server (richieste/risposte).
+          </p>
+        </li>
+        <li>
+          <p align="justify">
+            Il server inoltra la richiesta di sfida originata da nickUtente all'utente nickAmico usando la comunicazione UDP.
+          </p>
+        </li>
+        <li>
+          <p align="justify">
+            Il server può essere realizzato multithreaded oppure può effettuare il multiplexing dei canali mediante NIO.
+          </p>
+        </li>
+        <li>
+          <p align="justify">
+            Il server gestisce un dizionario di N parole italiane, memorizzato in un file.<br>
+            Durante la fase di setup di una sfida fra due utenti il server seleziona K parole a caso su N parole presenti nel dizionario.<br>
+            Prima dell’inizio della partita, ma dopo che ha ricevuto l’accettazione della sfida da parte dell’amico, il server chiede, tramite una chiamata HTTP GET,
+            la traduzione delle parole selezionate al servizio esterno accessibile alla URL https://mymemory.translated.net/doc/spec.php.<br>
+            Le traduzioni vengono memorizzate per tutta la durata della partita per verificare la correttezza delle risposte inviate dal client.
+          </p>
+        </li>
+        <li>
+          <p align="justify">
+            L'utente interagisce con WQ mediante un client che può utilizzare una semplice interfaccia grafica, oppure una interfaccia a linea di comando, definendo un insieme di comandi, presentati in un menu.
+          </p>
+        </li>
+        <li>
+          <p align="justify">
+            Il server persiste le informazioni di registrazione, relazioni di amicizia e punteggio degli utenti su file json
+          </p>
         </li>
       </ul>
     
 
+
+
+
+
+
  
 
   
-<!-- </p> -->
