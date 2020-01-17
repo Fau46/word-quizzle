@@ -142,7 +142,7 @@
         </li>
         <li>
           <p align="justify">
-            Il server persiste le informazioni di registrazione, relazioni di amicizia e punteggio degli utenti su file json
+            Il server persiste le informazioni di registrazione, relazioni di amicizia e punteggio degli utenti su file json.
           </p>
         </li>
       </ul>
