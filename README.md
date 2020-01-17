@@ -104,7 +104,6 @@
       Nella realizzazione del progetto devono essere utilizzate molte tecnologie illustrate durante il corso.<br>
       In particolare:
     </p>
-
       <ul>
         <li>
         </li>
@@ -114,4 +113,4 @@
  
 
   
-</p>
+<!-- </p> -->
