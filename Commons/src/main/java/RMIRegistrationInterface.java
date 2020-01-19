@@ -10,7 +10,8 @@ public interface RMIRegistrationInterface extends Remote {
     int EXISTS_NICK = -102;
     int INVALID_PWD = -103;
     int TOO_SHORT_PWD = -104;
+    int GENERAL_ERROR = -1;
     int OK = 1;
 
-    int Registration(String nick, String pwd) throws RemoteException;
+    int registra_utente(String nick, String pwd) throws RemoteException;
 }

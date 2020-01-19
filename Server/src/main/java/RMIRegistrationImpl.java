@@ -15,14 +15,14 @@ public class RMIRegistrationImpl extends RemoteObject implements RMIRegistration
     }
 
     @Override
-    public int Registration(String nick, String pwd) throws RemoteException {
+    public synchronized int registra_utente(String nick, String pwd) throws RemoteException {
         if(nick==null || nick.equals("")) return INVALID_NICK;
         if(pwd ==  null || pwd.equals("")) return INVALID_PWD;
         if(pwd.length()<5) return TOO_SHORT_PWD;
         if(existOnDB(nick)) return EXISTS_NICK;
         if(registerOnDB(nick,pwd)) return OK;
 
-        return -1;
+        return GENERAL_ERROR;
     }
 
     private boolean existOnDB(String nick){

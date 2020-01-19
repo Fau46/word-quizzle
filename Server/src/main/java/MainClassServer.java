@@ -1,9 +1,5 @@
 import Database.Costants;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -16,19 +12,6 @@ import java.rmi.server.UnicastRemoteObject;
 public class MainClassServer implements Costants {
 
     public MainClassServer(){
-        //Creazione directory Database
-
-        String pathJsonDB = path+jsonDB;
-
-        if(Files.notExists(Paths.get(pathJsonDB))){
-            try {
-                new File(pathJsonDB).createNewFile();
-                System.out.println("File '"+jsonDB+"' creato");
-            } catch (IOException e) {
-                System.out.println("Errore nella creazione del file '"+jsonDB+"'");
-            }
-        }
-
     }
 
     private void RMIConfiguration(){
