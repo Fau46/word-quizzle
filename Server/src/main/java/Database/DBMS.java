@@ -19,10 +19,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DBMS {
+public class DBMS implements Costants{
     private  ArrayList<User> map;
     private static DBMS dbms;
+    private String path;
+
     private DBMS(){
+        path = "./Server/src/main/java/Database/registrazioni.json";
         map = new ArrayList<>();
     }
 
@@ -32,49 +35,55 @@ public class DBMS {
     }
 
     public boolean existUser(String nick){
-        Gson gson = new Gson();
-        try(JsonReader reader = new JsonReader(new FileReader("./Server/src/main/java/Database/registrazioni.json"))) {
+        if(!this.fileEmpty()){
 
-            reader.beginArray();
-            while (reader.hasNext()){
-                reader.beginObject();
+            Gson gson = new Gson();
+            try(JsonReader reader = new JsonReader(new FileReader("./Server/src/main/java/Database/registrazioni.json"))) {
+
+                reader.beginArray();
                 while (reader.hasNext()){
-                    String name = reader.nextName();
-                    System.out.println(name);
-                    if(name.equals("nickname")){
-                        String string = reader.nextString();
-                        System.out.println(string);
-                        if (string.equals(nick)){
-                            return true;
+                    reader.beginObject();
+                    while (reader.hasNext()){
+                        String name = reader.nextName();
+                        if(name.equals("nickname")){
+                            String string = reader.nextString();
+                            System.out.println(string);
+                            if (string.equals(nick)){
+                                return true;
+                            }
                         }
+                        else reader.nextString();
                     }
-                    else reader.nextString();
+                    reader.endObject();
+
                 }
-                System.out.println("sono qui");
-                reader.endObject();
+                reader.endArray();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (Exception e){
 
             }
-            reader.endArray();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (Exception e){
-
         }
-
         return false;
     }
 
     public boolean registerUser(User user){
         try{
-            FileChannel writer = FileChannel.open(Paths.get("./Server/src/main/java/Database/registrazioni.json"), StandardOpenOption.WRITE);
-            Gson gson = new Gson();
+
+            FileChannel writer = FileChannel.open(Paths.get(path), StandardOpenOption.WRITE);
             StringBuilder strinJson = new StringBuilder();
-            strinJson.append(","+gson.toJson(user)+"]");
-            System.out.println(writer.position());
-            long pos = writer.size()-1;
-            System.out.println(pos);
-            writer.position(pos);
-            System.out.println(writer.position());
+            Gson gson = new Gson();
+
+            //controllo se il file è vuoto e non è ancora stato inizializzato
+
+            if(this.fileEmpty()) strinJson.append("[");
+            else strinJson.append(",");
+
+            strinJson.append(gson.toJson(user)+"]");
+            if(writer.size()!=0){
+                writer.position(writer.size()-1);
+            }
+
             writer.write(ByteBuffer.wrap(strinJson.toString().getBytes()));
             writer.close();
 //            Writer writer = Files.newBufferedWriter(Paths.get("./Server/src/main/java/Database/registrazioni.json"));
@@ -88,5 +97,25 @@ public class DBMS {
             return false;
         }
         return true;
+    }
+
+    private boolean fileEmpty(){
+        try {
+            FileChannel reader = FileChannel.open(Paths.get(path), StandardOpenOption.READ);
+            ByteBuffer byteBuffer = ByteBuffer.allocate(5);
+
+            int r = reader.read(byteBuffer);
+            if (r ==-1) return true;
+
+            byteBuffer.flip();
+            byte[] bbuff = new byte[5];
+            byteBuffer.get(bbuff,0,1);
+            System.out.println("Stringa letta:"+new String(bbuff));
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return false;
     }
 }

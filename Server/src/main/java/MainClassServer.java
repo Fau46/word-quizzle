@@ -1,3 +1,5 @@
+import Database.Costants;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -9,7 +11,9 @@ import java.rmi.registry.Registry;
 import java.rmi.server.ExportException;
 import java.rmi.server.UnicastRemoteObject;
 
-public class MainClassServer implements Costants{
+
+
+public class MainClassServer implements Costants {
 
     public MainClassServer(){
         //Creazione directory Database
