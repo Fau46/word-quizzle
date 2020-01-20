@@ -1,5 +1,7 @@
-Database/DBMS.class
+Worker.class
+Task.class
 RMIRegistrationImpl.class
-Database/Costants.class
 MainClassServer.class
+Database/DBMS.class
+Database/Costants.class
 User/User.class

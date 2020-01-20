@@ -1,4 +1,3 @@
-//package GUI;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,7 +11,7 @@ public class Register extends JPanel implements ActionListener {
     private JLabel answer;
 
     public Register(){
-        setBackground(Color.GRAY);
+        setBackground(Color.WHITE);
         setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
         nickInput = new JTextField("",10);
         nickInput.setBackground(Color.WHITE);
@@ -72,7 +71,7 @@ public class Register extends JPanel implements ActionListener {
                 case 1: message = "Ok";
                     break;
             }
-            JOptionPane.showMessageDialog(null, message, null, JOptionPane.ERROR_MESSAGE);
+
             answer.setText(message);
         } catch (Exception e) {
             answer.setText("Errore col server");
