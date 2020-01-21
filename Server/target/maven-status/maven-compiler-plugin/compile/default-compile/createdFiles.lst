@@ -1,7 +1,7 @@
-Worker.class
 Task.class
 RMIRegistrationImpl.class
 MainClassServer.class
+Server.class
 Database/DBMS.class
 Database/Costants.class
 User/User.class

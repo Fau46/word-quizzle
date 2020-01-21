@@ -41,7 +41,9 @@ public class StartGUI extends JPanel implements ActionListener {
             window.validate();
         }
         else{
-
+            Login loginGUI = new Login();
+            window.setContentPane(loginGUI);
+            window.validate();
         }
     }
 }

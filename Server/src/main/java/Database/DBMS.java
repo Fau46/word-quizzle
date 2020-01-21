@@ -4,6 +4,7 @@ import User.User;
 import com.google.gson.Gson;
 
 import java.io.*;
+import java.net.UnknownServiceException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
@@ -22,13 +23,14 @@ public class DBMS implements Costants{
         return dbms;
     }
 
-    public boolean existUser(String nick){
+
+    public synchronized boolean existUser(String nick){
         if(Files.exists(Paths.get(PATH + nick))){
             return true;
         }
-
         return false;
     }
+
 
     public boolean registerUser(User user){
         try{
@@ -56,5 +58,24 @@ public class DBMS implements Costants{
             return false;
         }
         return true;
+    }
+
+
+    public User loginUser(String nick, String pwd){
+        System.out.println(existUser(nick));
+        if(!existUser(nick)) return null; //Se l'utente non esiste ritorno null
+
+        String path = new String(PATH+nick+"/"+LOGIN_DB);
+        Gson gson = new Gson();
+        User user = null;
+
+        try {
+            Reader reader = Files.newBufferedReader(Paths.get(path));
+            user = gson.fromJson(reader,User.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return user;
     }
 }
