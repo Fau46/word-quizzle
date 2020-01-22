@@ -10,6 +10,8 @@ public interface RMIRegistrationInterface extends Remote {
     int EXISTS_NICK = -102;
     int INVALID_PWD = -103;
     int TOO_SHORT_PWD = -104;
+    int TOO_LONG_PWD = -105;
+    int SPACE_IN_NICK = -106;
     int GENERAL_ERROR = -1;
     int OK = 1;
 

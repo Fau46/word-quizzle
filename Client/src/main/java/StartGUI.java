@@ -7,7 +7,7 @@ import java.awt.event.ActionListener;
 
 public class StartGUI extends JPanel implements ActionListener {
 
-    JFrame window;
+    private JFrame window;
 
     public StartGUI(JFrame window){
         this.window = window;
@@ -36,12 +36,12 @@ public class StartGUI extends JPanel implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if(e.getActionCommand().equals("Iscriviti")){
-            Register registerGUI = new Register();
+            Register registerGUI = new Register(window);
             window.setContentPane(registerGUI);
             window.validate();
         }
         else{
-            Login loginGUI = new Login();
+            Login loginGUI = new Login(window);
             window.setContentPane(loginGUI);
             window.validate();
         }

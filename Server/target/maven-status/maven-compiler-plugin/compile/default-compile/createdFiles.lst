@@ -1,7 +1,10 @@
+Database/CrunchifyInMemoryCache.class
 Task.class
 RMIRegistrationImpl.class
 MainClassServer.class
+Database/CrunchifyInMemoryCache$1.class
 Server.class
+Database/CrunchifyInMemoryCache$CrunchifyCacheObject.class
 Database/DBMS.class
 Database/Costants.class
 User/User.class

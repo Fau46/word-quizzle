@@ -10,7 +10,7 @@ public class Register extends JPanel implements ActionListener {
     private JTextField nickInput, pwdInput;
     private JLabel answer;
 
-    public Register(){
+    public Register(JFrame window){
         setBackground(Color.WHITE);
         setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
         nickInput = new JTextField("",10);
@@ -57,7 +57,7 @@ public class Register extends JPanel implements ActionListener {
             RMIRegistrationInterface serverObject = (RMIRegistrationInterface) registry.lookup(RMIRegistrationInterface.REMOTE_OBJECT_NAME);
 
             String message = null;
-            switch(serverObject.registra_utente(nick,pwd)){
+            switch(serverObject.registra_utente(nick,pwd)){ //effettuo la registrazione e leggo la risposta
                 case -101: message = "Nickname non valido";
                     break;
                 case -102: message = "Nickname già esistente";
@@ -66,14 +66,18 @@ public class Register extends JPanel implements ActionListener {
                     break;
                 case -104: message = "Password troppo corta. Inserire una password di almeno 5 caratteri";
                     break;
+                case -105: message = "Password troppo lunga. Inserire una password di massimo 20 caratteri";
+                    break;
+                case -106: message = "Il nickname non può contenere spazi";
+                    break;
                 case -1: message = "Errore generico";
                     break;
                 case 1: message = "Ok";
                     break;
             }
-
             answer.setText(message);
         } catch (Exception e) {
+            System.out.println("[ERROR] Errore durante la registrazione");
             answer.setText("Errore col server");
             e.printStackTrace();
         }

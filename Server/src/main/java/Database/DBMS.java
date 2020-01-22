@@ -4,17 +4,19 @@ import User.User;
 import com.google.gson.Gson;
 
 import java.io.*;
-import java.net.UnknownServiceException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 
 public class DBMS implements Costants{
     private static DBMS dbms;
+    private CrunchifyInMemoryCache<String, String> cache;
 
     private DBMS(){
+        cache = new CrunchifyInMemoryCache<>(10,10,100); //TODO FIXARE MEGLIO
     }
 
     //Metodo per ottenere l'istanza singleton della classe
@@ -25,9 +27,14 @@ public class DBMS implements Costants{
 
 
     public synchronized boolean existUser(String nick){
-        if(Files.exists(Paths.get(PATH + nick))){
+        if(cache.get(nick) != null){ //se il nickname è già in cache ritorno true
             return true;
         }
+        if(Files.exists(Paths.get(PATH + nick))){ //oppure se è già registrato
+            cache.put(nick,nick); //metto in cache il nickname
+            return true;
+        }
+
         return false;
     }
 
@@ -53,6 +60,8 @@ public class DBMS implements Costants{
             writer = FileChannel.open(Paths.get(userPath.toString()), StandardOpenOption.WRITE);
             writer.write(ByteBuffer.wrap(strinJson.toString().getBytes())); //scrivo l'oggetto utente serializzato sul file json
             writer.close();
+
+            cache.put(user.getNickname(),user.getNickname()); //metto l'utente in cache per un eventuale login
         } catch (IOException e) {
             System.out.println("IOException");
             return false;
@@ -62,7 +71,6 @@ public class DBMS implements Costants{
 
 
     public User loginUser(String nick, String pwd){
-        System.out.println(existUser(nick));
         if(!existUser(nick)) return null; //Se l'utente non esiste ritorno null
 
         String path = new String(PATH+nick+"/"+LOGIN_DB);

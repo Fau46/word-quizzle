@@ -11,10 +11,13 @@ import java.nio.channels.SocketChannel;
 public class Login extends JPanel implements ActionListener{
     private JTextField nickInput, pwdInput;
     private JLabel answer,connectAnswer;
+    private JFrame window;
     SocketChannel client;
     private int BUF_SIZE = 512;
 
-    public Login(){
+    public Login(JFrame window){
+        this.window = window;
+
         setBackground(Color.WHITE);
         setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
         nickInput = new JTextField("",10);
@@ -63,6 +66,7 @@ public class Login extends JPanel implements ActionListener{
         this.serverConnection();
     }
 
+    //Connessione TCP col server
     private void serverConnection(){
         SocketAddress address = new InetSocketAddress(TCPConnection.HOSTNAME,TCPConnection.PORT);
         try{
@@ -78,6 +82,7 @@ public class Login extends JPanel implements ActionListener{
 
         connectAnswer.setText("Connessione stabilita");
     }
+
 
     public void actionPerformed(ActionEvent actionEvent) {
         if (actionEvent.getActionCommand().equals("GO")){
@@ -125,7 +130,12 @@ public class Login extends JPanel implements ActionListener{
                 else {
                     String aux[] = (new String(buffer.array())).split("\n");
                     System.out.println(aux[1]);
-                    answer.setText(aux[1]);
+//                    answer.setText(aux[1]);
+
+                    if(aux[0].equals("OK")){ //se il login è andato a buon fine mostro la homepage
+                        window.setContentPane(new HomePage(nick,window));
+                        window.validate();
+                    }
                 }
             } catch (IOException e) {
                 System.out.println("[ERROR] Server chiuso");

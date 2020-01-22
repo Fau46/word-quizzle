@@ -1,26 +1,17 @@
 import Database.Costants;
-import sun.nio.ch.ThreadPool;
-import sun.tools.jconsole.Worker;
 
-import javax.swing.plaf.synth.SynthOptionPaneUI;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
-import java.net.Socket;
-import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
-import java.nio.channels.SocketChannel;
 import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.ExportException;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.Iterator;
-import java.util.Scanner;
-import java.util.Set;
 import java.util.concurrent.*;
 
 
@@ -57,15 +48,6 @@ public class MainClassServer implements Costants,TCPConnection {
             System.out.println("[ERROR] Errore nella configurazione della socket TCP");
             return;
         }
-
-//        try {
-//            serverSocket = new ServerSocket(TCPConnection.PORT);
-//            System.out.println("[START] Socket TCP configurata");
-//        } catch (IOException e) {
-//            System.out.println("[ERROR] Errore nella configurazione della socket TCP");
-//            e.printStackTrace();
-//            return;
-//        }
 
         executor = new ThreadPoolExecutor(2, 10, 100L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>()); //TODO trasformare in modo da fare un multithread multiplexer
         System.out.println("[START] Threadpool avviato");

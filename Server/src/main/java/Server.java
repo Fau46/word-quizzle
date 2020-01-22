@@ -1,13 +1,9 @@
 import Database.DBMS;
 import User.User;
-import sun.nio.cs.UTF_8;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 import java.nio.channels.*;
-import java.nio.charset.Charset;
 import java.util.*;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -24,7 +20,7 @@ public class Server {
         this.selector = selector;
         this.executor = executor;
         this.dbms = DBMS.getIstance();
-        this.mapUser = Collections.synchronizedMap(new HashMap());
+        this.mapUser = Collections.synchronizedMap(new HashMap()); //hashmap thead-safe
     }
 
     //Avvio server
@@ -88,36 +84,10 @@ public class Server {
         if (read==-1) throw new IOException("Canale chiuso"); //mi accerto che il canale non sia chiuso
 
         String string = new String(byteBuffer);
-        System.out.println(string);
+        System.out.println(string); //TODO ELIMINA
 
         if(string.equals("LOIN")){
-            byte[] readAll = new byte[BUF_SIZE];
-            ByteBuffer in = ByteBuffer.wrap(readAll);
-
-            client.read(in); //leggo il contenuto della socket
-
-            String aux[] = (new String(readAll)).split("\n"); //splitto quello che ho letto
-
-            String nickname = aux[1];
-            String password = aux[2];
-
-            String response;
-            User user = null;
-
-            if(mapUser.get(nickname) == null){
-                user = dbms.loginUser(nickname, password);
-
-                if(user == null) response = "KO\nNickname non presente";
-                else if(user.getNickname().equals(nickname) && user.getPassword().equals(password)) response = "OK\nUtente autenticato";
-                else response = "KO\nNickname o password errate";
-            }
-            else response = "KO\nUtente gia' connesso";
-
-            if(!response.contains("KO")){
-                System.out.println("Inserisco utente");
-                mapUser.put(nickname,user);
-            }
-
+            String response = login(client);
             key.attach(response);
             key.interestOps(SelectionKey.OP_WRITE);
         }
@@ -128,7 +98,7 @@ public class Server {
 
         String string = (String) key.attachment();
         ByteBuffer buffer = ByteBuffer.allocate(string.length());
-        System.out.println("Writable "+string.length());
+
         buffer.put(string.getBytes());
         buffer.flip();
 
@@ -140,4 +110,34 @@ public class Server {
         key.interestOps(SelectionKey.OP_READ);
 
     }
+
+    private String login(SocketChannel client) throws IOException {
+        byte[] readAll = new byte[BUF_SIZE];
+        ByteBuffer in = ByteBuffer.wrap(readAll);
+
+        client.read(in); //leggo il contenuto della socket
+
+        String[] aux = (new String(readAll)).split("\n"); //splitto quello che ho letto
+
+        String nickname = aux[1];
+        String password = aux[2];
+
+        String response;
+        User user = null;
+
+        if (mapUser.get(nickname) == null) {
+            user = dbms.loginUser(nickname, password);
+
+            if (user == null) response = "KO\nNickname non presente";
+            else if (user.getNickname().equals(nickname) && user.getPassword().equals(password)){
+                System.out.println("[LOGIN] Inserisco "+nickname+" nella mapUser");
+                mapUser.put(nickname, user);
+                response = "OK\nLogin effettuato";
+            }
+            else response = "KO\nNickname o password errate";
+        } else response = "KO\nUtente gia' connesso";
+
+        return response;
+    }
+
 }
