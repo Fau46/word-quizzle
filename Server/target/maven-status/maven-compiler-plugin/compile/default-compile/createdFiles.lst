@@ -3,6 +3,7 @@ Task.class
 RMIRegistrationImpl.class
 MainClassServer.class
 Database/CrunchifyInMemoryCache$1.class
+Server$Con.class
 Server.class
 Database/CrunchifyInMemoryCache$CrunchifyCacheObject.class
 Database/DBMS.class

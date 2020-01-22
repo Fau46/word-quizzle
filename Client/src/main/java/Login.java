@@ -101,10 +101,10 @@ public class Login extends JPanel implements ActionListener{
                 return;
             }
 
-            ByteBuffer buffer = ByteBuffer.allocate(1024);
-            String string = new String("LOIN\n"+nick+"\n"+pwd+"\n"); //Creo la stringa del protocollo
+            String request = new String("LOIN\n"+nick+"\n"+pwd+"\n"); //Creo la stringa del protocollo
+            ByteBuffer buffer = ByteBuffer.allocate(request.length());
 
-            buffer.put(string.getBytes());
+            buffer.put(request.getBytes());
             buffer.flip();
 
             //Invio la stringa di registrazione al server con nick e password
@@ -130,10 +130,10 @@ public class Login extends JPanel implements ActionListener{
                 else {
                     String aux[] = (new String(buffer.array())).split("\n");
                     System.out.println(aux[1]);
-//                    answer.setText(aux[1]);
+                    answer.setText(aux[1]);
 
                     if(aux[0].equals("OK")){ //se il login è andato a buon fine mostro la homepage
-                        window.setContentPane(new HomePage(nick,window));
+                        window.setContentPane(new HomePage(nick,window,client));
                         window.validate();
                     }
                 }
