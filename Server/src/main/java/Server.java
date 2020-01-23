@@ -15,9 +15,11 @@ public class Server {
     private int BUF_SIZE = 512;
     private Map<String, User> mapUser;
 
+    //Classe che viene allegata alla chiave
     class Con{
         String nickname;
         String response;
+        String request;
         Boolean logout;
 
         public Con(){
@@ -32,11 +34,11 @@ public class Server {
         this.mapUser = Collections.synchronizedMap(new HashMap()); //hashmap thead-safe
     }
 
-    //Avvio server
+    //Avvio selettore server
     public void run() {
         while (true) {
             try {
-                selector.select();
+                selector.select(100);
             } catch (IOException e) {
                 System.out.println("[ERROR] Errore nel selettore");
                 return;
@@ -52,8 +54,7 @@ public class Server {
                         this.Acceptable(key);
                         iterator.remove();
                     } else if (key.isReadable()) {
-                        this.Readable(key);
-                        iterator.remove();
+                        this.Readable(key,iterator);
                     }
                     else if(key.isWritable()){
                         this.Writable(key);
@@ -62,9 +63,10 @@ public class Server {
                 } catch (IOException e) {
                     key.cancel();
                     try {
+                        //Gestisco la chiusura del canale
                         Con keyAttachment = (Con) key.attachment();
                         String nick = keyAttachment.nickname;
-                        if(nick != null) mapUser.remove(nick); //Rimuovo il client TODO nullpointerexception se chiudo prima di fare il login
+                        if(nick != null) mapUser.remove(nick); //Rimuovo dagli user online
 
                         System.out.println("[CLOSED CLIENT]: (" +nick+") "+ ((SocketChannel) key.channel()).getRemoteAddress());
 
@@ -87,31 +89,35 @@ public class Server {
 
         client.configureBlocking(false);
         SelectionKey key1 = client.register(selector, SelectionKey.OP_READ);
+        key1.attach(new Con());
     }
 
 
-    private void Readable(SelectionKey key) throws IOException {
+    private void Readable(SelectionKey key, Iterator<SelectionKey> iterator) throws IOException {
         SocketChannel client = (SocketChannel) key.channel();
-        byte[] byteBuffer = new byte[4];
+        byte[] byteBuffer = new byte[BUF_SIZE];
         ByteBuffer intput = ByteBuffer.wrap(byteBuffer);
+        Con keyAttachment = (Con) key.attachment();
+        StringBuilder requestBuilder;
+
+        String request = keyAttachment.request;
+        if(request ==  null) requestBuilder = new StringBuilder();
+        else requestBuilder = new StringBuilder(request);
 
         int read=client.read(intput); //Leggo dalla socket
-        if (read==-1) throw new IOException("Canale chiuso"); //mi accerto che il canale non sia chiuso
 
-        String string = new String(byteBuffer);
-        System.out.println("[READ OP] "+string); //TODO ELIMINA
-
-        if(string.equals("LOIN")){
-            Con keyAttachment = login(client);
-            key.attach(keyAttachment);
-            key.interestOps(SelectionKey.OP_WRITE);
+        if (read==-1) throw new IOException("Canale chiuso"); //Mi accerto che il canale non sia chiuso
+        else if(read == 0){ //Se ho finito di leggere parso la request
+            parser(key);
+            iterator.remove();
         }
-        else if(string.equals("LOUT")){
-            logout(client,key);
-            key.interestOps(SelectionKey.OP_WRITE);
+        else{ //Allego ciò che ho letto alla request della key
+            String string = new String(byteBuffer,0,read);
+            requestBuilder.append(string);
+            keyAttachment.request = requestBuilder.toString();
         }
-
     }
+
 
     private void Writable(SelectionKey key) throws IOException{
         SocketChannel client = (SocketChannel) key.channel();
@@ -129,6 +135,7 @@ public class Server {
 
         if(!keyAttachment.logout){
             keyAttachment.response = null;
+            keyAttachment.request = null;
             key.interestOps(SelectionKey.OP_READ);
         }
         else { //se risulta che logout=true sollevo l'eccezione così faccio chiudere la socket
@@ -137,26 +144,38 @@ public class Server {
 
     }
 
+
+    private void parser(SelectionKey key) throws IOException{
+        Con keyAttachment = (Con) key.attachment();
+        String[] aux = keyAttachment.request.split("\n"); //Splitto la request
+
+        String op = aux[0];
+
+        if(op.equals("LOGIN")){
+            login(aux,key);
+            key.interestOps(SelectionKey.OP_WRITE);
+        }
+        else if(op.equals("LOGOUT")){
+            logout(aux,key);
+            key.interestOps(SelectionKey.OP_WRITE);
+        }
+    }
+
+
     //Funzione che effettua il login
-    private Con login(SocketChannel client) throws IOException {
-        byte[] readAll = new byte[BUF_SIZE];
-        ByteBuffer in = ByteBuffer.wrap(readAll);
-        Con keyAttachment = new Con();
+    private void login(String[] aux, SelectionKey key) throws IOException {
+        Con keyAttachment = (Con) key.attachment();
         keyAttachment.nickname = null;
-
-        client.read(in); //leggo il contenuto della socket
-
-        String[] aux = (new String(readAll)).split("\n"); //splitto quello che ho letto
 
         String nickname = aux[1];
         String password = aux[2];
 
         User user = null;
 
-        if (mapUser.get(nickname) == null) {
+        if (mapUser.get(nickname) == null) { //Controllo che nickname non sia online
             user = dbms.loginUser(nickname, password);
 
-            if (user == null) keyAttachment.response = "KO\nNickname non presente";
+            if (user == null) keyAttachment.response = "KO\nNickname non presente"; //TODO non ha senso visto che dico 'nick o pwd errate'
             else if (user.getNickname().equals(nickname) && user.getPassword().equals(password)){
                 System.out.println("[LOGIN] Inserisco "+nickname+" nella mapUser");
                 mapUser.put(nickname,user);
@@ -166,16 +185,10 @@ public class Server {
             else keyAttachment.response = "KO\nNickname o password errate";
         } else keyAttachment.response = "KO\nUtente gia' connesso";
 
-        return keyAttachment;
     }
 
-    private void logout(SocketChannel client, SelectionKey key) throws IOException {
-        byte[] readAll = new byte[BUF_SIZE];
-        ByteBuffer in = ByteBuffer.wrap(readAll);
 
-        client.read(in);
-
-        String[] aux = (new String(readAll)).split("\n"); //splitto quello che ho letto
+    private void logout(String[] aux, SelectionKey key) throws IOException {
         String nickname = aux[1];
 
         Con keyAttachment = (Con) key.attachment();

@@ -71,15 +71,17 @@ public class Login extends JPanel implements ActionListener{
         SocketAddress address = new InetSocketAddress(TCPConnection.HOSTNAME,TCPConnection.PORT);
         try{
             if(client!= null && client.isOpen()) {
-                System.out.println("Chiudo la socket");
+                System.out.println("[RECONNECTION] Chiudo la socket");
                 client.close();// todo elimina
             }
             client = SocketChannel.open(address);
         } catch (IOException e) {
+            System.out.println("[ERROR] Server non disponibile");
             connectAnswer.setText("Server non disponibile");
             return;
         }
 
+        System.out.println("[OK] Connessione col server stabilita");
         connectAnswer.setText("Connessione stabilita");
     }
 
@@ -101,7 +103,7 @@ public class Login extends JPanel implements ActionListener{
                 return;
             }
 
-            String request = new String("LOIN\n"+nick+"\n"+pwd+"\n"); //Creo la stringa del protocollo
+            String request = new String("LOGIN\n"+nick+"\n"+pwd+"\n"); //Creo la stringa del protocollo
             ByteBuffer buffer = ByteBuffer.allocate(request.length());
 
             buffer.put(request.getBytes());
@@ -129,7 +131,7 @@ public class Login extends JPanel implements ActionListener{
                 }
                 else {
                     String aux[] = (new String(buffer.array())).split("\n");
-                    System.out.println(aux[1]);
+                    System.out.println("[RESPONSE] "+aux[1]);
                     answer.setText(aux[1]);
 
                     if(aux[0].equals("OK")){ //se il login è andato a buon fine mostro la homepage

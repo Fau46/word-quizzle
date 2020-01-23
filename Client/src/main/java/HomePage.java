@@ -8,9 +8,10 @@ import java.nio.channels.SocketChannel;
 
 public class HomePage extends JPanel implements ActionListener{
     private JFrame window;
-    private JPanel buttonPanel;
+    private JLabel response;
     private SocketChannel client;
     private String nickname;
+    private int BUF_SIZE = 512;
 
     public HomePage(String nick, JFrame window, SocketChannel client) {
         this.window = window;
@@ -26,7 +27,7 @@ public class HomePage extends JPanel implements ActionListener{
         JPanel nickPanel = new JPanel();
         nickPanel.add(new JLabel(nickname));
 
-        buttonPanel = new JPanel();
+        JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new GridLayout(1,4));
 
         JButton logout = new JButton("LOGOUT");
@@ -35,10 +36,19 @@ public class HomePage extends JPanel implements ActionListener{
 
         buttonPanel.add(logout);
 
+        response = new JLabel("",JLabel.CENTER);
+        response.setForeground(Color.BLACK);
+        response.setBackground(Color.WHITE);
+        response.setOpaque(true);
+
+        JPanel responsePanel = new JPanel();
+        responsePanel.add(response);
+
         setLayout(new GridLayout(4,1,3,3));
         add(welcomePanel);
         add(nickPanel);
         add(buttonPanel);
+        add(responsePanel);
 
 
     }
@@ -46,7 +56,7 @@ public class HomePage extends JPanel implements ActionListener{
     @Override
     public void actionPerformed(ActionEvent actionEvent) {
         if(actionEvent.getActionCommand().equals("LOGOUT")){
-            String request = "LOUT\n"+nickname+"\n";
+            String request = "LOGOUT\n"+nickname+"\n";
             ByteBuffer buffer = ByteBuffer.allocate(request.length());
 
             buffer.put(request.getBytes());
@@ -56,19 +66,43 @@ public class HomePage extends JPanel implements ActionListener{
                 try {
                     client.write(buffer);
                 } catch (IOException e) {
-                    System.out.println("[ERROR] Errore scrittura del buffer nella socket del server"); //TODO mettere un messaggio
+                    System.out.println("[ERROR] Errore scrittura del buffer nella socket del server");
+                    response.setText("Impossibile comunicare col server");
                     return;
                 }
             }
 
-            StartGUI startGUI = new StartGUI(window);
-            window.setContentPane(startGUI);
-            window.validate();
-        }
-        else {
-            JButton prova = new JButton("TEST");
-            buttonPanel.add(prova);
-            window.validate();
+            buffer = ByteBuffer.allocate(BUF_SIZE);
+
+            try {
+                int read = client.read(buffer);
+                if(read == - 1){//Se riscontro un errore nella lettura
+                    System.out.println("[ERROR] Errore lettura della socket del server");
+                    JOptionPane.showMessageDialog(window, "Impossibile comunicare col server.\n Verrai disconnesso", "Server error", JOptionPane.ERROR_MESSAGE);
+                    StartGUI startGUI = new StartGUI(window);
+                    window.setContentPane(startGUI);
+                    window.validate();
+                }
+                else{ //se la lettura è andata a buon fine
+                    String aux[] = (new String(buffer.array())).split("\n");
+                    System.out.println("[RESPONSE] "+aux[1]);
+
+                    if(aux[0].equals("OK")){ //se il logout è andato a buon fine
+                        StartGUI startGUI = new StartGUI(window);
+                        window.setContentPane(startGUI);
+                        window.validate();
+                    }
+                    else {
+                        response.setText(aux[1]);
+                    }
+                }
+
+            } catch (IOException e) {
+                System.out.println("[ERROR] Server chiuso");
+                e.printStackTrace();
+            }
+
+
         }
     }
 }
