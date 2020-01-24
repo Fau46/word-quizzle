@@ -7,13 +7,18 @@ import java.util.concurrent.ConcurrentHashMap;
 public class UserDispatcher {
     private ConcurrentHashMap<String, User> userMap;
     private DBMS dbms;
+    private static UserDispatcher userDispatcher;
 
 
-    public UserDispatcher(){
+    private UserDispatcher(){
         userMap = new ConcurrentHashMap<>();
         this.dbms = DBMS.getIstance();
     }
 
+    public static UserDispatcher getIstance(){
+        if(userDispatcher == null) userDispatcher = new UserDispatcher();
+        return userDispatcher;
+    }
 
     public User getUser(String nickname){
         User user;
@@ -25,4 +30,7 @@ public class UserDispatcher {
         return user;
     }
 
+    public void Serialize(User user) {
+        dbms.serializeUser(user);
+    }
 }

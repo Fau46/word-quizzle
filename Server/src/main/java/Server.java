@@ -19,10 +19,8 @@ public class Server {
     public Server(Selector selector, ThreadPoolExecutor executor){
         this.selector = selector;
         this.executor = executor;
-//        this.dbms = DBMS.getIstance();
-        this.userDispatcher = new UserDispatcher();
+        this.userDispatcher = UserDispatcher.getIstance();
         this.mapUser = new ConcurrentHashMap<>();
-//        this.tempUsers = new ConcurrentHashMap<>();
     }
 
     //Avvio selettore server
@@ -94,7 +92,7 @@ public class Server {
         String request = keyAttachment.request;
         if(request ==  null) requestBuilder = new StringBuilder();
         else requestBuilder = new StringBuilder(request);
-
+        
         int read=client.read(intput); //Leggo dalla socket
 
         if (read ==- 1) throw new IOException("Canale chiuso"); //Mi accerto che il canale non sia chiuso

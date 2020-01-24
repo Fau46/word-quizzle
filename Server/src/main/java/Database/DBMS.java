@@ -12,10 +12,11 @@ import java.nio.file.StandardOpenOption;
 
 public class DBMS implements Costants{
     private static DBMS dbms;
-    private CrunchifyInMemoryCache<String, String> cache;
+//    private CrunchifyInMemoryCache<String, String> cache;
 
     private DBMS(){
-        cache = new CrunchifyInMemoryCache<>(10,10,100); //TODO FIXARE MEGLIO
+
+//        cache = new CrunchifyInMemoryCache<>(10,10,100); //TODO FIXARE MEGLIO
     }
 
     //Metodo per ottenere l'istanza singleton della classe
@@ -26,11 +27,11 @@ public class DBMS implements Costants{
 
 
     public synchronized boolean existUser(String nick){
-        if(cache.get(nick) != null){ //se il nickname è già in cache ritorno true
-            return true;
-        }
+//        if(cache.get(nick) != null){ //se il nickname è già in cache ritorno true
+//            return true;
+//        }
         if(Files.exists(Paths.get(PATH + nick))){ //oppure se è già registrato
-            cache.put(nick,nick); //metto in cache il nickname
+//            cache.put(nick,nick); //metto in cache il nickname
             return true;
         }
 
@@ -47,7 +48,7 @@ public class DBMS implements Costants{
 
 
             new File(userPath.toString()).mkdir(); //Creo la cartella dell'utente
-            System.out.println("Directory "+userPath+" creata");
+            System.out.println("Directory "+userPath+" creata"); //TODO elimina
 
             //creo il file login dell'utente e lo inserisco nella sua cartella
             userPath.append("/"+LOGIN_DB);
@@ -60,7 +61,7 @@ public class DBMS implements Costants{
             writer.write(ByteBuffer.wrap(strinJson.toString().getBytes())); //scrivo l'oggetto utente serializzato sul file json
             writer.close();
 
-            cache.put(user.getNickname(),user.getNickname()); //metto l'utente in cache per un eventuale login
+//            cache.put(user.getNickname(),user.getNickname()); //metto l'utente in cache per un eventuale login
         } catch (IOException e) {
             System.out.println("IOException");
             return false;
@@ -85,4 +86,23 @@ public class DBMS implements Costants{
 
         return user;
     }
+
+    public void serializeUser(User user){
+        FileChannel writer;
+        StringBuilder userPath = new StringBuilder(PATH+user.getNickname()+"/"+LOGIN_DB);
+        StringBuilder strinJson = new StringBuilder();
+        Gson gson = new Gson();
+
+        strinJson.append(gson.toJson(user));
+
+        try {
+            writer = FileChannel.open(Paths.get(userPath.toString()),StandardOpenOption.WRITE);
+            writer.write(ByteBuffer.wrap(strinJson.toString().getBytes()));
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
 }

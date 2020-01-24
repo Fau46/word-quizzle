@@ -39,11 +39,6 @@ public class User {
         return friends;
     }
 
-    public void showFriend(){
-        System.out.println("Utente:"+nickname);
-        for(String string : friends){
-            System.out.println(string);
-        }
-    }
+
 }
 
