@@ -1,8 +1,11 @@
 /home/fausto/Drive/Progetti/Reti/word-quizzle/Server/src/main/java/Server.java
 /home/fausto/Drive/Progetti/Reti/word-quizzle/Server/src/main/java/RMIRegistrationImpl.java
 /home/fausto/Drive/Progetti/Reti/word-quizzle/Server/src/main/java/Task.java
+/home/fausto/Drive/Progetti/Reti/word-quizzle/Server/src/main/java/Tasks/AddFriend.java
+/home/fausto/Drive/Progetti/Reti/word-quizzle/Server/src/main/java/User/UserDispatcher.java
 /home/fausto/Drive/Progetti/Reti/word-quizzle/Server/src/main/java/User/User.java
 /home/fausto/Drive/Progetti/Reti/word-quizzle/Server/src/main/java/Database/DBMS.java
 /home/fausto/Drive/Progetti/Reti/word-quizzle/Server/src/main/java/MainClassServer.java
 /home/fausto/Drive/Progetti/Reti/word-quizzle/Server/src/main/java/Database/CrunchifyInMemoryCache.java
+/home/fausto/Drive/Progetti/Reti/word-quizzle/Server/src/main/java/Server/Con.java
 /home/fausto/Drive/Progetti/Reti/word-quizzle/Server/src/main/java/Database/Costants.java

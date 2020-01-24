@@ -5,7 +5,6 @@ public class MainClassClient extends JPanel {
 
     public static void main(String[] args) {
         JFrame window = new JFrame("Simple Calculator");
-//        Register registerGUI = new Register();
         StartGUI startGUI = new StartGUI(window);
         window.setContentPane(startGUI);
         window.pack();

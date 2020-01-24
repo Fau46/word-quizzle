@@ -9,7 +9,6 @@ import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
 
 public class DBMS implements Costants{
     private static DBMS dbms;
@@ -70,7 +69,7 @@ public class DBMS implements Costants{
     }
 
 
-    public User loginUser(String nick, String pwd){
+    public User getUser(String nick){
         if(!existUser(nick)) return null; //Se l'utente non esiste ritorno null
 
         String path = new String(PATH+nick+"/"+LOGIN_DB);

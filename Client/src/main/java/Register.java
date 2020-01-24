@@ -1,4 +1,6 @@
 
+import sun.rmi.runtime.Log;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -9,8 +11,11 @@ import java.rmi.registry.Registry;
 public class Register extends JPanel implements ActionListener {
     private JTextField nickInput, pwdInput;
     private JLabel answer;
+    private JFrame window;
 
     public Register(JFrame window){
+        this.window = window;
+
         setBackground(Color.WHITE);
         setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
         nickInput = new JTextField("",10);
@@ -57,7 +62,8 @@ public class Register extends JPanel implements ActionListener {
             RMIRegistrationInterface serverObject = (RMIRegistrationInterface) registry.lookup(RMIRegistrationInterface.REMOTE_OBJECT_NAME);
 
             String message = null;
-            switch(serverObject.registra_utente(nick,pwd)){ //effettuo la registrazione e leggo la risposta
+            int response = serverObject.registra_utente(nick,pwd);
+            switch(response){ //effettuo la registrazione e leggo la risposta
                 case -101: message = "Nickname non valido";
                     break;
                 case -102: message = "Nickname già esistente";
@@ -76,6 +82,11 @@ public class Register extends JPanel implements ActionListener {
                     break;
             }
             answer.setText(message);
+            if(response>0){
+                Login login = new Login(window);
+                window.setContentPane(login);
+                window.validate();
+            }
         } catch (Exception e) {
             System.out.println("[ERROR] Errore durante la registrazione");
             answer.setText("Errore col server");

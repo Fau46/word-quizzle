@@ -1,37 +1,28 @@
-import Database.DBMS;
-import User.User;
+import Tasks.*;
+import User.*;
+import Server.*;
 
 import java.io.IOException;
-import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.*;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadPoolExecutor;
 
 public class Server {
     private Selector selector;
     private ThreadPoolExecutor executor;
-    private DBMS dbms;
+    private UserDispatcher userDispatcher;
     private int BUF_SIZE = 512;
-    private Map<String, User> mapUser;
-
-    //Classe che viene allegata alla chiave
-    class Con{
-        String nickname;
-        String response;
-        String request;
-        Boolean logout;
-
-        public Con(){
-            logout = false;
-        }
-    }
+    private ConcurrentHashMap<String, User> mapUser;
 
     public Server(Selector selector, ThreadPoolExecutor executor){
         this.selector = selector;
         this.executor = executor;
-        this.dbms = DBMS.getIstance();
-        this.mapUser = Collections.synchronizedMap(new HashMap()); //hashmap thead-safe
+//        this.dbms = DBMS.getIstance();
+        this.userDispatcher = new UserDispatcher();
+        this.mapUser = new ConcurrentHashMap<>();
+//        this.tempUsers = new ConcurrentHashMap<>();
     }
 
     //Avvio selettore server
@@ -106,7 +97,7 @@ public class Server {
 
         int read=client.read(intput); //Leggo dalla socket
 
-        if (read==-1) throw new IOException("Canale chiuso"); //Mi accerto che il canale non sia chiuso
+        if (read ==- 1) throw new IOException("Canale chiuso"); //Mi accerto che il canale non sia chiuso
         else if(read == 0){ //Se ho finito di leggere parso la request
             parser(key);
             iterator.remove();
@@ -159,6 +150,9 @@ public class Server {
             logout(aux,key);
             key.interestOps(SelectionKey.OP_WRITE);
         }
+        else if(op.equals("ADDFRIEND")){
+            addFriend(aux,key);
+        }
     }
 
 
@@ -173,7 +167,7 @@ public class Server {
         User user = null;
 
         if (mapUser.get(nickname) == null) { //Controllo che nickname non sia online
-            user = dbms.loginUser(nickname, password);
+            user = userDispatcher.getUser(nickname); //Chiedo al dispatcher l'oggetto relativo a nickname
 
             if (user == null) keyAttachment.response = "KO\nNickname non presente"; //TODO non ha senso visto che dico 'nick o pwd errate'
             else if (user.getNickname().equals(nickname) && user.getPassword().equals(password)){
@@ -198,6 +192,30 @@ public class Server {
             keyAttachment.response = "OK\nUtente disconnesso";
             keyAttachment.logout = true;
         }
+    }
+
+    private void addFriend(String[] aux, SelectionKey key){
+        String nickname = aux[1];
+        String nickFriend = aux[2];
+        Con keyAttachment = (Con) key.attachment();
+        User user = mapUser.get(nickname);
+        User friend;
+
+        if((friend = mapUser.get(nickFriend)) == null){ //se non trovo friend tra gli utenti online
+            friend = userDispatcher.getUser(nickFriend); //chiedo friend al dispatcher
+        }
+
+        if(user == null){
+            keyAttachment.response = "KO\nUtente non online\n";
+        }
+        else if(friend == null){
+            keyAttachment.response = "KO\nIl nickname "+nickFriend+" non valido\n";
+        }
+        else{
+            AddFriend task = new AddFriend(user,friend,key);
+            executor.execute(task);
+        }
+
     }
 
 }
