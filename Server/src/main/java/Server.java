@@ -151,6 +151,9 @@ public class Server {
         else if(op.equals("ADDFRIEND")){
             addFriend(aux,key);
         }
+        else if(op.equals("SHOWFRIENDS")){
+            showFriends(aux,key);
+        }
     }
 
 
@@ -210,10 +213,20 @@ public class Server {
             keyAttachment.response = "KO\nIl nickname "+nickFriend+" non valido\n";
         }
         else{
+            user.incrementUse();
+            friend.incrementUse();
             AddFriend task = new AddFriend(user,friend,key);
             executor.execute(task);
         }
 
+    }
+
+    private void showFriends(String[] aux, SelectionKey key) {
+        User user = mapUser.get(aux[1]);
+
+        user.incrementUse();
+        ShowFriends task = new ShowFriends(user, key);
+        executor.execute(task);
     }
 
 }

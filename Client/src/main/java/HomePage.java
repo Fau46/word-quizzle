@@ -32,12 +32,15 @@ public class HomePage extends JPanel implements ActionListener{
 
         JButton logout = new JButton("LOGOUT");
         JButton addFriend = new JButton("AGGIUNGI AMICO");
+        JButton showFriends = new JButton("VISUALIZZA AMICI");
 
         logout.addActionListener(this);
         addFriend.addActionListener(this);
+        showFriends.addActionListener(this);
 
         buttonPanel.add(logout);
         buttonPanel.add(addFriend);
+        buttonPanel.add(showFriends);
 
         response = new JLabel("",JLabel.CENTER);
         response.setForeground(Color.BLACK);
@@ -61,8 +64,13 @@ public class HomePage extends JPanel implements ActionListener{
         if(actionEvent.getActionCommand().equals("LOGOUT")){
             logout();
         }
-        else{
+        else if(actionEvent.getActionCommand().equals("AGGIUNGI AMICO")){
             addFriend();
+        }
+        else if(actionEvent.getActionCommand().equals("VISUALIZZA AMICI")){
+            ShowFriends showFriends= new ShowFriends(window,client,nickname);
+            window.setContentPane(showFriends);
+            window.validate();
         }
     }
 

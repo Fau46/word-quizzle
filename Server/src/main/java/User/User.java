@@ -1,22 +1,23 @@
 package User;
 
 import java.util.Vector;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class User {
     private String nickname;
     private String password;
-    private int score;
+    private AtomicInteger score;
     private Vector<String> friends;
-    private int use;
+    private AtomicInteger use;
 
     public User(String nick, String pwd){
         this.nickname = nick;
         this.password = pwd;
-        this.score = 0;
+        this.score = new AtomicInteger(0);
         this.friends = new Vector<>();
-        this.use = 0;
+        this.use = new AtomicInteger(0);
     }
 
     public String getNickname() {
@@ -27,12 +28,12 @@ public class User {
         return password;
     }
 
-    public synchronized void incrementUse(){
-        this.use++;
+    public void incrementUse(){
+        use.getAndIncrement();
     }
 
-    public synchronized void decrementUse(){
-        if(use > 0) this.use--;
+    public void decrementUse(){
+        if(use.get() > 0) use.decrementAndGet();
     }
 
     public Vector<String> getFriends() {

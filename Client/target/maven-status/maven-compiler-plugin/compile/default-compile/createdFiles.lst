@@ -1,5 +1,7 @@
 Login.class
-Register.class
-HomePage.class
 MainClassClient.class
 StartGUI.class
+ShowFriends.class
+Register.class
+HomePage.class
+ShowFriends$1.class
