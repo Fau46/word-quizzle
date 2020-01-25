@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
-import java.util.ArrayList;
 import java.util.Vector;
 
 public class ShowFriends extends JPanel implements ActionListener {
@@ -28,17 +27,12 @@ public class ShowFriends extends JPanel implements ActionListener {
         setBackground(Color.WHITE);
         setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
 
-        JPanel mainPanel = new JPanel();
-
-        friendList = new JTextArea();
+        friendList = new JTextArea(1,1);
         friendList.setEditable(false);
 
-        JScrollPane friendPanel = new JScrollPane();
-
-        friendPanel.add(friendList);
+        JScrollPane friendPanel = new JScrollPane(friendList);
 
         JPanel buttonPanel = new JPanel();
-//        buttonPanel.setLayout();
 
         JButton home = new JButton("HOME");
 
@@ -47,7 +41,7 @@ public class ShowFriends extends JPanel implements ActionListener {
         buttonPanel.add(home);
 
         setLayout(new GridLayout(2,1,3,3));
-        add(friendList);
+        add(friendPanel);
         add(buttonPanel);
 
         this.getFriendsList();
@@ -64,11 +58,12 @@ public class ShowFriends extends JPanel implements ActionListener {
             try {
                 client.write(buffer);
             } catch (IOException e) {
-                System.out.println("[ERROR] Errore scrittura del buffer nella socket del server (LOGOUT)");
+                System.out.println("[ERROR] Errore scrittura del buffer nella socket del server (SHOWFRIENDS)");
                 JOptionPane.showMessageDialog(window, "Impossibile comunicare col server.\n Verrai disconnesso", "Server error", JOptionPane.ERROR_MESSAGE);
                 StartGUI startGUI = new StartGUI(window);
                 window.setContentPane(startGUI);
                 window.validate();
+                break;
             }
         }
 
@@ -76,25 +71,27 @@ public class ShowFriends extends JPanel implements ActionListener {
 
         try {
             int read = client.read(buffer); //TODO mettere in un ciclo
+
             if(read == - 1){//Se riscontro un errore nella lettura
-                System.out.println("[ERROR] Errore lettura della socket del server (LOGOUT)");
+                System.out.println("[ERROR] Errore lettura della socket del server (SHOWFRIENDS)");
                 JOptionPane.showMessageDialog(window, "Impossibile comunicare col server.\n Verrai disconnesso", "Server error", JOptionPane.ERROR_MESSAGE);
                 StartGUI startGUI = new StartGUI(window);
                 window.setContentPane(startGUI);
                 window.validate();
+                return;
             }
             else{ //se la lettura è andata a buon fine
                 Gson gson = new Gson();
                 String aux[] = (new String(buffer.array())).split("\n");
                 System.out.println("[RESPONSE] "+aux[1]);
 
-                Type listType = new TypeToken<ArrayList<String>>(){}.getType();
-                List<String> listaAmici = gson.fromJson(aux[1],listType);
+                Type listType = new TypeToken<Vector<String>>(){}.getType();
+                Vector<String> listaAmici = gson.fromJson(aux[1],listType);
 
                 if(aux[0].equals("OK")){ //se il logout è andato a buon fine
-                    for(String friend : listaAmici){
-                        friendList.append(friend);
-                    }
+                        for(String friend : listaAmici){
+                            friendList.append(friend+"\n");
+                        }
                 }
                 else {
 //                    response.setText(aux[1]);
@@ -109,7 +106,12 @@ public class ShowFriends extends JPanel implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent actionEvent) {
-
+        if(actionEvent.getActionCommand().equals("HOME")){
+            System.out.println("Sonoo qui");
+            HomePage startGUI = new HomePage(nickname,window,client);
+            window.setContentPane(startGUI);
+            window.validate();
+        }
     }
 }
 

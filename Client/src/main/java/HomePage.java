@@ -121,38 +121,48 @@ public class HomePage extends JPanel implements ActionListener{
 
 
     private void addFriend(){
+//        if(!client.isOpen()) {
+//            this.serverError();
+//            return;
+//        }
         String friend = JOptionPane.showInputDialog(window,"Inserisci l'amico che vuoi aggiungere");
-        String request = "ADDFRIEND\n"+nickname+"\n"+friend+"\n";
-        ByteBuffer buffer = ByteBuffer.allocate(request.length());
+        System.out.println(friend);
+        if(friend!=null){
+            String request = "ADDFRIEND\n"+nickname+"\n"+friend+"\n";
+            ByteBuffer buffer = ByteBuffer.allocate(request.length());
 
-        buffer.put(request.getBytes());
-        buffer.flip();
+            buffer.put(request.getBytes());
+            buffer.flip();
 
-        while (buffer.hasRemaining()){
+            while (buffer.hasRemaining()){
+                try {
+                    client.write(buffer);
+                } catch (IOException e) {
+                    System.out.println("[ERROR] Errore scrittura del buffer nella socket del server (ADDFRIEND)");
+                    this.serverError();
+                    break;
+                }
+            }
+
+            buffer = ByteBuffer.allocate(BUF_SIZE);
+
             try {
-                client.write(buffer);
+                int read = client.read(buffer);
+                if(read == - 1){//Se riscontro un errore nella lettura
+                    System.out.println("[ERROR] Errore lettura della socket del server (ADDFRIEND)");
+                    this.serverError();
+
+                }
+                else { //se la lettura è andata a buon fine
+                    String aux[] = (new String(buffer.array())).split("\n");
+                    System.out.println("[RESPONSE] " + aux[1]);
+                    response.setText(aux[1]);
+                }
             } catch (IOException e) {
-                System.out.println("[ERROR] Errore scrittura del buffer nella socket del server (ADDFRIEND)");
-                this.serverError();
+                e.printStackTrace();
             }
         }
 
-        buffer = ByteBuffer.allocate(BUF_SIZE);
-
-        try {
-            int read = client.read(buffer);
-            if(read == - 1){//Se riscontro un errore nella lettura
-                System.out.println("[ERROR] Errore lettura della socket del server (ADDFRIEND)");
-                this.serverError();
-            }
-            else { //se la lettura è andata a buon fine
-                String aux[] = (new String(buffer.array())).split("\n");
-                System.out.println("[RESPONSE] " + aux[1]);
-                response.setText(aux[1]);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
     }
 

@@ -30,7 +30,6 @@ public class StartGUI extends JPanel implements ActionListener {
         setLayout(new GridLayout(1,1));
         add(buttonPanel);
 
-
     }
 
     @Override

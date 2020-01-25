@@ -29,6 +29,13 @@ public class ShowFriends implements Runnable{
             string.append("\n");
 
             keyAttachment.response=string.toString();
+
+            try {
+                System.out.println("Mi sospendo");
+                Thread.sleep(10000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
 
         try {

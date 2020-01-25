@@ -64,6 +64,7 @@ public class Login extends JPanel implements ActionListener{
         add(answerPanel);
 
         this.serverConnection();
+        this.window.validate();
     }
 
     //Connessione TCP col server
@@ -114,7 +115,7 @@ public class Login extends JPanel implements ActionListener{
                 try {
                     client.write(buffer);
                 } catch (Exception e) {
-                    System.out.println("[ERROR] Errore scrittura del buffer nella socket del server");
+                    System.out.println("[ERROR] Errore scrittura del buffer nella socket del server (LOGIN)");
                     connectAnswer.setText("Errore di connessione col server");
                     return;
                 }
@@ -125,7 +126,7 @@ public class Login extends JPanel implements ActionListener{
             try {
                 int read = client.read(buffer);
                 if(read == -1){
-                    System.out.println("[ERROR] Errore lettura della socket del server");
+                    System.out.println("[ERROR] Errore lettura della socket del server (LOGIN)");
                     connectAnswer.setText("Impossibile comunicare col server");
                     return;
                 }

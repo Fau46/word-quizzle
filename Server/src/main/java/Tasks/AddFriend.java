@@ -100,7 +100,7 @@ public class AddFriend implements Runnable{
         friend.decrementUse();
     }
 
-    public void showFriend(Vector<String> friendsList, String nickname, String user){
+    public void showFriend(Vector<String> friendsList, String nickname, String user){ //TODO elimina
         System.out.println("["+user+"] Amici utente:"+nickname);
         for(String string : friendsList){
             System.out.println(string);
