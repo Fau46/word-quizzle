@@ -16,7 +16,6 @@ public class StartGUI extends JPanel implements ActionListener {
         setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
 
         JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new GridLayout(2,1,5,10));
 
         JButton register = new JButton("Iscriviti");
         JButton login = new JButton("Login");

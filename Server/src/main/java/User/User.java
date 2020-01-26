@@ -28,6 +28,10 @@ public class User {
         return password;
     }
 
+    public AtomicInteger getScore() {
+        return score;
+    }
+
     public void incrementUse(){
         use.getAndIncrement();
     }

@@ -1,6 +1,6 @@
 User/UserDispatcher.class
-Task.class
 Database/CrunchifyInMemoryCache$1.class
+Tasks/ShowScore.class
 Tasks/AddFriend.class
 Database/DBMS.class
 Server/Con.class

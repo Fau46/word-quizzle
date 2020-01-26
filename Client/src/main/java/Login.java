@@ -20,9 +20,9 @@ public class Login extends JPanel implements ActionListener{
 
         setBackground(Color.WHITE);
         setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
-        nickInput = new JTextField("",10);
+        nickInput = new JTextField("fausto",10);
         nickInput.setBackground(Color.WHITE);
-        pwdInput = new JTextField("",10);
+        pwdInput = new JTextField("faustofausto",10);
 
         JPanel nickPanel = new JPanel();
         nickPanel.add(new JLabel("Nickname = "));

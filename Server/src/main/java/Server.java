@@ -92,11 +92,10 @@ public class Server {
         String request = keyAttachment.request;
         if(request ==  null) requestBuilder = new StringBuilder();
         else requestBuilder = new StringBuilder(request);
-        
         int read=client.read(intput); //Leggo dalla socket
 
         if (read ==- 1) throw new IOException("Canale chiuso"); //Mi accerto che il canale non sia chiuso
-        else if(read == 0){ //Se ho finito di leggere parso la request
+        else if(read == 0){ //Se ho finito di leggere parso la request TODO e se non sono arrivati tutti i pacchetti? (suggerimento nicola)
             parser(key);
             iterator.remove();
         }
@@ -154,6 +153,10 @@ public class Server {
         else if(op.equals("SHOWFRIENDS")){
             showFriends(aux,key);
         }
+        else if(op.equals("SHOWSCORE")){
+            showScrore(aux,key);
+            key.interestOps(SelectionKey.OP_WRITE);
+        }
     }
 
 
@@ -196,6 +199,7 @@ public class Server {
         }
     }
 
+
     private void addFriend(String[] aux, SelectionKey key){
         String nickname = aux[1];
         String nickFriend = aux[2];
@@ -224,6 +228,7 @@ public class Server {
 
     }
 
+
     private void showFriends(String[] aux, SelectionKey key) {
         User user = mapUser.get(aux[1]);
 
@@ -232,4 +237,12 @@ public class Server {
         executor.execute(task);
     }
 
+
+    private void showScrore(String[] aux, SelectionKey key) {
+        User user = mapUser.get(aux[1]);
+        Con keyAttachment = (Con) key.attachment();
+
+        keyAttachment.response = "OK\n"+user.getScore().toString()+"\n";
+
+    }
 }
