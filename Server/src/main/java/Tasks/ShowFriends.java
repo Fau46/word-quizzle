@@ -30,12 +30,12 @@ public class ShowFriends implements Runnable{
 
             keyAttachment.response=string.toString();
 
-            try {
-                System.out.println("Mi sospendo");
-                Thread.sleep(10000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+//            try {
+//                System.out.println("Mi sospendo");
+//                Thread.sleep(10000);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
         }
 
         try {

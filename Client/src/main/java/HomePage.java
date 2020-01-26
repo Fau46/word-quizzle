@@ -1,10 +1,15 @@
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import java.util.Vector;
 
 public class HomePage extends JPanel implements ActionListener{
     private JFrame window;
@@ -68,9 +73,7 @@ public class HomePage extends JPanel implements ActionListener{
             addFriend();
         }
         else if(actionEvent.getActionCommand().equals("VISUALIZZA AMICI")){
-            ShowFriends showFriends= new ShowFriends(window,client,nickname);
-            window.setContentPane(showFriends);
-            window.validate();
+            showFrineds();
         }
     }
 
@@ -121,13 +124,9 @@ public class HomePage extends JPanel implements ActionListener{
 
 
     private void addFriend(){
-//        if(!client.isOpen()) {
-//            this.serverError();
-//            return;
-//        }
-        String friend = JOptionPane.showInputDialog(window,"Inserisci l'amico che vuoi aggiungere");
+        String friend = JOptionPane.showInputDialog(window,"Inserisci l'amico che vuoi aggiungere","");
         System.out.println(friend);
-        if(friend!=null){
+        if(friend!=null && !friend.equals("")){
             String request = "ADDFRIEND\n"+nickname+"\n"+friend+"\n";
             ByteBuffer buffer = ByteBuffer.allocate(request.length());
 
@@ -166,6 +165,57 @@ public class HomePage extends JPanel implements ActionListener{
 
     }
 
+    private void showFrineds(){
+        String request = "SHOWFRIENDS\n"+nickname+"\n";
+        ByteBuffer buffer = ByteBuffer.allocate(request.length());
+
+        buffer.put(request.getBytes());
+        buffer.flip();
+
+        while (buffer.hasRemaining()){
+            try {
+                client.write(buffer);
+            } catch (IOException e) {
+                System.out.println("[ERROR] Errore scrittura del buffer nella socket del server (SHOWFRIENDS)");
+                serverError();
+                break;
+            }
+        }
+
+        buffer = ByteBuffer.allocate(BUF_SIZE);
+
+        try {
+            int read = client.read(buffer); //TODO mettere in un ciclo
+
+            if(read == - 1){//Se riscontro un errore nella lettura
+                System.out.println("[ERROR] Errore lettura della socket del server (SHOWFRIENDS)");
+                serverError();
+                return;
+            }
+            else{ //se la lettura è andata a buon fine
+                Gson gson = new Gson();
+                String aux[] = (new String(buffer.array())).split("\n");
+                System.out.println("[RESPONSE] "+aux[1]);
+
+                Type listType = new TypeToken<Vector<String>>(){}.getType();
+                Vector<String> listaAmici = gson.fromJson(aux[1],listType);
+
+                if(aux[0].equals("OK")){ //se il logout è andato a buon fine
+                    ShowFriends showFriends= new ShowFriends(window,client,nickname,listaAmici);
+                    window.setContentPane(showFriends);
+                    window.validate();
+                    showFriends.show();
+                }
+                else {
+//                    response.setText(aux[1]);
+                }
+            }
+
+        } catch (IOException e) {
+            System.out.println("[ERROR] Server chiuso");
+            e.printStackTrace();
+        }
+    }
 
     private void serverError(){
         JOptionPane.showMessageDialog(window, "Impossibile comunicare col server.\n Verrai disconnesso", "Server error", JOptionPane.ERROR_MESSAGE);

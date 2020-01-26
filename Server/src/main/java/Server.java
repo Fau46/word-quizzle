@@ -158,7 +158,7 @@ public class Server {
 
 
     //Funzione che effettua il login
-    private void login(String[] aux, SelectionKey key) throws IOException {
+    private void login(String[] aux, SelectionKey key) throws IOException { //TODO forse da delegare a un thread
         Con keyAttachment = (Con) key.attachment();
         keyAttachment.nickname = null;
 
@@ -170,7 +170,8 @@ public class Server {
         if (mapUser.get(nickname) == null) { //Controllo che nickname non sia online
             user = userDispatcher.getUser(nickname); //Chiedo al dispatcher l'oggetto relativo a nickname
 
-            if (user == null) keyAttachment.response = "KO\nNickname non presente"; //TODO non ha senso visto che dico 'nick o pwd errate'
+            if (user == null){
+                System.out.println("[SERVER] user == null"); keyAttachment.response = "KO\nNickname non presente";} //TODO non ha senso visto che dico 'nick o pwd errate'
             else if (user.getNickname().equals(nickname) && user.getPassword().equals(password)){
                 System.out.println("[LOGIN] Inserisco "+nickname+" nella mapUser");
                 mapUser.put(nickname,user);
@@ -208,9 +209,11 @@ public class Server {
 
         if(user == null){
             keyAttachment.response = "KO\nUtente non online\n";
+            key.interestOps(SelectionKey.OP_WRITE);
         }
         else if(friend == null){
             keyAttachment.response = "KO\nIl nickname "+nickFriend+" non valido\n";
+            key.interestOps(SelectionKey.OP_WRITE);
         }
         else{
             user.incrementUse();
