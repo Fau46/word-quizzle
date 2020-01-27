@@ -1,5 +1,6 @@
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.sun.tools.javac.util.List;
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,7 +10,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
-import java.util.Vector;
+import java.util.*;
 
 public class HomePage extends JPanel implements ActionListener{
     private JFrame window;
@@ -102,6 +103,7 @@ public class HomePage extends JPanel implements ActionListener{
             } catch (IOException e) {
                 System.out.println("[ERROR] Errore scrittura del buffer nella socket del server (LOGOUT)");
                 this.serverError();
+                break;
             }
         }
 
@@ -228,7 +230,7 @@ public class HomePage extends JPanel implements ActionListener{
                         ShowFriends showFriends= new ShowFriends(window,client,nickname,listaAmici);
                         window.setContentPane(showFriends);
                         window.validate();
-                        showFriends.show();
+                        showFriends.show(); //TODO migliorare
                     }
                 }
             }
@@ -295,6 +297,52 @@ public class HomePage extends JPanel implements ActionListener{
                 break;
             }
         }
+
+        try{
+            int read;
+
+            ByteBuffer auxBuffer = ByteBuffer.allocate(BUF_SIZE);
+            read = client.read(auxBuffer); //Leggo la lunghezza della risposta
+
+            if(read == - 1){//Se riscontro un errore nella lettura
+                System.out.println("[ERROR] Errore lettura della socket del server (SHOWFRIENDS/LUNGHEZZA)");
+                serverError();
+                return;
+            }
+            else{
+                String auxString = new String(auxBuffer.array(),0,read);
+                int responseLen = Integer.parseInt(auxString); //Converto la lunghezza in int
+
+                buffer = ByteBuffer.allocate(responseLen);
+                read = client.read(buffer); //leggo la risposta del server
+
+                if(read == - 1){//Se riscontro un errore nella lettura
+                    System.out.println("[ERROR] Errore lettura della socket del server (SHOWFRIENDS)");
+                    serverError();
+                    return;
+                }
+                else{
+                    Gson gson = new Gson();
+                    String aux[] = (new String(buffer.array())).split("\n");
+                    System.out.println("[RESPONSE] "+aux[1]);
+
+                    Type listType = new TypeToken<TreeMap<String,Integer>>(){}.getType();
+                    TreeMap<String,Integer> listaAmiciUnsorted = gson.fromJson(aux[1],listType);
+                    TreeMap<String,Integer> listaAmici = (TreeMap<String, Integer>) sortByValues(listaAmiciUnsorted);
+
+                    if(aux[0].equals("OK")){ //se è andato a buon fine TODO forse inutile, controlla se il server ritorna sempre ok
+                        ShowRank showRank = new ShowRank (window,client,nickname,listaAmici);
+                        window.setContentPane(showRank);
+                        window.validate();
+                        showRank.show();
+                    }
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("[ERROR] Server chiuso");
+            e.printStackTrace();
+        }
+
     }
 
 
@@ -303,5 +351,23 @@ public class HomePage extends JPanel implements ActionListener{
         StartGUI startGUI = new StartGUI(window);
         window.setContentPane(startGUI);
         window.validate();
+    }
+
+    public static <K, V extends Comparable<V>> Map<K, V> sortByValues(final Map<K, V> map){
+        Comparator<K> valueComparator = new Comparator<K>() {
+                    public int compare(K k1, K k2) {
+                        int compare =
+                                map.get(k1).compareTo(map.get(k2));
+                        if (compare == 0)
+                            return 1;
+                        else
+                            return compare;
+                    }
+                };
+
+        Map<K, V> sortedByValues =
+                new TreeMap<K, V>(valueComparator);
+        sortedByValues.putAll(map);
+        return sortedByValues;
     }
 }

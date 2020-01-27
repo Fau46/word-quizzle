@@ -3,16 +3,19 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.nio.channels.SocketChannel;
+import java.util.Collection;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.Vector;
 
-public class ShowFriends extends JPanel implements ActionListener {
+public class ShowRank extends JPanel implements ActionListener {
     private JFrame window;
     private SocketChannel client;
     private String nickname;
     private JTextArea friendList;
-    private Vector<String> listaAmici;
+    private TreeMap<String, Integer> listaAmici;
 
-    public ShowFriends(JFrame window, SocketChannel client, String nickname, Vector<String> listaAmici) {
+    public ShowRank(JFrame window, SocketChannel client, String nickname, TreeMap<String, Integer> listaAmici){
         this.window = window;
         this.client = client;
         this.nickname = nickname;
@@ -37,16 +40,17 @@ public class ShowFriends extends JPanel implements ActionListener {
         setLayout(new GridLayout(2,1,3,3));
         add(friendPanel);
         add(buttonPanel);
-
-//        this.getFriendsList();
     }
 
     public void show(){
-        for(String amico : listaAmici){
-            friendList.append(amico+"\n");
+        Collection<Integer> collection = listaAmici.values();
+        for(Integer i : collection){
+            System.out.println(i);
+        }
+        for(String username : listaAmici.keySet()){
+            friendList.append(username+" "+listaAmici.get(username)+"\n");
         }
     }
-
 
     @Override
     public void actionPerformed(ActionEvent actionEvent) {
@@ -57,7 +61,3 @@ public class ShowFriends extends JPanel implements ActionListener {
         }
     }
 }
-
-
-
-

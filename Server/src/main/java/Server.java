@@ -226,14 +226,8 @@ public class Server {
         String nickname = aux[1];
         String nickFriend = aux[2];
         Con keyAttachment = (Con) key.attachment();
-//        User user = mapUser.get(nickname);
-        User user;
+        User user = mapUser.get(nickname);
         User friend;
-
-        synchronized (mapUser){//TODO test
-            System.out.println("PRENDO LA LOCK DI MAPUSER "+nickname);
-            user = mapUser.get(nickname);
-        }
 
         if((friend = mapUser.get(nickFriend)) == null){ //se non trovo friend tra gli utenti online
             friend = userDispatcher.getUser(nickFriend); //chiedo friend al dispatcher

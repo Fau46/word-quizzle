@@ -35,8 +35,8 @@ public class ShowFriends implements Runnable{
 
         try {
             key.interestOps(SelectionKey.OP_WRITE);
-        }catch (Exception e){
             user.decrementUse();
+        }catch (Exception e){
             e.printStackTrace();
             return;
         }

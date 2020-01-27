@@ -34,22 +34,9 @@ public class ShowRank implements Runnable{
         synchronized (friendList = user.getFriends()){
             for(String friendNick : friendList){
                 User friend;
-                System.out.println("AMICO DA PRENDERE "+friendNick);
-                System.out.println("PRESENTE: "+mapUser.contains(friendNick));
-                if(mapUser.contains(friendNick)){
-                    synchronized (mapUser){
-                        System.out.println("PRENDO LA LOCK "+user.getNickname());
-                        friend = mapUser.get(friendNick);
-                        System.out.println("MI SOSPENDO "+user.getNickname());
-                        try {
-                            Thread.sleep(1000);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-                else {
-                    friend = userDispatcher.getUser(friendNick);
+
+                if((friend = mapUser.get(friendNick)) == null){ //TODO controllare se thread-safe veramente
+                        friend = userDispatcher.getUser(friendNick);
                 }
 
                 rank.put(friendNick,friend.getScore());
@@ -61,6 +48,7 @@ public class ShowRank implements Runnable{
 
             keyAttachment.response = stringBuilder.toString();
             keyAttachment.lenght = stringBuilder.toString().length();
+            System.out.println(keyAttachment.response);
         }
 
 
@@ -71,5 +59,7 @@ public class ShowRank implements Runnable{
             e.printStackTrace();
             return;
         }
+
+        user.decrementUse();
     }
 }
