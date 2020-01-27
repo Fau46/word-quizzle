@@ -10,5 +10,6 @@ RMIRegistrationImpl.class
 Tasks/ShowFriends.class
 MainClassServer.class
 Server.class
+Tasks/ShowRank.class
 Database/CrunchifyInMemoryCache$CrunchifyCacheObject.class
 User/User.class

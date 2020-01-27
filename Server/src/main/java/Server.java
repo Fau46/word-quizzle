@@ -1,6 +1,7 @@
 import Tasks.*;
 import User.*;
 import Server.*;
+import org.graalvm.compiler.lir.LIRInstruction;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -14,7 +15,9 @@ public class Server {
     private ThreadPoolExecutor executor;
     private UserDispatcher userDispatcher;
     private int BUF_SIZE = 512;
+    private int SELECTOR_TIMEOUT = 100;
     private ConcurrentHashMap<String, User> mapUser;
+
 
     public Server(Selector selector, ThreadPoolExecutor executor){
         this.selector = selector;
@@ -27,7 +30,8 @@ public class Server {
     public void run() {
         while (true) {
             try {
-                selector.select(100);
+                selector.select(SELECTOR_TIMEOUT);
+//                selector.selectNow();
             } catch (IOException e) {
                 System.out.println("[ERROR] Errore nel selettore");
                 return;
@@ -117,6 +121,21 @@ public class Server {
         buffer.put(string.getBytes());
         buffer.flip();
 
+        if(keyAttachment.lenght!=0){ //Controllo se devo passare prima la lunghezza
+            String responseLen = keyAttachment.lenght.toString();
+            ByteBuffer auxBuffer = ByteBuffer.allocate(responseLen.length());
+
+            auxBuffer.put(responseLen.getBytes());
+            auxBuffer.flip();
+
+            while (auxBuffer.hasRemaining()){
+                client.write(auxBuffer);
+            }
+
+            keyAttachment.lenght = 0;
+        }
+
+        //Scrivo la risposta al client
         while (buffer.hasRemaining()){
             client.write(buffer);
         }
@@ -156,6 +175,9 @@ public class Server {
         else if(op.equals("SHOWSCORE")){
             showScrore(aux,key);
             key.interestOps(SelectionKey.OP_WRITE);
+        }
+        else if(op.equals("SHOWRANK")){
+            showRank(aux,key);
         }
     }
 
@@ -204,8 +226,14 @@ public class Server {
         String nickname = aux[1];
         String nickFriend = aux[2];
         Con keyAttachment = (Con) key.attachment();
-        User user = mapUser.get(nickname);
+//        User user = mapUser.get(nickname);
+        User user;
         User friend;
+
+        synchronized (mapUser){//TODO test
+            System.out.println("PRENDO LA LOCK DI MAPUSER "+nickname);
+            user = mapUser.get(nickname);
+        }
 
         if((friend = mapUser.get(nickFriend)) == null){ //se non trovo friend tra gli utenti online
             friend = userDispatcher.getUser(nickFriend); //chiedo friend al dispatcher
@@ -244,5 +272,13 @@ public class Server {
 
         keyAttachment.response = "OK\n"+user.getScore().toString()+"\n";
 
+    }
+
+    private void showRank(String[] aux, SelectionKey key) {
+        User user = mapUser.get(aux[1]);
+
+        user.incrementUse();
+        ShowRank task = new ShowRank(user,key,mapUser);
+        executor.execute(task);
     }
 }

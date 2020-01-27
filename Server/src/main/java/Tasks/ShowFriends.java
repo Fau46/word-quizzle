@@ -6,11 +6,11 @@ import com.google.gson.Gson;
 
 import java.nio.channels.SelectionKey;
 import java.util.Vector;
-import java.util.Vector;
 
 public class ShowFriends implements Runnable{
     private User user;
     private SelectionKey key;
+
     public ShowFriends(User user, SelectionKey key){
         this.user = user;
         this.key = key;
@@ -28,14 +28,9 @@ public class ShowFriends implements Runnable{
             string.append(gson.toJson(friendList));
             string.append("\n");
 
-            keyAttachment.response=string.toString();
+            keyAttachment.lenght = string.toString().length();
+            keyAttachment.response = string.toString();
 
-//            try {
-//                System.out.println("Mi sospendo");
-//                Thread.sleep(10000);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
         }
 
         try {

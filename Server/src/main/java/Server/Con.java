@@ -5,6 +5,7 @@ public class Con {
     public String response;
     public String request;
     public Boolean logout;
+    public Integer lenght = 0;
 
     public Con(){
         logout = false;
