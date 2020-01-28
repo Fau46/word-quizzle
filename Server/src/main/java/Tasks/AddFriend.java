@@ -35,7 +35,7 @@ public class AddFriend implements Runnable{
                 }
                 else{
                     friendsList.add(friendName);
-                    userDispatcher.Serialize(user); //TODO provare a fare la serializzazione di user mentre quealucno sta provando ad aggiornare score
+//                    userDispatcher.Serialize(user); //TODO provare a fare la serializzazione di user mentre quealucno sta provando ad aggiornare score
                     keyAttachment.response = "OK\n"+friendName+" inserito nella lista di amici";
                 }
             }
@@ -43,13 +43,14 @@ public class AddFriend implements Runnable{
             synchronized (friendsList=friend.getFriends()){ //prendo la lista di amici di friendName
                 if(!friendsList.contains(userName)){//Se username non risulta tra gli amici di friend allora lo inserisco
                     friendsList.add(userName);
-                    userDispatcher.Serialize(friend); //TODO migliorare la serializzazione
+//                    userDispatcher.Serialize(friend); //TODO migliorare la serializzazione
                 }
             }
         }
         else{
             keyAttachment.response = "KO\nNon puoi aggiungerti tra gli amici";
         }
+
 
         try{
             key.interestOps(SelectionKey.OP_WRITE);

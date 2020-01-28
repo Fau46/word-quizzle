@@ -1,10 +1,11 @@
 User/UserDispatcher.class
 Database/CrunchifyInMemoryCache$1.class
-Tasks/ShowScore.class
+User/UserDispatcher$1.class
 Tasks/AddFriend.class
 Database/DBMS.class
 Server/Con.class
 Database/Costants.class
+Tasks/ShowRank$1.class
 Database/CrunchifyInMemoryCache.class
 RMIRegistrationImpl.class
 Tasks/ShowFriends.class

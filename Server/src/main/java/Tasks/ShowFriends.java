@@ -4,7 +4,10 @@ import Server.Con;
 import User.User;
 import com.google.gson.Gson;
 
+import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
+import java.nio.channels.SocketChannel;
 import java.util.Vector;
 
 public class ShowFriends implements Runnable{
@@ -35,8 +38,8 @@ public class ShowFriends implements Runnable{
 
         try {
             key.interestOps(SelectionKey.OP_WRITE);
-            user.decrementUse();
         }catch (Exception e){
+            user.decrementUse();
             e.printStackTrace();
             return;
         }

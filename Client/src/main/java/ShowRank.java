@@ -3,19 +3,16 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.nio.channels.SocketChannel;
-import java.util.Collection;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.Vector;
+import java.util.*;
 
 public class ShowRank extends JPanel implements ActionListener {
     private JFrame window;
     private SocketChannel client;
     private String nickname;
     private JTextArea friendList;
-    private TreeMap<String, Integer> listaAmici;
+    private HashMap<String, Integer> listaAmici;
 
-    public ShowRank(JFrame window, SocketChannel client, String nickname, TreeMap<String, Integer> listaAmici){
+    public ShowRank(JFrame window, SocketChannel client, String nickname, HashMap<String, Integer> listaAmici){
         this.window = window;
         this.client = client;
         this.nickname = nickname;
@@ -26,6 +23,12 @@ public class ShowRank extends JPanel implements ActionListener {
 
         friendList = new JTextArea(1,1);
         friendList.setEditable(false);
+
+        for (Map.Entry<String,Integer> entry : listaAmici.entrySet()) {
+            Integer value = entry.getValue();
+            String key = entry.getKey();
+            friendList.append(key+" "+value+"\n");
+        }
 
         JScrollPane friendPanel = new JScrollPane(friendList);
 
@@ -43,13 +46,10 @@ public class ShowRank extends JPanel implements ActionListener {
     }
 
     public void show(){
-        Collection<Integer> collection = listaAmici.values();
-        for(Integer i : collection){
-            System.out.println(i);
-        }
-        for(String username : listaAmici.keySet()){
-            friendList.append(username+" "+listaAmici.get(username)+"\n");
-        }
+
+//        for(String username : listaAmici.keySet()){
+//            friendList.append(username+" "+listaAmici.get(username)+"\n");
+//        }
     }
 
     @Override

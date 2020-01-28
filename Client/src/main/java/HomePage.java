@@ -1,6 +1,5 @@
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.sun.tools.javac.util.List;
 
 import javax.swing.*;
 import java.awt.*;
@@ -66,8 +65,6 @@ public class HomePage extends JPanel implements ActionListener{
         add(nickPanel);
         add(buttonPanel);
         add(responsePanel);
-
-
     }
 
     @Override
@@ -185,6 +182,8 @@ public class HomePage extends JPanel implements ActionListener{
         buffer.put(request.getBytes());
         buffer.flip();
 
+            long start = System.currentTimeMillis();
+
         while (buffer.hasRemaining()){
             try {
                 client.write(buffer);
@@ -223,6 +222,9 @@ public class HomePage extends JPanel implements ActionListener{
                     String aux[] = (new String(buffer.array())).split("\n");
                     System.out.println("[RESPONSE] "+aux[1]);
 
+                        double finish = (double) (System.currentTimeMillis() - start) / 1000.0;
+                        System.out.println("Finish: "+finish);
+
                     Type listType = new TypeToken<Vector<String>>(){}.getType();
                     Vector<String> listaAmici = gson.fromJson(aux[1],listType);
 
@@ -230,7 +232,6 @@ public class HomePage extends JPanel implements ActionListener{
                         ShowFriends showFriends= new ShowFriends(window,client,nickname,listaAmici);
                         window.setContentPane(showFriends);
                         window.validate();
-                        showFriends.show(); //TODO migliorare
                     }
                 }
             }
@@ -326,15 +327,13 @@ public class HomePage extends JPanel implements ActionListener{
                     String aux[] = (new String(buffer.array())).split("\n");
                     System.out.println("[RESPONSE] "+aux[1]);
 
-                    Type listType = new TypeToken<TreeMap<String,Integer>>(){}.getType();
-                    TreeMap<String,Integer> listaAmiciUnsorted = gson.fromJson(aux[1],listType);
-                    TreeMap<String,Integer> listaAmici = (TreeMap<String, Integer>) sortByValues(listaAmiciUnsorted);
+                    Type listType = new TypeToken<HashMap<String,Integer>>(){}.getType();
+                    HashMap<String,Integer> listaAmici = gson.fromJson(aux[1],listType);
 
                     if(aux[0].equals("OK")){ //se è andato a buon fine TODO forse inutile, controlla se il server ritorna sempre ok
                         ShowRank showRank = new ShowRank (window,client,nickname,listaAmici);
                         window.setContentPane(showRank);
                         window.validate();
-                        showRank.show();
                     }
                 }
             }
@@ -353,21 +352,5 @@ public class HomePage extends JPanel implements ActionListener{
         window.validate();
     }
 
-    public static <K, V extends Comparable<V>> Map<K, V> sortByValues(final Map<K, V> map){
-        Comparator<K> valueComparator = new Comparator<K>() {
-                    public int compare(K k1, K k2) {
-                        int compare =
-                                map.get(k1).compareTo(map.get(k2));
-                        if (compare == 0)
-                            return 1;
-                        else
-                            return compare;
-                    }
-                };
 
-        Map<K, V> sortedByValues =
-                new TreeMap<K, V>(valueComparator);
-        sortedByValues.putAll(map);
-        return sortedByValues;
-    }
 }

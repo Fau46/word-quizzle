@@ -1,7 +1,6 @@
 import Tasks.*;
 import User.*;
 import Server.*;
-import org.graalvm.compiler.lir.LIRInstruction;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -59,7 +58,11 @@ public class Server {
                         //Gestisco la chiusura del canale
                         Con keyAttachment = (Con) key.attachment();
                         String nick = keyAttachment.nickname;
-                        if(nick != null) mapUser.remove(nick); //Rimuovo dagli user online
+                        if(nick != null) {
+                            User user = mapUser.get(nick);
+                            user.decrementUse(); //Decremento use in user
+                            mapUser.remove(nick); //Rimuovo dagli user online
+                        }
 
                         System.out.println("[CLOSED CLIENT]: (" +nick+") "+ ((SocketChannel) key.channel()).getRemoteAddress());
 
@@ -152,6 +155,7 @@ public class Server {
     }
 
 
+    //TODO mettere il caso in cui l'operazione è malformata
     private void parser(SelectionKey key) throws IOException{
         Con keyAttachment = (Con) key.attachment();
         String[] aux = keyAttachment.request.split("\n"); //Splitto la request
@@ -173,7 +177,7 @@ public class Server {
             showFriends(aux,key);
         }
         else if(op.equals("SHOWSCORE")){
-            showScrore(aux,key);
+            showScore(aux,key);
             key.interestOps(SelectionKey.OP_WRITE);
         }
         else if(op.equals("SHOWRANK")){
@@ -196,12 +200,13 @@ public class Server {
             user = userDispatcher.getUser(nickname); //Chiedo al dispatcher l'oggetto relativo a nickname
 
             if (user == null){
-                System.out.println("[SERVER] user == null"); keyAttachment.response = "KO\nNickname non presente";} //TODO non ha senso visto che dico 'nick o pwd errate'
+                keyAttachment.response = "KO\nNickname non presente";} //TODO non ha senso visto che dico 'nick o pwd errate'
             else if (user.getNickname().equals(nickname) && user.getPassword().equals(password)){
                 System.out.println("[LOGIN] Inserisco "+nickname+" nella mapUser");
                 mapUser.put(nickname,user);
                 keyAttachment.nickname = nickname;
                 keyAttachment.response = "OK\nLogin effettuato";
+                user.incrementUse();
             }
             else keyAttachment.response = "KO\nNickname o password errate";
         } else keyAttachment.response = "KO\nUtente gia' connesso";
@@ -260,19 +265,19 @@ public class Server {
     }
 
 
-    private void showScrore(String[] aux, SelectionKey key) {
+    private void showScore(String[] aux, SelectionKey key) {
         User user = mapUser.get(aux[1]);
         Con keyAttachment = (Con) key.attachment();
 
         keyAttachment.response = "OK\n"+user.getScore().toString()+"\n";
-
     }
+
 
     private void showRank(String[] aux, SelectionKey key) {
         User user = mapUser.get(aux[1]);
 
         user.incrementUse();
-        ShowRank task = new ShowRank(user,key,mapUser);
+        ShowRank task = new ShowRank(user,key);
         executor.execute(task);
     }
 }

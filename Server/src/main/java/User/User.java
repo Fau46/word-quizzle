@@ -2,8 +2,6 @@ package User;
 
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class User {
     private String nickname;
@@ -30,6 +28,10 @@ public class User {
 
     public AtomicInteger getScore() {
         return score;
+    }
+
+    public Integer getUse() {
+        return use.intValue();
     }
 
     public void incrementUse(){

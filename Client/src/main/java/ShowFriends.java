@@ -24,6 +24,10 @@ public class ShowFriends extends JPanel implements ActionListener {
         friendList = new JTextArea(1,1);
         friendList.setEditable(false);
 
+        for(String amico : listaAmici){
+            friendList.append(amico+"\n");
+        }
+
         JScrollPane friendPanel = new JScrollPane(friendList);
 
         JPanel buttonPanel = new JPanel();
@@ -38,15 +42,7 @@ public class ShowFriends extends JPanel implements ActionListener {
         add(friendPanel);
         add(buttonPanel);
 
-//        this.getFriendsList();
     }
-
-    public void show(){
-        for(String amico : listaAmici){
-            friendList.append(amico+"\n");
-        }
-    }
-
 
     @Override
     public void actionPerformed(ActionEvent actionEvent) {
