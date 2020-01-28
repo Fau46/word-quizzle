@@ -3,6 +3,9 @@ import User.*;
 import Server.*;
 
 import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.*;
 import java.util.*;
@@ -61,6 +64,7 @@ public class Server {
                         if(nick != null) {
                             User user = mapUser.get(nick);
                             user.decrementUse(); //Decremento use in user
+                            user.setPort(0);
                             mapUser.remove(nick); //Rimuovo dagli user online
                         }
 
@@ -116,7 +120,6 @@ public class Server {
 
     private void Writable(SelectionKey key) throws IOException{
         SocketChannel client = (SocketChannel) key.channel();
-
         Con keyAttachment = (Con) key.attachment();
         String string = keyAttachment.response;
         ByteBuffer buffer = ByteBuffer.allocate(string.length());
@@ -142,6 +145,17 @@ public class Server {
         while (buffer.hasRemaining()){
             client.write(buffer);
         }
+
+
+
+//        DatagramSocket datagramSocket = new DatagramSocket();
+//        InetAddress address = InetAddress.getByName("localhost");
+//        byte[] aux = "prova".getBytes();
+//        DatagramPacket datagramPacket = new DatagramPacket(aux,aux.length,address,client.socket().getPort());
+//        datagramSocket.send(datagramPacket);
+
+
+
 
         if(!keyAttachment.logout){
             keyAttachment.response = null;
@@ -183,6 +197,9 @@ public class Server {
         else if(op.equals("SHOWRANK")){
             showRank(aux,key);
         }
+        else if(op.equals("CHALLENGE")){
+            challenge(aux,key);
+        }
     }
 
 
@@ -193,6 +210,7 @@ public class Server {
 
         String nickname = aux[1];
         String password = aux[2];
+        Integer port = Integer.valueOf(aux[3]);
 
         User user = null;
 
@@ -207,6 +225,7 @@ public class Server {
                 keyAttachment.nickname = nickname;
                 keyAttachment.response = "OK\nLogin effettuato";
                 user.incrementUse();
+                user.setPort(port);
             }
             else keyAttachment.response = "KO\nNickname o password errate";
         } else keyAttachment.response = "KO\nUtente gia' connesso";
@@ -219,7 +238,7 @@ public class Server {
 
         Con keyAttachment = (Con) key.attachment();
 
-        if(mapUser.get(nickname) == null) keyAttachment.response = "KO\nUtente non in linea";
+        if(mapUser.get(nickname) == null) keyAttachment.response = "KO\nUtente non in linea"; //TODO forse inutile
         else {
             keyAttachment.response = "OK\nUtente disconnesso";
             keyAttachment.logout = true;
@@ -279,5 +298,26 @@ public class Server {
         user.incrementUse();
         ShowRank task = new ShowRank(user,key);
         executor.execute(task);
+    }
+
+    private void challenge(String[] aux, SelectionKey key) {
+        Con keyAttachment = (Con) key.attachment();
+        User user = mapUser.get(aux[1]);
+        String friendNick = aux[2];
+        User friend;
+
+        if(!user.getNickname().equals(friendNick)){
+            if((friend = mapUser.get(friendNick)) != null){
+                //TODO Implementare la richiesta di sfida
+            }
+            else{
+                keyAttachment.response = "KO\n"+friendNick+" non online";
+                key.interestOps(SelectionKey.OP_WRITE);
+            }
+        }
+        else{
+            keyAttachment.response = "KO\nNon puoi sfidarti";
+            key.interestOps(SelectionKey.OP_WRITE);
+        }
     }
 }

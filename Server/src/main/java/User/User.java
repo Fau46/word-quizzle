@@ -9,6 +9,7 @@ public class User {
     private AtomicInteger score;
     private Vector<String> friends;
     private AtomicInteger use;
+    private int port;
 
     public User(String nick, String pwd){
         this.nickname = nick;
@@ -16,6 +17,7 @@ public class User {
         this.score = new AtomicInteger(0);
         this.friends = new Vector<>();
         this.use = new AtomicInteger(0);
+        this.port = 0;
     }
 
     public String getNickname() {
@@ -32,6 +34,14 @@ public class User {
 
     public Integer getUse() {
         return use.intValue();
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
     }
 
     public void incrementUse(){

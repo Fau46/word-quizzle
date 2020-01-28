@@ -10,13 +10,11 @@ public class ShowRank extends JPanel implements ActionListener {
     private SocketChannel client;
     private String nickname;
     private JTextArea friendList;
-    private HashMap<String, Integer> listaAmici;
 
     public ShowRank(JFrame window, SocketChannel client, String nickname, HashMap<String, Integer> listaAmici){
         this.window = window;
         this.client = client;
         this.nickname = nickname;
-        this.listaAmici = listaAmici;
 
         setBackground(Color.WHITE);
         setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
@@ -24,10 +22,8 @@ public class ShowRank extends JPanel implements ActionListener {
         friendList = new JTextArea(1,1);
         friendList.setEditable(false);
 
-        for (Map.Entry<String,Integer> entry : listaAmici.entrySet()) {
-            Integer value = entry.getValue();
-            String key = entry.getKey();
-            friendList.append(key+" "+value+"\n");
+        for(String username : listaAmici.keySet()){
+            friendList.append(username+" "+listaAmici.get(username)+"\n");
         }
 
         JScrollPane friendPanel = new JScrollPane(friendList);
@@ -45,12 +41,6 @@ public class ShowRank extends JPanel implements ActionListener {
         add(buttonPanel);
     }
 
-    public void show(){
-
-//        for(String username : listaAmici.keySet()){
-//            friendList.append(username+" "+listaAmici.get(username)+"\n");
-//        }
-    }
 
     @Override
     public void actionPerformed(ActionEvent actionEvent) {

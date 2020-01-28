@@ -3,8 +3,10 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
@@ -12,8 +14,9 @@ public class Login extends JPanel implements ActionListener{
     private JTextField nickInput, pwdInput;
     private JLabel answer,connectAnswer;
     private JFrame window;
-    SocketChannel client;
+    private SocketChannel client;
     private int BUF_SIZE = 512;
+    private int socketPort;
 
     public Login(JFrame window){
         this.window = window;
@@ -82,6 +85,10 @@ public class Login extends JPanel implements ActionListener{
             return;
         }
 
+        socketPort = client.socket().getLocalPort();
+        Thread t = new Thread(new UDPListener(socketPort));
+        t.start();
+
         System.out.println("[OK] Connessione col server stabilita");
         connectAnswer.setText("Connessione stabilita");
     }
@@ -104,7 +111,7 @@ public class Login extends JPanel implements ActionListener{
                 return;
             }
 
-            String request = new String("LOGIN\n"+nick+"\n"+pwd+"\n"); //Creo la stringa del protocollo
+            String request = new String("LOGIN\n"+nick+"\n"+pwd+"\n"+socketPort+"\n"); //Creo la stringa del protocollo
             ByteBuffer buffer = ByteBuffer.allocate(request.length());
 
             buffer.put(request.getBytes());

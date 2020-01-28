@@ -39,18 +39,21 @@ public class HomePage extends JPanel implements ActionListener{
         JButton showFriends = new JButton("VISUALIZZA AMICI");
         JButton showScore = new JButton("VISUALIZZA PUNTEGGIO");
         JButton showRank = new JButton("VISUALIZZA CLASSIFICA");
+        JButton sfida = new JButton("SFIDA");
 
         logout.addActionListener(this);
         addFriend.addActionListener(this);
         showFriends.addActionListener(this);
         showScore.addActionListener(this);
         showRank.addActionListener(this);
+        sfida.addActionListener(this);
 
         buttonPanel.add(logout);
         buttonPanel.add(addFriend);
         buttonPanel.add(showFriends);
         buttonPanel.add(showScore);
         buttonPanel.add(showRank);
+        buttonPanel.add(sfida);
 
         response = new JLabel("",JLabel.CENTER);
         response.setForeground(Color.BLACK);
@@ -175,6 +178,7 @@ public class HomePage extends JPanel implements ActionListener{
 
     }
 
+
     private void showFriends(){
         String request = "SHOWFRIENDS\n"+nickname+"\n";
         ByteBuffer buffer = ByteBuffer.allocate(request.length());
@@ -279,7 +283,6 @@ public class HomePage extends JPanel implements ActionListener{
         }
 
     }
-
 
 
     private void showRank() {
