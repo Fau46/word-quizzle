@@ -146,17 +146,6 @@ public class Server {
             client.write(buffer);
         }
 
-
-
-//        DatagramSocket datagramSocket = new DatagramSocket();
-//        InetAddress address = InetAddress.getByName("localhost");
-//        byte[] aux = "prova".getBytes();
-//        DatagramPacket datagramPacket = new DatagramPacket(aux,aux.length,address,client.socket().getPort());
-//        datagramSocket.send(datagramPacket);
-
-
-
-
         if(!keyAttachment.logout){
             keyAttachment.response = null;
             keyAttachment.request = null;
@@ -308,7 +297,11 @@ public class Server {
 
         if(!user.getNickname().equals(friendNick)){
             if((friend = mapUser.get(friendNick)) != null){
-                //TODO Implementare la richiesta di sfida
+                user.incrementUse();;
+                friend.incrementUse();
+
+                Challenge task = new Challenge(user,friend,key);
+                executor.execute(task);
             }
             else{
                 keyAttachment.response = "KO\n"+friendNick+" non online";

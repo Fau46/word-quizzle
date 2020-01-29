@@ -26,6 +26,7 @@ public class Login extends JPanel implements ActionListener{
         nickInput = new JTextField("fausto",10);
         nickInput.setBackground(Color.WHITE);
         pwdInput = new JTextField("faustofausto",10);
+        pwdInput.setBackground(Color.WHITE);
 
         JPanel nickPanel = new JPanel();
         nickPanel.add(new JLabel("Nickname = "));
@@ -86,7 +87,7 @@ public class Login extends JPanel implements ActionListener{
         }
 
         socketPort = client.socket().getLocalPort();
-        Thread t = new Thread(new UDPListener(socketPort));
+        Thread t = new Thread(new UDPListener(socketPort,window));
         t.start();
 
         System.out.println("[OK] Connessione col server stabilita");
@@ -111,7 +112,7 @@ public class Login extends JPanel implements ActionListener{
                 return;
             }
 
-            String request = new String("LOGIN\n"+nick+"\n"+pwd+"\n"+socketPort+"\n"); //Creo la stringa del protocollo
+            String request = new String("LOGIN\n"+nick+"\n"+pwd+"\n"+socketPort+"\n"); //Creo la stringa del protocollo TODO eliminare new string
             ByteBuffer buffer = ByteBuffer.allocate(request.length());
 
             buffer.put(request.getBytes());
@@ -132,6 +133,7 @@ public class Login extends JPanel implements ActionListener{
 
             try {
                 int read = client.read(buffer);
+
                 if(read == -1){
                     System.out.println("[ERROR] Errore lettura della socket del server (LOGIN)");
                     connectAnswer.setText("Impossibile comunicare col server");

@@ -87,6 +87,9 @@ public class HomePage extends JPanel implements ActionListener{
         else if(actionEvent.getActionCommand().equals("VISUALIZZA CLASSIFICA")){
             showRank();
         }
+        else if(actionEvent.getActionCommand().equals("SFIDA")){
+            challenge();
+        }
     }
 
 
@@ -275,7 +278,6 @@ public class HomePage extends JPanel implements ActionListener{
             else { //se la lettura è andata a buon fine
                 String aux[] = (new String(buffer.array())).split("\n");
                 System.out.println("[RESPONSE] " + aux[1]);
-//                response.setText(aux[1]);
                 JOptionPane.showMessageDialog(window, "Il tuo punteggio è "+aux[1], "Punti", JOptionPane.INFORMATION_MESSAGE);
             }
         } catch (IOException e) {
@@ -345,6 +347,14 @@ public class HomePage extends JPanel implements ActionListener{
             e.printStackTrace();
         }
 
+    }
+
+
+    private void challenge() {
+//        Challenge challenge = Challenge.getInstance(window,client,nickname);
+        Challenge challenge = new Challenge(window,client,nickname);
+        window.setContentPane(challenge);
+        window.validate();
     }
 
 
