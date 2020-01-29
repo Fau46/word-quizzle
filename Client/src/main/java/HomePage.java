@@ -22,6 +22,7 @@ public class HomePage extends JPanel implements ActionListener{
         this.window = window;
         this.client = client;
         this.nickname = nick;
+        Challenge.setChallenge(window,client,nick);
 
         setBackground(Color.WHITE);
         setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
@@ -141,7 +142,7 @@ public class HomePage extends JPanel implements ActionListener{
 
     private void addFriend(){
         String friend = JOptionPane.showInputDialog(window,"Inserisci l'amico che vuoi aggiungere","");
-        System.out.println(friend);
+//        System.out.println(friend);
         if(friend!=null && !friend.equals("")){
             String request = "ADDFRIEND\n"+nickname+"\n"+friend+"\n";
             ByteBuffer buffer = ByteBuffer.allocate(request.length());
@@ -351,11 +352,54 @@ public class HomePage extends JPanel implements ActionListener{
 
 
     private void challenge() {
-//        Challenge challenge = Challenge.getInstance(window,client,nickname);
-        Challenge challenge = new Challenge(window,client,nickname);
+//        ChallengeFriend challenge = Challenge.getInstance(window,client,nickname);
+        ChallengeFriend challenge = new ChallengeFriend(window,client,nickname);
         window.setContentPane(challenge);
         window.validate();
+//        String friend = JOptionPane.showInputDialog(window,"Inserisci l'amico che vuoi aggiungere","");
+//        if(friend!=null && !friend.equals("")){
+//            String request = "CHALLENGE\n"+nickname+"\n"+friend+"\n";
+//            ByteBuffer buffer = ByteBuffer.allocate(request.length());
+//
+//            buffer.put(request.getBytes());
+//            buffer.flip();
+//
+//            while (buffer.hasRemaining()) {
+//                try {
+//                    client.write(buffer);
+//                } catch (Exception e) {
+//                    System.out.println("[ERROR] Errore scrittura del buffer nella socket del server (CHALLENGE)");
+//                    serverError();
+//                    break;
+//                }
+//            }
+//
+//            response.setText("Attendo risposta...");
+//            buffer = ByteBuffer.allocate(BUF_SIZE);
+//
+//            try {
+//                int read = client.read(buffer);
+//
+//                if(read == -1){
+//                    System.out.println("[ERROR] Errore lettura della socket del server (CHALLENGE)");
+//                    serverError();
+//                    return;
+//                }
+//                else{
+//                    String aux[] = (new String(buffer.array())).split("\n");
+//                    System.out.println("[RESPONSE] "+aux[1]);
+//
+//                    if(aux[0].equals("KO")){
+//                        response.setText(aux[1]);
+//                    }
+//                }
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+
     }
+
 
 
     private void serverError(){

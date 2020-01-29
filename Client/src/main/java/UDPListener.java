@@ -32,16 +32,26 @@ public class UDPListener implements Runnable,TCPConnection{
             try {
                 datagramSocket.receive(datagramPacket);
                 request = new String(datagramPacket.getData(),0,datagramPacket.getLength(),"UTF-8");
-//                System.out.println(string);
+//                System.out.println(request);
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
-//            if(!(Challenge.getInstance()).isChallenge());
             String[] aux = request.split("\n");
             String[] buttons = {"ACCETTA", "RIFIUTA"};
-            JOptionPane.showOptionDialog(window, aux[0]+" ti vuole sfidare", "Sfida",JOptionPane.INFORMATION_MESSAGE, JOptionPane.PLAIN_MESSAGE, null, buttons,null);
-//            JOptionPane.showMessageDialog(window, aux[0]+" ti vuole sfidare", "Sfida", JOptionPane.YES_NO_OPTION);
+
+            if((ChallengeFlag.getInstance()).flag == false){ //Se l'utente non è impegnato a effettuare una sfida gli mando la richiesta di sfida
+                int choose = JOptionPane.showOptionDialog(window, aux[0]+" ti vuole sfidare", "Sfida",JOptionPane.INFORMATION_MESSAGE, JOptionPane.PLAIN_MESSAGE, null, buttons,null);
+
+                if(choose == 0){
+                    Challenge challenge = Challenge.getChallenge();
+//                    challenge.printChallenge();
+                    window.setContentPane(challenge);
+                    window.validate();
+
+                }
+
+            }
         }
     }
 }

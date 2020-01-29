@@ -3,9 +3,6 @@ import User.*;
 import Server.*;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.*;
 import java.util.*;
@@ -19,6 +16,7 @@ public class Server {
     private int BUF_SIZE = 512;
     private int SELECTOR_TIMEOUT = 100;
     private ConcurrentHashMap<String, User> mapUser;
+    private ConcurrentHashMap<String, SelectionKey> mapKey;
 
 
     public Server(Selector selector, ThreadPoolExecutor executor){
@@ -26,6 +24,7 @@ public class Server {
         this.executor = executor;
         this.userDispatcher = UserDispatcher.getIstance();
         this.mapUser = new ConcurrentHashMap<>();
+        this.mapKey = new ConcurrentHashMap<>();
     }
 
     //Avvio selettore server
@@ -33,7 +32,6 @@ public class Server {
         while (true) {
             try {
                 selector.select(SELECTOR_TIMEOUT);
-//                selector.selectNow();
             } catch (IOException e) {
                 System.out.println("[ERROR] Errore nel selettore");
                 return;
@@ -66,6 +64,7 @@ public class Server {
                             user.decrementUse(); //Decremento use in user
                             user.setPort(0);
                             mapUser.remove(nick); //Rimuovo dagli user online
+                            mapKey.remove(nick); //Rimuovo la sua chiave
                         }
 
                         System.out.println("[CLOSED CLIENT]: (" +nick+") "+ ((SocketChannel) key.channel()).getRemoteAddress());
@@ -211,6 +210,7 @@ public class Server {
             else if (user.getNickname().equals(nickname) && user.getPassword().equals(password)){
                 System.out.println("[LOGIN] Inserisco "+nickname+" nella mapUser");
                 mapUser.put(nickname,user);
+                mapKey.put(nickname,key);
                 keyAttachment.nickname = nickname;
                 keyAttachment.response = "OK\nLogin effettuato";
                 user.incrementUse();
@@ -299,8 +299,9 @@ public class Server {
             if((friend = mapUser.get(friendNick)) != null){
                 user.incrementUse();;
                 friend.incrementUse();
+                SelectionKey keyFriend = mapKey.get(friendNick);
 
-                Challenge task = new Challenge(user,friend,key);
+                Challenge task = new Challenge(user,friend,key,keyFriend);
                 executor.execute(task);
             }
             else{
