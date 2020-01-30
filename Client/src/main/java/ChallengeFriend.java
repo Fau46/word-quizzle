@@ -22,7 +22,7 @@ public class ChallengeFriend extends JPanel implements ActionListener {
         this.client = client;
         this.nickname = nickname;
         this.sfida_in_corso = ChallengeFlag.getInstance();
-        this.sfida_in_corso.flag = true; //Disabilito il flag per non ricevere richieste di sfida
+        this.sfida_in_corso.flag.set(1); //Disabilito il flag per non ricevere richieste di sfida
 
         setBackground(Color.WHITE);
         setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
@@ -73,7 +73,8 @@ public class ChallengeFriend extends JPanel implements ActionListener {
     public void actionPerformed(ActionEvent actionEvent) {
         if(actionEvent.getActionCommand().equals("HOME")){
             HomePage homePage = new HomePage(nickname,window,client);
-            sfida_in_corso.flag = false; //abilito il flag per ricevere richieste di sfida
+//            HomePage homePage = HomePage.getHomePage(nickname,window,client);
+            sfida_in_corso.flag.set(0); //abilito il flag per ricevere richieste di sfida
             window.setContentPane(homePage);
             window.validate();
         }

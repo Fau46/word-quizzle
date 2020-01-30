@@ -6,7 +6,6 @@ import com.google.gson.Gson;
 
 import java.nio.channels.SelectionKey;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class ShowRank implements Runnable{
     private User user;
@@ -27,6 +26,7 @@ public class ShowRank implements Runnable{
         Vector<String> friendList;
         Gson  gson = new Gson();
 
+        unsortedRank.put(user.getNickname(),user.getScore().intValue());
         synchronized (friendList = user.getFriends()){
             for(String friendNick : friendList){
                 User friend;
@@ -61,20 +61,36 @@ public class ShowRank implements Runnable{
 
     //https://javahungry.blogspot.com/2017/11/how-to-sort-treemap-by-value-in-java.html
     //Alrgoritmo che ordina in maniera decrescente di valore la map
-    public static <K, V extends Comparable<V>> Map<K, V> sortByValues(final Map<K, V> map){
-        Comparator<K> valueComparator = new Comparator<K>() {
-            public int compare(K k1, K k2) {
-                int compare =
-                        map.get(k1).compareTo(map.get(k2));
-                if (compare == 0)
+//    public static <K, V extends Comparable<V>> Map<K, V> sortByValues(final Map<K, V> map){
+//        Comparator<K> valueComparator = new Comparator<K>() {
+//            public int compare(K k1, K k2) {
+//                int compare =
+//                        map.get(k1).compareTo(map.get(k2));
+//                if (compare == 0)
+//                    return 1;
+//                else
+//                return -compare; //per ottenere l'ordine in maniera decrescente
+//            }
+//        };
+//
+//        Map<K, V> sortedByValues =
+//                new TreeMap<K, V>(valueComparator);
+//        sortedByValues.putAll(map);
+//        return sortedByValues;
+//    }
+
+    private static Map<String, Integer> sortByValues(Map<String,Integer> map){
+        Comparator<String> valueComparator = new Comparator<String>() {
+            public int compare(String s1, String s2) {
+                if(map.get(s1) >= map.get(s2)){
+                    return -1;
+                }else{
                     return 1;
-                else
-                return -compare; //per ottenere l'ordine in maniera decrescente
+                }
             }
         };
 
-        Map<K, V> sortedByValues =
-                new TreeMap<K, V>(valueComparator);
+        Map<String,Integer> sortedByValues = new TreeMap<String, Integer>(valueComparator);
         sortedByValues.putAll(map);
         return sortedByValues;
     }

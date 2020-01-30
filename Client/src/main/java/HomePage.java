@@ -17,12 +17,15 @@ public class HomePage extends JPanel implements ActionListener{
     private SocketChannel client;
     private String nickname;
     private int BUF_SIZE = 512;
+    private ChallengeFlag challengeFlag;
+    private static HomePage homePage;
 
     public HomePage(String nick, JFrame window, SocketChannel client) {
         this.window = window;
         this.client = client;
         this.nickname = nick;
-        Challenge.setChallenge(window,client,nick);
+        this.challengeFlag = ChallengeFlag.getInstance();
+
 
         setBackground(Color.WHITE);
         setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
@@ -70,6 +73,12 @@ public class HomePage extends JPanel implements ActionListener{
         add(buttonPanel);
         add(responsePanel);
     }
+
+
+//    public static HomePage getHomePage(String nick, JFrame window, SocketChannel client){
+//        if(homePage == null) homePage = new HomePage(nick,window,client);
+//        return homePage;
+//    }
 
     @Override
     public void actionPerformed(ActionEvent actionEvent) {
@@ -190,8 +199,6 @@ public class HomePage extends JPanel implements ActionListener{
         buffer.put(request.getBytes());
         buffer.flip();
 
-            long start = System.currentTimeMillis();
-
         while (buffer.hasRemaining()){
             try {
                 client.write(buffer);
@@ -230,9 +237,6 @@ public class HomePage extends JPanel implements ActionListener{
                     String aux[] = (new String(buffer.array())).split("\n");
                     System.out.println("[RESPONSE] "+aux[1]);
 
-                        double finish = (double) (System.currentTimeMillis() - start) / 1000.0;
-                        System.out.println("Finish: "+finish);
-
                     Type listType = new TypeToken<Vector<String>>(){}.getType();
                     Vector<String> listaAmici = gson.fromJson(aux[1],listType);
 
@@ -240,6 +244,9 @@ public class HomePage extends JPanel implements ActionListener{
                         ShowFriends showFriends= new ShowFriends(window,client,nickname,listaAmici);
                         window.setContentPane(showFriends);
                         window.validate();
+                    }
+                    else{
+                        response.setText(aux[1]);
                     }
                 }
             }
@@ -279,7 +286,13 @@ public class HomePage extends JPanel implements ActionListener{
             else { //se la lettura è andata a buon fine
                 String aux[] = (new String(buffer.array())).split("\n");
                 System.out.println("[RESPONSE] " + aux[1]);
-                JOptionPane.showMessageDialog(window, "Il tuo punteggio è "+aux[1], "Punti", JOptionPane.INFORMATION_MESSAGE);
+
+                if(aux[0].equals("OK")){
+                    JOptionPane.showMessageDialog(window, "Il tuo punteggio è "+aux[1], "Punti", JOptionPane.INFORMATION_MESSAGE);
+                }
+                else{
+                    response.setText(aux[1]);
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -333,13 +346,16 @@ public class HomePage extends JPanel implements ActionListener{
                     String aux[] = (new String(buffer.array())).split("\n");
                     System.out.println("[RESPONSE] "+aux[1]);
 
-                    Type listType = new TypeToken<HashMap<String,Integer>>(){}.getType();
-                    HashMap<String,Integer> listaAmici = gson.fromJson(aux[1],listType);
+                    Type listType = new TypeToken<Map<String,Integer>>(){}.getType();
+                    Map<String,Integer> listaAmici = gson.fromJson(aux[1],listType);
 
                     if(aux[0].equals("OK")){ //se è andato a buon fine TODO forse inutile, controlla se il server ritorna sempre ok
                         ShowRank showRank = new ShowRank (window,client,nickname,listaAmici);
                         window.setContentPane(showRank);
                         window.validate();
+                    }
+                    else{
+                        response.setText(aux[1]);
                     }
                 }
             }
@@ -353,50 +369,53 @@ public class HomePage extends JPanel implements ActionListener{
 
     private void challenge() {
 //        ChallengeFriend challenge = Challenge.getInstance(window,client,nickname);
-        ChallengeFriend challenge = new ChallengeFriend(window,client,nickname);
-        window.setContentPane(challenge);
-        window.validate();
-//        String friend = JOptionPane.showInputDialog(window,"Inserisci l'amico che vuoi aggiungere","");
-//        if(friend!=null && !friend.equals("")){
-//            String request = "CHALLENGE\n"+nickname+"\n"+friend+"\n";
-//            ByteBuffer buffer = ByteBuffer.allocate(request.length());
-//
-//            buffer.put(request.getBytes());
-//            buffer.flip();
-//
-//            while (buffer.hasRemaining()) {
-//                try {
-//                    client.write(buffer);
-//                } catch (Exception e) {
-//                    System.out.println("[ERROR] Errore scrittura del buffer nella socket del server (CHALLENGE)");
-//                    serverError();
-//                    break;
-//                }
-//            }
-//
-//            response.setText("Attendo risposta...");
-//            buffer = ByteBuffer.allocate(BUF_SIZE);
-//
-//            try {
-//                int read = client.read(buffer);
-//
-//                if(read == -1){
-//                    System.out.println("[ERROR] Errore lettura della socket del server (CHALLENGE)");
-//                    serverError();
-//                    return;
-//                }
-//                else{
-//                    String aux[] = (new String(buffer.array())).split("\n");
-//                    System.out.println("[RESPONSE] "+aux[1]);
-//
-//                    if(aux[0].equals("KO")){
-//                        response.setText(aux[1]);
-//                    }
-//                }
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
+//        ChallengeFriend challenge = new ChallengeFriend(window,client,nickname);
+//        window.setContentPane(challenge);
+//        window.validate();
+
+        this.challengeFlag.flag.set(1);
+        String friend = JOptionPane.showInputDialog(window,"Inserisci l'amico che vuoi aggiungere","");
+        if(friend!=null && !friend.equals("")){
+            String request = "CHALLENGE\n"+nickname+"\n"+friend+"\n";
+            ByteBuffer buffer = ByteBuffer.allocate(request.length());
+
+            buffer.put(request.getBytes());
+            buffer.flip();
+
+            while (buffer.hasRemaining()) {
+                try {
+                    client.write(buffer);
+                } catch (Exception e) {
+                    System.out.println("[ERROR] Errore scrittura del buffer nella socket del server (CHALLENGE)");
+                    serverError();
+                    break;
+                }
+            }
+
+            buffer = ByteBuffer.allocate(BUF_SIZE);
+
+            try {
+                int read = client.read(buffer);
+
+                if(read == -1){
+                    System.out.println("[ERROR] Errore lettura della socket del server (CHALLENGE)");
+                    serverError();
+                    return;
+                }
+                else{
+                    String aux[] = (new String(buffer.array())).split("\n");
+                    System.out.println("[RESPONSE] "+aux[1]);
+
+                    if(aux[0].equals("KO")){
+                        response.setText(aux[1]);
+                    }
+
+                    this.challengeFlag.flag.set(0);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
     }
 

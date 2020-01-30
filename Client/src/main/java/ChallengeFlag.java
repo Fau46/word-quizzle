@@ -1,9 +1,11 @@
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class ChallengeFlag {
-    public boolean flag;
+    public AtomicInteger flag;
     private static ChallengeFlag challengeFlag;
 
     private ChallengeFlag(){
-        this.flag = false;
+        this.flag = new AtomicInteger(0);
     }
 
     public static ChallengeFlag getInstance(){

@@ -48,6 +48,7 @@ public class ShowFriends extends JPanel implements ActionListener {
     public void actionPerformed(ActionEvent actionEvent) {
         if(actionEvent.getActionCommand().equals("HOME")){
             HomePage startGUI = new HomePage(nickname,window,client);
+//            HomePage startGUI = HomePage.getHomePage(nickname,window,client);
             window.setContentPane(startGUI);
             window.validate();
         }

@@ -11,10 +11,11 @@ public class Challenge extends JPanel implements ActionListener {
     private ChallengeFlag challengeFlag;
     private static Challenge challenge;
 
-    private Challenge(JFrame window, SocketChannel client, String nickname){
+    public Challenge(JFrame window, SocketChannel client, String nickname){
         this.window = window;
         this.client = client;
         this.nickname = nickname;
+        this.challengeFlag = ChallengeFlag.getInstance();
 
         setBackground(Color.WHITE);
         setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
@@ -38,24 +39,13 @@ public class Challenge extends JPanel implements ActionListener {
         add(buttonPanel);
     }
 
-    public static void setChallenge(JFrame window, SocketChannel client, String nickname){
-        if(challenge == null) challenge = new Challenge(window,client,nickname);
-    }
-
-    public static Challenge getChallenge(){
-        return challenge;
-    }
-
-    public void printChallenge(){
-
-    }
-
 
     @Override
     public void actionPerformed(ActionEvent actionEvent) {
         if(actionEvent.getActionCommand().equals("HOME")){
             HomePage homePage = new HomePage(nickname,window,client);
-//            sfida_in_corso.flag = false; //abilito il flag per ricevere richieste di sfida
+//            HomePage homePage = HomePage.getHomePage(nickname,window,client);
+            challengeFlag.flag.set(0); //abilito il flag per ricevere richieste di sfida
             window.setContentPane(homePage);
             window.validate();
         }

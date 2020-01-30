@@ -188,6 +188,10 @@ public class Server {
         else if(op.equals("CHALLENGE")){
             challenge(aux,key);
         }
+        else{
+            badRequest(aux,key);
+            key.interestOps(SelectionKey.OP_WRITE);
+        }
     }
 
 
@@ -198,7 +202,6 @@ public class Server {
 
         String nickname = aux[1];
         String password = aux[2];
-        Integer port = Integer.valueOf(aux[3]);
 
         User user = null;
 
@@ -208,13 +211,13 @@ public class Server {
             if (user == null){
                 keyAttachment.response = "KO\nNickname non presente";} //TODO non ha senso visto che dico 'nick o pwd errate'
             else if (user.getNickname().equals(nickname) && user.getPassword().equals(password)){
-                System.out.println("[LOGIN] Inserisco "+nickname+" nella mapUser");
+                System.out.println("[LOGIN] "+nickname);
                 mapUser.put(nickname,user);
                 mapKey.put(nickname,key);
                 keyAttachment.nickname = nickname;
                 keyAttachment.response = "OK\nLogin effettuato";
                 user.incrementUse();
-                user.setPort(port);
+//                user.setPort(port);
             }
             else keyAttachment.response = "KO\nNickname o password errate";
         } else keyAttachment.response = "KO\nUtente gia' connesso";
@@ -242,6 +245,8 @@ public class Server {
         User user = mapUser.get(nickname);
         User friend;
 
+        System.out.println("[ADD FRIEND] nickname: "+nickname+" friend nickname: "+nickFriend);
+
         if((friend = mapUser.get(nickFriend)) == null){ //se non trovo friend tra gli utenti online
             friend = userDispatcher.getUser(nickFriend); //chiedo friend al dispatcher
         }
@@ -266,6 +271,9 @@ public class Server {
 
     private void showFriends(String[] aux, SelectionKey key) {
         User user = mapUser.get(aux[1]);
+        Con keyAttachment = (Con) key.attachment();
+
+        System.out.println("[SHOW FRIENDS] "+user.getNickname()+" ("+keyAttachment.nickname+")");
 
         user.incrementUse();
         ShowFriends task = new ShowFriends(user, key);
@@ -277,12 +285,17 @@ public class Server {
         User user = mapUser.get(aux[1]);
         Con keyAttachment = (Con) key.attachment();
 
+        System.out.println("[SHOW SCORE] "+user.getNickname()+" ("+keyAttachment.nickname+")");
+
         keyAttachment.response = "OK\n"+user.getScore().toString()+"\n";
     }
 
 
     private void showRank(String[] aux, SelectionKey key) {
         User user = mapUser.get(aux[1]);
+        Con keyAttachment = (Con) key.attachment();
+
+        System.out.println("[SHOW RANK] "+user.getNickname()+" ("+keyAttachment.nickname+")");
 
         user.incrementUse();
         ShowRank task = new ShowRank(user,key);
@@ -295,13 +308,15 @@ public class Server {
         String friendNick = aux[2];
         User friend;
 
+        System.out.println("[CHALLENGE] nickname "+user.getNickname()+" friend nickname: "+friendNick+" ("+keyAttachment.nickname+")");
+
         if(!user.getNickname().equals(friendNick)){
             if((friend = mapUser.get(friendNick)) != null){
                 user.incrementUse();;
                 friend.incrementUse();
                 SelectionKey keyFriend = mapKey.get(friendNick);
 
-                Challenge task = new Challenge(user,friend,key,keyFriend);
+                Challenge task = new Challenge(user,friend,key,keyFriend,selector);
                 executor.execute(task);
             }
             else{
@@ -313,5 +328,13 @@ public class Server {
             keyAttachment.response = "KO\nNon puoi sfidarti";
             key.interestOps(SelectionKey.OP_WRITE);
         }
+    }
+
+    private void badRequest(String[] aux, SelectionKey key) {
+        Con keyAttachment = (Con) key.attachment();
+
+        System.out.println("[BAD REQUEST] "+aux[1]+" ("+keyAttachment.nickname+")");
+
+        keyAttachment.response = "KO\nRichiesta non valida\n";
     }
 }

@@ -16,7 +16,7 @@ public class Login extends JPanel implements ActionListener{
     private JFrame window;
     private SocketChannel client;
     private int BUF_SIZE = 512;
-    private int socketPort;
+//    private int socketPort;
 
     public Login(JFrame window){
         this.window = window;
@@ -86,9 +86,9 @@ public class Login extends JPanel implements ActionListener{
             return;
         }
 
-        socketPort = client.socket().getLocalPort();
-        Thread t = new Thread(new UDPListener(socketPort,window));
-        t.start();
+//        socketPort = client.socket().getLocalPort();
+//        Thread t = new Thread(new UDPListener(socketPort,window));
+//        t.start(); //TODO elimina
 
         System.out.println("[OK] Connessione col server stabilita");
         connectAnswer.setText("Connessione stabilita");
@@ -112,7 +112,8 @@ public class Login extends JPanel implements ActionListener{
                 return;
             }
 
-            String request = new String("LOGIN\n"+nick+"\n"+pwd+"\n"+socketPort+"\n"); //Creo la stringa del protocollo TODO eliminare new string
+            String request = "LOGIN\n"+nick+"\n"+pwd+"\n"; //Creo la stringa del protocollo TODO eliminare new string
+
             ByteBuffer buffer = ByteBuffer.allocate(request.length());
 
             buffer.put(request.getBytes());
@@ -145,7 +146,12 @@ public class Login extends JPanel implements ActionListener{
                     answer.setText(aux[1]);
 
                     if(aux[0].equals("OK")){ //se il login è andato a buon fine mostro la homepage
-                        window.setContentPane(new HomePage(nick,window,client));
+                        int socketPort = client.socket().getLocalPort();
+                        Thread t = new Thread(new UDPListener(socketPort,window,client,nick));
+                        t.start();
+
+                        HomePage homePage = new HomePage(nick,window,client);
+                        window.setContentPane(homePage);
                         window.validate();
                     }
                 }

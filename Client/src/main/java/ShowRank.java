@@ -11,7 +11,7 @@ public class ShowRank extends JPanel implements ActionListener {
     private String nickname;
     private JTextArea friendList;
 
-    public ShowRank(JFrame window, SocketChannel client, String nickname, HashMap<String, Integer> listaAmici){
+    public ShowRank(JFrame window, SocketChannel client, String nickname, Map<String, Integer> listaAmici){
         this.window = window;
         this.client = client;
         this.nickname = nickname;
@@ -46,6 +46,7 @@ public class ShowRank extends JPanel implements ActionListener {
     public void actionPerformed(ActionEvent actionEvent) {
         if(actionEvent.getActionCommand().equals("HOME")){
             HomePage startGUI = new HomePage(nickname,window,client);
+//            HomePage startGUI = HomePage.getHomePage(nickname,window,client);
             window.setContentPane(startGUI);
             window.validate();
         }
