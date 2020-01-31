@@ -312,12 +312,18 @@ public class Server {
 
         if(!user.getNickname().equals(friendNick)){
             if((friend = mapUser.get(friendNick)) != null){
-                user.incrementUse();;
-                friend.incrementUse();
-                SelectionKey keyFriend = mapKey.get(friendNick);
+                if((user.getFriends()).contains(friendNick)){
+                    user.incrementUse();;
+                    friend.incrementUse();
+                    SelectionKey keyFriend = mapKey.get(friendNick);
 
-                Challenge task = new Challenge(user,friend,key,keyFriend,selector);
-                executor.execute(task);
+                    ChallengeRequest task = new ChallengeRequest(user,friend,key,keyFriend,selector);
+                    executor.execute(task);
+                }
+                else{
+                    keyAttachment.response = "KO\n"+friendNick+" non e' tuo amico";
+                    key.interestOps(SelectionKey.OP_WRITE);
+                }
             }
             else{
                 keyAttachment.response = "KO\n"+friendNick+" non online";
@@ -336,6 +342,11 @@ public class Server {
 
         System.out.println("[BAD REQUEST] "+aux[1]+" ("+keyAttachment.nickname+")");
 
-        keyAttachment.response = "KO\nRichiesta non valida\n";
+        if(aux[1].equals("Sfida accettata")){
+            keyAttachment.response = "KO\nTempo scaduto\n";
+        }
+        else{
+            keyAttachment.response = "KO\nErrore operazione richiesta\n";
+        }
     }
 }

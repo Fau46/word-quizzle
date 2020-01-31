@@ -51,27 +51,27 @@ public class UDPListener implements Runnable,TCPConnection{
 
             if(challengeFlag.flag.intValue() == 0){ //Se l'utente non è impegnato a effettuare una sfida gli mando la richiesta
                 challengeFlag.flag.set(1);
-                int choose = JOptionPane.showOptionDialog(window, aux[0]+" ti vuole sfidare", "Sfida",JOptionPane.INFORMATION_MESSAGE, JOptionPane.PLAIN_MESSAGE, null, buttons,null);
+                int choose = JOptionPane.showOptionDialog(window, aux[0]+" ti vuole sfidare\nHai "+aux[1]+" secondi per accettare la sfida", "Sfida",JOptionPane.INFORMATION_MESSAGE, JOptionPane.PLAIN_MESSAGE, null, buttons,null);
 
                 if(choose == 0){ //Se l'utente ha scelto 'ACCETTA'
-//                    Challenge challenge = new Challenge(window,client,nickname);
-//                    window.setContentPane(challenge);
-//                    window.validate();
+//
                     String response = "OK\nSfida accettata\n";
 
                     String[] responseArray = ReadWrite(response);
 
                     if(responseArray != null){
-                        System.out.println("RESPONSE "+responseArray.length);
-                        if(aux[0].equals("KO")){
+                        if(responseArray[0].equals("KO")){
                             JOptionPane.showMessageDialog(window, responseArray[1], "Error", JOptionPane.ERROR_MESSAGE);
                         }
+                        else if(responseArray[0].equals("OK")){
+                            Challenge challenge = new Challenge(window,client,nickname);
+                            window.setContentPane(challenge);
+                            window.validate();
+                        }
                     }
-
                 }
                 else {
                     String response = "KO\nSfida rifiutata\n";
-
                     ReadWrite(response);
 
                     challengeFlag.flag.set(0);
@@ -100,17 +100,15 @@ public class UDPListener implements Runnable,TCPConnection{
         buffer = ByteBuffer.allocate(512);
 
         try {
-
             int read = client.read(buffer);
 
             if(read == - 1){//Se riscontro un errore nella lettura
                 System.out.println("[ERROR] Errore lettura della socket del server (UDP Thread)");
                 this.serverError();
-
             }
             else { //se la lettura è andata a buon fine
-                String aux1[] = (new String(buffer.array())).split("\n");
-                /*if(aux1.length!=0)*/ System.out.println("[RESPONSE] " + aux1[1]);
+                String[] aux1 = (new String(buffer.array())).split("\n");
+                System.out.println("[RESPONSE] " + aux1[1]);
                 return aux1;
             }
         } catch (IOException e) {

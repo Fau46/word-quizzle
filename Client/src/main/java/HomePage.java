@@ -368,13 +368,9 @@ public class HomePage extends JPanel implements ActionListener{
 
 
     private void challenge() {
-//        ChallengeFriend challenge = Challenge.getInstance(window,client,nickname);
-//        ChallengeFriend challenge = new ChallengeFriend(window,client,nickname);
-//        window.setContentPane(challenge);
-//        window.validate();
-
         this.challengeFlag.flag.set(1);
         String friend = JOptionPane.showInputDialog(window,"Inserisci l'amico che vuoi aggiungere","");
+
         if(friend!=null && !friend.equals("")){
             String request = "CHALLENGE\n"+nickname+"\n"+friend+"\n";
             ByteBuffer buffer = ByteBuffer.allocate(request.length());
@@ -408,9 +404,14 @@ public class HomePage extends JPanel implements ActionListener{
 
                     if(aux[0].equals("KO")){
                         response.setText(aux[1]);
+                        this.challengeFlag.flag.set(0);
+                    }
+                    else if(aux[0].equals("OK")){
+                        Challenge challenge = new Challenge(window,client,nickname);
+                        window.setContentPane(challenge);
+                        window.validate();
                     }
 
-                    this.challengeFlag.flag.set(0);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
