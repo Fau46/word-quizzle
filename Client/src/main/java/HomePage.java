@@ -420,7 +420,6 @@ public class HomePage extends JPanel implements ActionListener{
     }
 
 
-
     private void serverError(){
         JOptionPane.showMessageDialog(window, "Impossibile comunicare col server.\n Verrai disconnesso", "Server error", JOptionPane.ERROR_MESSAGE);
         StartGUI startGUI = new StartGUI(window);

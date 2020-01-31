@@ -4,6 +4,7 @@ import Server.Con;
 import User.User;
 
 import java.io.IOException;
+import java.io.Writer;
 import java.net.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
@@ -32,11 +33,35 @@ public class Challenge implements Runnable {
 
     @Override
     public void run() {
-        System.out.println("invio datagramma");
+//        DatagramSocket datagramSocket;
+//        InetAddress address;
+//        DatagramPacket datagramPacket;
+//        Con keyAttachment = (Con) userKey.attachment();
+
+//        try {
+//            datagramSocket = new DatagramSocket();
+//            address = InetAddress.getByName("localhost");//TODO mettere costante
+
+//            String request = user.getNickname()+"\n";
+//            byte[] byteRequest = request.getBytes();
+//
+//            int friendSocketPort = ((SocketChannel) friendKey.channel()).socket().getPort();//Prendo la porta della socket di friend
+//            datagramPacket = new DatagramPacket(byteRequest,byteRequest.length,address,friendSocketPort);
+//            datagramSocket.send(datagramPacket); //Invio il pacchetto di richiesta di sfida a friend
+            sendChallengeRequest();
+            registerFriendKey();
+//        } catch (SocketException | UnknownHostException e) {
+//            e.printStackTrace();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+    }
+
+    //Procedura che si occupa di inviare la richiesta di sfida a friend
+    private void sendChallengeRequest(){
         DatagramSocket datagramSocket;
         InetAddress address;
         DatagramPacket datagramPacket;
-//        byte[] readerBuffer = new byte[BUF_SIZE];
         Con keyAttachment = (Con) userKey.attachment();
 
         try {
@@ -49,8 +74,6 @@ public class Challenge implements Runnable {
             int friendSocketPort = ((SocketChannel) friendKey.channel()).socket().getPort();//Prendo la porta della socket di friend
             datagramPacket = new DatagramPacket(byteRequest,byteRequest.length,address,friendSocketPort);
             datagramSocket.send(datagramPacket); //Invio il pacchetto di richiesta di sfida a friend
-
-            selectorChallenge();
         } catch (SocketException | UnknownHostException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -58,34 +81,35 @@ public class Challenge implements Runnable {
         }
     }
 
-    private void selectorChallenge(){
-        Selector selector = null;
-        Con keyAttachmentFriend;
 
+    private void registerFriendKey(){
         try {
-            selector = Selector.open();
+            Selector selector = Selector.open();
 
-            keyAttachmentFriend = (Con) this.friendKey.attachment();
-            this.friendKey.interestOps(0); //resetto l'interestop della chiave di friend
+            Con keyAttachmentFriend = (Con) this.friendKey.attachment();
+            this.friendKey.interestOps(0); //resetto l'interestop della chiave di friend registrata nel selettore principale
 
             SocketChannel friendSocket = (SocketChannel) this.friendKey.channel();
             newFriendKey = friendSocket.register(selector, SelectionKey.OP_READ); //registro la key di friend col nuovo selettore
             keyAttachmentFriend.response = "Risposta non ancora data";
             newFriendKey.attach(keyAttachmentFriend);
 
-            runSelector(selector);
+            readResponse(selector);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void runSelector(Selector selector){
-        boolean received = false;
+
+    private void readResponse(Selector selector){
+        boolean receivedResponse = false;
 
         do{
             try {
-                if(received) selector.select(100);
+
+                if(receivedResponse) selector.select(100);
                 else selector.select(SELECTOR_TIMEOUT);
+
             } catch (IOException e) {
                 System.out.println("[ERROR] Errore nel selettore");
                 return;
@@ -95,48 +119,29 @@ public class Challenge implements Runnable {
             Iterator<SelectionKey> iterator = readyKeys.iterator();
 
             while (iterator.hasNext()) {
-                if (!received) received = true; //Setto il flag che mi indica l'avvenuta risposta di friend
+                if (!receivedResponse) receivedResponse = true; //Setto il flag che mi indica l'avvenuta risposta di friend
 
                 SelectionKey key = iterator.next();
                 try {
-                    if (key.isAcceptable()) {
-                        iterator.remove();
-                    } else if (key.isReadable()) {
+                    if (key.isReadable()) {
                         this.Readable(key, iterator);
-                    } else if (key.isWritable()) {
-//                        this.Writable(key);
-                        iterator.remove();
                     }
                 } catch (IOException e) {
-                    key.cancel();
-                    try {
-//                        Gestisco la chiusura del canale
-                        Con keyAttachment = (Con) key.attachment();
-//                        String nick = keyAttachment.nickname;
-//                        if (nick != null) {
-//                            User user = mapUser.get(nick);
-//                            user.decrementUse(); //Decremento use in user
-//                            user.setPort(0);
-//                            mapUser.remove(nick); //Rimuovo dagli user online
-//                            mapKey.remove(nick); //Rimuovo la sua chiave
-//                        }
-//
-//                        System.out.println("[CLOSED CLIENT]: (" + nick + ") " + ((SocketChannel) key.channel()).getRemoteAddress());
-                        if(keyAttachment.response.equals("Risposta non ancora data")){ //Caso in cui friend si disconnette ancora prima di dare una risposta
-                            disconnectedFriend("KO\n"+keyAttachment.nickname+" si e' disconnesso\n");
-                            key.channel().close();
-                            break;
-                        }
+//                      Gestisco la chiusura del canale
+                    Con keyAttachment = (Con) key.attachment();
 
-                        key.channel().close();
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
+                    deregisterFriendKey(key);
+
+                    if(keyAttachment.response.equals("Risposta non ancora data")){ //Caso in cui friend si disconnette ancora prima di dare una risposta
+                        disconnectedFriend("KO\n"+keyAttachment.nickname+" si e' disconnesso\n");
                     }
+
+                    stopSelector = true;
                 }
             }
-        }while (received && !stopSelector);
+        }while (receivedResponse && !stopSelector);
 
-        if(!received){ //Controllo se il timer è scaduto e friend non ha dato una risposta
+        if(!receivedResponse){ //Controllo se il timer è scaduto e friend non ha dato una risposta
             negativeResponse("KO\nTempo scaduto");
         }
     }
@@ -166,6 +171,21 @@ public class Challenge implements Runnable {
         }
     }
 
+    private void Write(String string, SelectionKey key){
+        ByteBuffer buffer = ByteBuffer.allocate(string.length());
+
+        buffer.put(string.getBytes());
+        buffer.flip();
+
+        while (buffer.hasRemaining()){
+            try {
+                ((SocketChannel)key.channel()).write(buffer);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     //Parser che si occupa di interpretare l'operazione richiesta
     private void parser(SelectionKey key) {
         Con keyAttachment = (Con) key.attachment();
@@ -174,22 +194,17 @@ public class Challenge implements Runnable {
         if(aux[0].equals("KO")){
             stopSelector = true;
 
-            //Rispondo al thread upd di friend
-            String string = "OK\nOK richiesta rifiutata\n";
-            ByteBuffer buffer = ByteBuffer.allocate(string.length());
-
-            buffer.put(string.getBytes());
-            buffer.flip();
-
-            while (buffer.hasRemaining()){
-                try {
-                    ((SocketChannel)key.channel()).write(buffer);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+            //Rispondo al thread UDP di friend
+            Write("OK\nOK richiesta rifiutata\n", key);
 
             negativeResponse("KO\nSfida non accettata");
+        }
+        else if(aux[0].equals("OK")){
+            if(!userKey.isValid()){
+                String string = "KO\n"+((Con)userKey.attachment()).nickname+" ha abbandonato\n";
+                Write(string,key);
+                deregisterFriendKey(key);
+            }
         }
 
     }
@@ -197,24 +212,14 @@ public class Challenge implements Runnable {
     //Funzione che ritorna una risposta negativa a user
     private void negativeResponse(String response) {
         Con keyAttachment = (Con) userKey.attachment();
-        Con keyAttachmentFriend = (Con) this.newFriendKey.attachment();
+//        Con keyAttachmentFriend = (Con) this.newFriendKey.attachment();
 
         keyAttachment.response =  response; //Allego la risposta negativa a user
 
-        this.newFriendKey.interestOps(0);
+        Con keyAttachmentFriend = deregisterFriendKey(newFriendKey);
 
-        SocketChannel friendSocket = (SocketChannel) this.newFriendKey.channel();
-
-        try {
-            //Registro la key di friend nel selector principale
-            SelectionKey friendKey = friendSocket.register(serverSelector,SelectionKey.OP_READ);
-            keyAttachmentFriend.response = null;
-            keyAttachmentFriend.request = null;
-            friendKey.attach(keyAttachmentFriend);
-        } catch (ClosedChannelException e) {
-            e.printStackTrace();
-        }
-
+        keyAttachmentFriend.request = null;
+        keyAttachmentFriend.response = null;
 
         try{
             userKey.interestOps(SelectionKey.OP_WRITE);
@@ -228,6 +233,7 @@ public class Challenge implements Runnable {
         }
     }
 
+    //Procedura che si occupa di segnalare la risposta a user
     private void disconnectedFriend(String response) {
         Con keyAttachment = (Con) userKey.attachment();
 
@@ -244,6 +250,23 @@ public class Challenge implements Runnable {
             return;
         }
 
+    }
+
+//    Procedura che si occupa di registrare nuovamente la chiave key sul selettore principale
+    private Con deregisterFriendKey(SelectionKey key){
+        Con keyAttachment = (Con) key.attachment();
+        try {
+            key.interestOps(0);
+
+            SocketChannel keySocket = (SocketChannel) key.channel();
+
+            SelectionKey key1 = keySocket.register(this.serverSelector, SelectionKey.OP_READ);
+            key1.attach(keyAttachment);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return keyAttachment;
     }
 
 }

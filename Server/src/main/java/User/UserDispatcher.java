@@ -9,7 +9,7 @@ public class UserDispatcher {
     private ConcurrentHashMap<String, User> userMap;
     private DBMS dbms;
     private static UserDispatcher userDispatcher;
-    private int sleepTimer = 3;
+    private int SLEEP_TIMER = 3;
 
 
     private UserDispatcher(){
@@ -21,7 +21,7 @@ public class UserDispatcher {
             public void run() {
                 while (true){
                     try {
-                        Thread.sleep(sleepTimer * 1000);
+                        Thread.sleep(SLEEP_TIMER * 1000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }

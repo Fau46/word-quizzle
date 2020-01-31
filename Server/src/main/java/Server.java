@@ -157,7 +157,6 @@ public class Server {
     }
 
 
-    //TODO mettere il caso in cui l'operazione è malformata
     private void parser(SelectionKey key) throws IOException{
         Con keyAttachment = (Con) key.attachment();
         String[] aux = keyAttachment.request.split("\n"); //Splitto la request
@@ -302,6 +301,7 @@ public class Server {
         executor.execute(task);
     }
 
+
     private void challenge(String[] aux, SelectionKey key) {
         Con keyAttachment = (Con) key.attachment();
         User user = mapUser.get(aux[1]);
@@ -329,6 +329,7 @@ public class Server {
             key.interestOps(SelectionKey.OP_WRITE);
         }
     }
+
 
     private void badRequest(String[] aux, SelectionKey key) {
         Con keyAttachment = (Con) key.attachment();

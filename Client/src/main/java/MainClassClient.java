@@ -4,7 +4,7 @@ import java.awt.*;
 public class MainClassClient extends JPanel {
 
     public static void main(String[] args) {
-        JFrame window = new JFrame("Simple Calculator");
+        JFrame window = new JFrame("Word Quizzle");
         StartGUI startGUI = new StartGUI(window);
         window.setContentPane(startGUI);
         window.pack();

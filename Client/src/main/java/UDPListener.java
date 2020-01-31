@@ -13,6 +13,8 @@ public class UDPListener implements Runnable,TCPConnection{
     private ChallengeFlag challengeFlag;
     private SocketChannel client;
     private String nickname;
+    private int BUF_SIZE = 512;
+    private boolean SHUTDOWN = false;
 
     public UDPListener(int port, JFrame window, SocketChannel client, String nickname){
         this.window = window;
@@ -32,11 +34,11 @@ public class UDPListener implements Runnable,TCPConnection{
             e.printStackTrace();
         }
 
-        byte[] bufferByte = new byte[512];
+        byte[] bufferByte = new byte[BUF_SIZE];
         DatagramPacket datagramPacket = new DatagramPacket(bufferByte,bufferByte.length);
         String request = null;
 
-        while (true){
+        while (!SHUTDOWN){
             try {
                 datagramSocket.receive(datagramPacket); //Leggo la richiesta di sfida
                 request = new String(datagramPacket.getData(),0,datagramPacket.getLength(),"UTF-8");
@@ -51,58 +53,83 @@ public class UDPListener implements Runnable,TCPConnection{
                 challengeFlag.flag.set(1);
                 int choose = JOptionPane.showOptionDialog(window, aux[0]+" ti vuole sfidare", "Sfida",JOptionPane.INFORMATION_MESSAGE, JOptionPane.PLAIN_MESSAGE, null, buttons,null);
 
-                if(choose == 0){
-                    Challenge challenge = new Challenge(window,client,nickname);
-//                    challenge.printChallenge();
-                    window.setContentPane(challenge);
-                    window.validate();
+                if(choose == 0){ //Se l'utente ha scelto 'ACCETTA'
+//                    Challenge challenge = new Challenge(window,client,nickname);
+//                    window.setContentPane(challenge);
+//                    window.validate();
+                    String response = "OK\nSfida accettata\n";
+
+                    String[] responseArray = ReadWrite(response);
+
+                    if(responseArray != null){
+                        System.out.println("RESPONSE "+responseArray.length);
+                        if(aux[0].equals("KO")){
+                            JOptionPane.showMessageDialog(window, responseArray[1], "Error", JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
 
                 }
-                else{
+                else {
                     String response = "KO\nSfida rifiutata\n";
-                    ByteBuffer buffer = ByteBuffer.allocate(response.length());
 
-                    buffer.put(response.getBytes());
-                    buffer.flip();
+                    ReadWrite(response);
 
-                    while (buffer.hasRemaining()){
-                        try {
-                            client.write(buffer);
-                        } catch (IOException e) {
-                            System.out.println("[ERROR] Errore scrittura del buffer nella socket del server (SHOWSCORE)");
-                            JOptionPane.showMessageDialog(window, "Impossibile comunicare col server.\n Verrai disconnesso", "Server error", JOptionPane.ERROR_MESSAGE);
-                            StartGUI startGUI = new StartGUI(window);
-                            window.setContentPane(startGUI);
-                            window.validate();
-                            break;
-                        }
-                    }
-
-
-
-                    buffer = ByteBuffer.allocate(512);
-
-                    try {
-
-                        int read = client.read(buffer);
-
-                        if(read == - 1){//Se riscontro un errore nella lettura
-                            System.out.println("[ERROR] Errore lettura della socket del server (ADDFRIEND)");
-//                            this.serverError();
-
-                        }
-                        else { //se la lettura è andata a buon fine
-                            String aux1[] = (new String(buffer.array())).split("\n");
-                            if(aux1.length!=0) System.out.println("[RESPONSE] " + aux1[1]);
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-
+                    challengeFlag.flag.set(0);
                 }
-
-                challengeFlag.flag.set(0);
             }
         }
+
     }
+
+    private String[] ReadWrite(String response){
+        ByteBuffer buffer = ByteBuffer.allocate(response.length());
+
+        buffer.put(response.getBytes());
+        buffer.flip();
+
+        while (buffer.hasRemaining()){
+            try {
+                client.write(buffer);
+            } catch (IOException e) {
+                System.out.println("[ERROR] Errore scrittura del buffer nella socket del server (UDP Thread)");
+                this.serverError();
+                break;
+            }
+        }
+
+        buffer = ByteBuffer.allocate(512);
+
+        try {
+
+            int read = client.read(buffer);
+
+            if(read == - 1){//Se riscontro un errore nella lettura
+                System.out.println("[ERROR] Errore lettura della socket del server (UDP Thread)");
+                this.serverError();
+
+            }
+            else { //se la lettura è andata a buon fine
+                String aux1[] = (new String(buffer.array())).split("\n");
+                /*if(aux1.length!=0)*/ System.out.println("[RESPONSE] " + aux1[1]);
+                return aux1;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return  null;
+    }
+
+    private void serverError(){
+        datagramSocket.close();
+        challengeFlag.flag.set(0);
+        SHUTDOWN = true;
+
+        JOptionPane.showMessageDialog(window, "Impossibile comunicare col server.\n Verrai disconnesso", "Server error", JOptionPane.ERROR_MESSAGE);
+
+        StartGUI startGUI = new StartGUI(window);
+        window.setContentPane(startGUI);
+        window.validate();
+    }
+
 }
