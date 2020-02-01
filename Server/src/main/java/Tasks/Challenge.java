@@ -1,6 +1,7 @@
 package Tasks;
 
 import Server.Con;
+import Server.DictionaryDispatcher;
 import User.User;
 
 import java.io.IOException;
@@ -10,6 +11,8 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class Challenge {
@@ -19,6 +22,7 @@ public class Challenge {
     private Selector serverSelector;
     private boolean SHUTDOWN = false;
     private int TIMER = 100;
+    private DictionaryDispatcher dictionaryDispatcher;
 
     public Challenge(User user, User friend, SelectionKey userKey, SelectionKey friendKey, Selector serverSelector){
         this.user = user;
@@ -26,10 +30,14 @@ public class Challenge {
         this.userKey = userKey;
         this.friendKey = friendKey;
         this.serverSelector = serverSelector;
+        this.dictionaryDispatcher = DictionaryDispatcher.getInstance();
 
     }
 
     public void startChallenge(){
+
+        Map<String,String> wordsList = dictionaryDispatcher.getList();
+
         try {
             Selector selector = Selector.open();
 

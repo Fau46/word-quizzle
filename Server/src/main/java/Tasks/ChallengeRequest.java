@@ -1,8 +1,11 @@
 package Tasks;
 
 import Server.Con;
+import Server.DictionaryDispatcher;
 import User.User;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import jdk.internal.jline.internal.Urls;
 
 import java.io.*;
@@ -186,7 +189,7 @@ public class ChallengeRequest implements Runnable {
             }
             else{
                 deregisterFriendKey(key);
-                Map<String,String> dictionary = translateWords();
+//                Map<String,String> dictionary = translateWords();
                 Challenge challenge = new Challenge(user, friend, userKey,friendKey,serverSelector); //TODO forse problema con friendKey
                 challenge.startChallenge();
             }
@@ -289,10 +292,14 @@ public class ChallengeRequest implements Runnable {
 
                 Gson gson = new Gson();
 
-                Object aux = gson.fromJson(reader,Object.class);
-                Object aux1 = gson.fromJson(reader1,Object.class);
+                JsonObject aux = gson.fromJson(reader,JsonObject.class);
+                JsonObject aux1 = gson.fromJson(reader1, JsonObject.class);
 
-                System.out.println("RESPONSE["+string+"] "+aux.toString());
+                JsonArray auxArray = aux.getAsJsonArray("matches");
+
+                for(int i=0; i<auxArray.size(); i++){
+                    System.out.println("RESPONSE["+string+"] "+(auxArray.get(i)).getAsJsonObject().get("translation"));
+                }
                 System.out.println("RESPONSE1["+string+"] "+aux1.toString());
 
             } catch (MalformedURLException e) {
