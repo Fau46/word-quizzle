@@ -2,20 +2,17 @@ package Tasks;
 
 import Server.Con;
 import User.User;
+import com.google.gson.Gson;
+import jdk.internal.jline.internal.Urls;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.Writer;
+import java.io.*;
 import java.net.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.Vector;
+import java.util.*;
 
 public class ChallengeRequest implements Runnable {
     private User user, friend;
@@ -257,9 +254,62 @@ public class ChallengeRequest implements Runnable {
     }
 
 
+
+
+//    -----------------------AREA DI TEST-----------------------
+
     private Map<String,String> translateWords(){
-        File file = new File("words.italian.txt");
+        Set<String> set = new TreeSet<>();
+
+        try {
+            for(int i=0; i<5; i++){
+                String string = test();
+                set.add(string);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("LUNGHEZZA set "+set.size());
+        traduzione(set);
+
         return null;
+    }
+
+    private void traduzione(Set<String> set) {
+        for(String string : set){
+            try {
+                String req = "https://api.mymemory.translated.net/get?q="+string+"&langpair=it|en";
+                String req1 = "https://translate.yandex.net/api/v1.5/tr.json/translate?key=trnsl.1.1.20200201T115631Z.c3b0cdde609dde53.2228d16c158e2da155316068ad1bee64e3af99f5&text="+string+"&lang=it-en";
+                URL url = new URL(req);
+                URL url1 = new URL(req1);
+
+                Reader reader = new InputStreamReader(url.openStream());
+                Reader reader1 = new InputStreamReader(url1.openStream());
+
+                Gson gson = new Gson();
+
+                Object aux = gson.fromJson(reader,Object.class);
+                Object aux1 = gson.fromJson(reader1,Object.class);
+
+                System.out.println("RESPONSE["+string+"] "+aux.toString());
+                System.out.println("RESPONSE1["+string+"] "+aux1.toString());
+
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private String test() throws IOException {
+        File file = new File("./Server/src/main/resources/words.italian.txt");
+        final RandomAccessFile f = new RandomAccessFile(file, "r");
+        final long randomLocation = (long) (Math.random() * f.length());
+        f.seek(randomLocation);
+        f.readLine();
+        return f.readLine();
     }
 
 }

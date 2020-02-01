@@ -15,14 +15,28 @@ public class UDPListener implements Runnable,TCPConnection{
     private String nickname;
     private int BUF_SIZE = 512;
     private boolean SHUTDOWN = false;
+    private static UDPListener udpListener;
 
-    public UDPListener(int port, JFrame window, SocketChannel client, String nickname){
+
+    private UDPListener(int port, JFrame window, SocketChannel client, String nickname){
         this.window = window;
         this.port = port;
         this.challengeFlag = ChallengeFlag.getInstance();
         this.client = client;
         this.nickname = nickname;
     }
+
+
+    public static UDPListener getInstance(int port, JFrame window, SocketChannel client, String nickname){
+        if(udpListener == null) udpListener = new UDPListener(port,window,client,nickname);
+        return udpListener;
+    }
+
+
+    public static UDPListener getInstance(){
+        return udpListener;
+    }
+
 
     @Override
     public void run() {
@@ -42,9 +56,12 @@ public class UDPListener implements Runnable,TCPConnection{
             try {
                 datagramSocket.receive(datagramPacket); //Leggo la richiesta di sfida
                 request = new String(datagramPacket.getData(),0,datagramPacket.getLength(),"UTF-8");
+            } catch (SocketException e){
+                break;
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
 
             String[] aux = request.split("\n");
             String[] buttons = {"ACCETTA", "RIFIUTA"};
@@ -78,8 +95,9 @@ public class UDPListener implements Runnable,TCPConnection{
                 }
             }
         }
-
+        System.out.println("[CLOSED] Thread UDP closed");
     }
+
 
     private String[] ReadWrite(String response){
         ByteBuffer buffer = ByteBuffer.allocate(response.length());
@@ -118,16 +136,23 @@ public class UDPListener implements Runnable,TCPConnection{
         return  null;
     }
 
-    private void serverError(){
-        datagramSocket.close();
-        challengeFlag.flag.set(0);
-        SHUTDOWN = true;
+
+    public void serverError(){
+        shutdownAndClear();
 
         JOptionPane.showMessageDialog(window, "Impossibile comunicare col server.\n Verrai disconnesso", "Server error", JOptionPane.ERROR_MESSAGE);
 
         StartGUI startGUI = new StartGUI(window);
         window.setContentPane(startGUI);
         window.validate();
+    }
+
+
+    public void shutdownAndClear(){
+        datagramSocket.close();
+        challengeFlag.flag.set(0);
+        SHUTDOWN = true;
+        udpListener = null;
     }
 
 }

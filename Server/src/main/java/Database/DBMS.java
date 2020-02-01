@@ -77,8 +77,7 @@ public class DBMS implements Costants{
         Gson gson = new Gson();
         User user = null;
 
-        try {
-            Reader reader = Files.newBufferedReader(Paths.get(path));
+        try(Reader reader = Files.newBufferedReader(Paths.get(path))) {
             user = gson.fromJson(reader,User.class);
         } catch (IOException e) {
             e.printStackTrace();

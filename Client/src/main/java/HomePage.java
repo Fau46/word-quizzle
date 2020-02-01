@@ -133,6 +133,8 @@ public class HomePage extends JPanel implements ActionListener{
                 System.out.println("[RESPONSE] "+aux[1]);
 
                 if(aux[0].equals("OK")){ //se il logout è andato a buon fine
+                    UDPListener.getInstance().shutdownAndClear();
+
                     StartGUI startGUI = new StartGUI(window);
                     window.setContentPane(startGUI);
                     window.validate();
@@ -151,7 +153,7 @@ public class HomePage extends JPanel implements ActionListener{
 
     private void addFriend(){
         String friend = JOptionPane.showInputDialog(window,"Inserisci l'amico che vuoi aggiungere","");
-//        System.out.println(friend);
+
         if(friend!=null && !friend.equals("")){
             String request = "ADDFRIEND\n"+nickname+"\n"+friend+"\n";
             ByteBuffer buffer = ByteBuffer.allocate(request.length());
@@ -240,7 +242,7 @@ public class HomePage extends JPanel implements ActionListener{
                     Type listType = new TypeToken<Vector<String>>(){}.getType();
                     Vector<String> listaAmici = gson.fromJson(aux[1],listType);
 
-                    if(aux[0].equals("OK")){ //se è andato a buon fine TODO forse inutile, controlla se il server ritorna sempre ok
+                    if(aux[0].equals("OK")){ //se è andato a buon fine
                         ShowFriends showFriends= new ShowFriends(window,client,nickname,listaAmici);
                         window.setContentPane(showFriends);
                         window.validate();
@@ -422,10 +424,11 @@ public class HomePage extends JPanel implements ActionListener{
 
 
     private void serverError(){
-        JOptionPane.showMessageDialog(window, "Impossibile comunicare col server.\n Verrai disconnesso", "Server error", JOptionPane.ERROR_MESSAGE);
-        StartGUI startGUI = new StartGUI(window);
-        window.setContentPane(startGUI);
-        window.validate();
+//        JOptionPane.showMessageDialog(window, "Impossibile comunicare col server.\n Verrai disconnesso", "Server error", JOptionPane.ERROR_MESSAGE);
+//        StartGUI startGUI = new StartGUI(window);
+//        window.setContentPane(startGUI);
+//        window.validate();
+        UDPListener.getInstance().serverError(); //Faccio lo shutdown del thread udp
     }
 
 

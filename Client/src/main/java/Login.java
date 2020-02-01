@@ -86,10 +86,6 @@ public class Login extends JPanel implements ActionListener{
             return;
         }
 
-//        socketPort = client.socket().getLocalPort();
-//        Thread t = new Thread(new UDPListener(socketPort,window));
-//        t.start(); //TODO elimina
-
         System.out.println("[OK] Connessione col server stabilita");
         connectAnswer.setText("Connessione stabilita");
     }
@@ -147,7 +143,7 @@ public class Login extends JPanel implements ActionListener{
 
                     if(aux[0].equals("OK")){ //se il login è andato a buon fine mostro la homepage
                         int socketPort = client.socket().getLocalPort();
-                        Thread t = new Thread(new UDPListener(socketPort,window,client,nick));
+                        Thread t = new Thread(UDPListener.getInstance(socketPort,window,client,nick));
                         t.start();
 
                         HomePage homePage = new HomePage(nick,window,client);
