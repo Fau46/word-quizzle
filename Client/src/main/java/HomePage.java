@@ -390,44 +390,33 @@ public class HomePage extends JPanel implements ActionListener{
                 }
             }
 
-            int count = 2;
+        buffer = ByteBuffer.allocate(BUF_SIZE);
 
-            while(count>0){
-                try {
-                    buffer = ByteBuffer.allocate(BUF_SIZE);
-                    System.out.println("LEGGO");
-                    int read = client.read(buffer);
+        try {
+            int read = client.read(buffer);
 
-                    if(read == -1){
-                        System.out.println("[ERROR] Errore lettura della socket del server (CHALLENGE)");
-                        serverError();
-                        return;
-                    }
-                    else{
-                        String aux[] = (new String(buffer.array())).split("\n");
-                        System.out.println("[RESPONSE] "+aux[1]);
+            if(read == -1){
+                System.out.println("[ERROR] Errore lettura della socket del server (CHALLENGE)");
+                serverError();
+                return;
+            }
+            else{
+                String aux[] = (new String(buffer.array())).split("\n");
+                System.out.println("[RESPONSE] "+aux[1]);
 
-                        if(aux[0].equals("KO")){
-                            response.setText(aux[1]);
-                            this.challengeFlag.flag.set(0);
-                            count = -1;
-                        }
-                        else if(aux[0].equals("OK")){
-                            if(aux[1].equals("Caricamento")){
-                                response.setText("Caricamento in corso");
-                            }
-                            else{
-                                Challenge challenge = new Challenge(window,client,nickname);
-                                window.setContentPane(challenge);
-                                window.validate();
-                            }
-                            count--;
-                        }
-
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
+                if(aux[0].equals("KO")){
+                    response.setText(aux[1]);
+                    this.challengeFlag.flag.set(0);
                 }
+                else if(aux[0].equals("OK")){
+                        Challenge challenge = new Challenge(window,client,nickname);
+                        window.setContentPane(challenge);
+                        window.validate();
+                        challenge.run();
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
 
         }

@@ -22,13 +22,13 @@ public class DictionaryDispatcher {
     private static final int RANDOM_LINES = 5;
     private static DictionaryDispatcher dictionaryDispatcher;
     private List<String> dictionary;
-    private Map<String,String> translatedWords;
+//    private Map<String,String> translatedWords;
 
     private DictionaryDispatcher(){
 
         try {
             dictionary = Files.readAllLines(Paths.get("./Server/src/main/resources/words.italian.txt"), StandardCharsets.UTF_8);
-            translatedWords = new ConcurrentHashMap<>();
+//            translatedWords = new ConcurrentHashMap<>();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -43,19 +43,22 @@ public class DictionaryDispatcher {
     public Map<String,String> getList(){
 //        Map<String,String> list = new TreeMap<>();
 //        List<String> list = new LinkedList<>();
+        Map<String,String> translatedWords = new HashMap<>();
         Random random = new Random();
         int dictionaryLen = dictionary.size();
         int y;
 
-        long start = System.currentTimeMillis();
+//        long start = System.currentTimeMillis();
 
         for(int i=0; i<RANDOM_LINES; i++){
             y = random.nextInt(dictionaryLen);
             String word = dictionary.get(y);
 //            list.add(word);
             String translatedWord = myMemoryTanslator(word);
-            translatedWords.put(translatedWord,word);
+            translatedWords.put(word, translatedWord);
         }
+
+        return translatedWords;
 //
 //        List<CompletableFuture<Void>> traduzione = list.stream().map(
 //                parola ->  myMemoryTanslator(parola))
@@ -79,9 +82,9 @@ public class DictionaryDispatcher {
 //            e.printStackTrace();
 //        }
 
-        double finish = (double) (System.currentTimeMillis() - start) / 1000.0;
-        System.out.println("TEMPO IMPIEGATO "+finish);
-        return null;
+//        double finish = (double) (System.currentTimeMillis() - start) / 1000.0;
+//        System.out.println("TEMPO IMPIEGATO "+finish);
+//        return null;
     }
 
     private String myMemoryTanslator(String word){
@@ -102,8 +105,10 @@ public class DictionaryDispatcher {
 
                         JsonObject jsonObject = gson.fromJson(reader, JsonObject.class);
 
-                        System.out.println("word: " + word + " " + (jsonObject.getAsJsonArray("text")).get(0));
                         yardTranslate = (jsonObject.getAsJsonArray("text")).get(0).toString();
+                        yardTranslate = yardTranslate.replace("\"","");
+                        System.out.println("word: " + word + " " + yardTranslate);
+
 //                        wordTanslated = yardTranslate;
 
                     } catch (MalformedURLException e) {
@@ -123,10 +128,11 @@ public class DictionaryDispatcher {
 
                         for (int i = 0; i < auxArray.size(); i++) {
                             myMemoryTranslate = (auxArray.get(i)).getAsJsonObject().get("translation").toString();
+                            myMemoryTranslate = myMemoryTranslate.replace("\"","");
                             System.out.println("RESPONSE[" + word + "] " + myMemoryTranslate);
 
                             if (yardTranslate.equalsIgnoreCase(myMemoryTranslate)) {
-                                System.out.println("ritorno mymemory");
+//                                System.out.println("ritorno mymemory");
                                 return myMemoryTranslate;
 //                                wordTanslated = myMemoryTranslate;
 //                                break;

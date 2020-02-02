@@ -1,6 +1,7 @@
 package Tasks;
 
 import Server.Con;
+import Server.ConChallenge;
 import Server.DictionaryDispatcher;
 import User.User;
 
@@ -10,19 +11,18 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class Challenge {
     private int BUF_SIZE = 512 ;
     private User user,friend;
     private SelectionKey userKey,friendKey;
     private Selector serverSelector;
-    private boolean SHUTDOWN = false;
+    private int SHUTDOWN;
     private int TIMER = 100;
     private DictionaryDispatcher dictionaryDispatcher;
+    private Map<String,String> wordsList;
+    private Object[] keySet;
 
     public Challenge(User user, User friend, SelectionKey userKey, SelectionKey friendKey, Selector serverSelector){
         this.user = user;
@@ -32,10 +32,11 @@ public class Challenge {
         this.serverSelector = serverSelector;
         this.dictionaryDispatcher = DictionaryDispatcher.getInstance();
 
+
     }
 
     public void startChallenge(){
-            Con keyAttachment;
+//            Con keyAttachment;
 
 
         try {
@@ -47,16 +48,30 @@ public class Challenge {
             Writable(newUserKey);
             Writable(newFriendKey);
 
-            Map<String,String> wordsList = dictionaryDispatcher.getList();
+            wordsList = dictionaryDispatcher.getList();
+            SHUTDOWN = wordsList.size() * 2;
 
-            keyAttachment = (Con) newUserKey.attachment();
-            keyAttachment.response = "OK\nSfida cominciata";
+            keySet = wordsList.keySet().toArray();
+            String key = (String) keySet[0];
 
-            keyAttachment = (Con) newFriendKey.attachment();
-            keyAttachment.response = "OK\nSfida cominciata";
+            //Setup utenti per l'inizio della sfida
+            ConChallenge keyAttachmentUser = new ConChallenge();
+            keyAttachmentUser.response = "OK\nSfida cominciata\n"+key+"\n";
+            keyAttachmentUser.nextIndex = 1;
+            keyAttachmentUser.translate = wordsList.get(key);
+            keyAttachmentUser.user = "user";
+            newUserKey.attach(keyAttachmentUser);
 
-            Writable(newUserKey);
-            Writable(newFriendKey);
+            ConChallenge keyAttachmentFriend = new ConChallenge();
+            keyAttachmentFriend.response = "OK\nSfida cominciata\n"+key+"\n";
+            keyAttachmentFriend.nextIndex = 1;
+            keyAttachmentFriend.translate = wordsList.get(key);
+            keyAttachmentFriend.user = "friend";
+            newFriendKey.attach(keyAttachmentFriend);
+
+
+            newUserKey.interestOps(SelectionKey.OP_WRITE);
+            newFriendKey.interestOps(SelectionKey.OP_WRITE);
 
             run(selector);
 
@@ -68,23 +83,23 @@ public class Challenge {
 
     private SelectionKey registerKey(Selector selector, SelectionKey key) throws ClosedChannelException {
         Con keyAttachment = (Con) key.attachment();
+        ConChallenge keyAttachmentChalleng = new ConChallenge();
 
         key.interestOps(0);
 
         SocketChannel keySocket = (SocketChannel) key.channel();
         SelectionKey key1 =  keySocket.register(selector, SelectionKey.OP_WRITE);
 
-        keyAttachment.request = null;
-//        keyAttachment.response = "OK\nSfida cominciata";
-        keyAttachment.response = "OK\nCaricamento";
-        key1.attach(keyAttachment);
+//        keyAttachment.request = null;
+        keyAttachmentChalleng.response = "OK\nCaricamento";
+        key1.attach(keyAttachmentChalleng);
 
         return key1;
     }
 
 
     private void run(Selector selector){
-        while (!SHUTDOWN){
+        while (SHUTDOWN > 0){
             try {
                 selector.select(TIMER);
             } catch (IOException e) {
@@ -116,7 +131,7 @@ public class Challenge {
         SocketChannel client = (SocketChannel) key.channel();
         byte[] byteBuffer = new byte[BUF_SIZE];
         ByteBuffer intput = ByteBuffer.wrap(byteBuffer);
-        Con keyAttachment = (Con) key.attachment();
+        ConChallenge keyAttachment = (ConChallenge) key.attachment();
         StringBuilder requestBuilder;
 
         String request = keyAttachment.request;
@@ -125,8 +140,8 @@ public class Challenge {
         int read=client.read(intput); //Leggo dalla socket
 
         if (read ==- 1) throw new IOException("Canale chiuso"); //Mi accerto che il canale non sia chiuso
-        else if(read == 0){ //Se ho finito di leggere parso la request TODO e se non sono arrivati tutti i pacchetti? (suggerimento nicola)
-//            parser(key);
+        else if(read == 0){ //Se ho finito di leggere parso la request
+            parser(key);
             iterator.remove();
         }
         else{ //Allego ciò che ho letto alla request della key
@@ -139,7 +154,7 @@ public class Challenge {
 
     private void Writable(SelectionKey key) throws IOException{
         SocketChannel client = (SocketChannel) key.channel();
-        Con keyAttachment = (Con) key.attachment();
+        ConChallenge keyAttachment = (ConChallenge) key.attachment();
         String string = keyAttachment.response;
         ByteBuffer buffer = ByteBuffer.allocate(string.length());
 
@@ -170,5 +185,31 @@ public class Challenge {
         }
 
         return keyAttachment;
+    }
+
+    private void parser(SelectionKey key){
+        ConChallenge keyAttachment = (ConChallenge) key.attachment();
+        String[] response = keyAttachment.response.split("\n");
+
+        SHUTDOWN--;
+
+        if(!response[0].equals("")){
+            if(response[0].equals(keyAttachment.translate)){
+                keyAttachment.correct++;
+            }
+            else{
+                keyAttachment.not_correct++;
+            }
+
+            if(keyAttachment.nextIndex<keySet.length){
+                String word = (String) keySet[keyAttachment.nextIndex];
+                keyAttachment.response = word;
+                keyAttachment.translate = wordsList.get(word);
+            }
+        }
+
+
+
+
     }
 }

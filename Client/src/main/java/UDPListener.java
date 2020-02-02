@@ -84,6 +84,7 @@ public class UDPListener implements Runnable,TCPConnection{
                             Challenge challenge = new Challenge(window,client,nickname);
                             window.setContentPane(challenge);
                             window.validate();
+                            challenge.run();
                         }
                     }
                 }

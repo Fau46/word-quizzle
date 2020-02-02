@@ -11,6 +11,7 @@ Tasks/ChallengeRequest.class
 Tasks/ShowRank$1.class
 Database/CrunchifyInMemoryCache.class
 RMIRegistrationImpl.class
+Server/ConChallenge.class
 Tasks/ShowFriends.class
 MainClassServer.class
 Server.class
