@@ -35,14 +35,29 @@ public class Challenge {
     }
 
     public void startChallenge(){
+            Con keyAttachment;
 
-        Map<String,String> wordsList = dictionaryDispatcher.getList();
 
         try {
             Selector selector = Selector.open();
 
-            registerKey(selector,userKey);
-            registerKey(selector,friendKey);
+            SelectionKey newUserKey = registerKey(selector,userKey);
+            SelectionKey newFriendKey = registerKey(selector,friendKey);
+
+            Writable(newUserKey);
+            Writable(newFriendKey);
+
+            Map<String,String> wordsList = dictionaryDispatcher.getList();
+
+            keyAttachment = (Con) newUserKey.attachment();
+            keyAttachment.response = "OK\nSfida cominciata";
+
+            keyAttachment = (Con) newFriendKey.attachment();
+            keyAttachment.response = "OK\nSfida cominciata";
+
+            Writable(newUserKey);
+            Writable(newFriendKey);
+
             run(selector);
 
         } catch (IOException e) {
@@ -51,7 +66,7 @@ public class Challenge {
     }
 
 
-    private void registerKey(Selector selector, SelectionKey key) throws ClosedChannelException {
+    private SelectionKey registerKey(Selector selector, SelectionKey key) throws ClosedChannelException {
         Con keyAttachment = (Con) key.attachment();
 
         key.interestOps(0);
@@ -60,8 +75,11 @@ public class Challenge {
         SelectionKey key1 =  keySocket.register(selector, SelectionKey.OP_WRITE);
 
         keyAttachment.request = null;
-        keyAttachment.response = "OK\nSfida cominciata";
+//        keyAttachment.response = "OK\nSfida cominciata";
+        keyAttachment.response = "OK\nCaricamento";
         key1.attach(keyAttachment);
+
+        return key1;
     }
 
 

@@ -390,34 +390,46 @@ public class HomePage extends JPanel implements ActionListener{
                 }
             }
 
-            buffer = ByteBuffer.allocate(BUF_SIZE);
+            int count = 2;
 
-            try {
-                int read = client.read(buffer);
+            while(count>0){
+                try {
+                    buffer = ByteBuffer.allocate(BUF_SIZE);
+                    System.out.println("LEGGO");
+                    int read = client.read(buffer);
 
-                if(read == -1){
-                    System.out.println("[ERROR] Errore lettura della socket del server (CHALLENGE)");
-                    serverError();
-                    return;
-                }
-                else{
-                    String aux[] = (new String(buffer.array())).split("\n");
-                    System.out.println("[RESPONSE] "+aux[1]);
-
-                    if(aux[0].equals("KO")){
-                        response.setText(aux[1]);
-                        this.challengeFlag.flag.set(0);
+                    if(read == -1){
+                        System.out.println("[ERROR] Errore lettura della socket del server (CHALLENGE)");
+                        serverError();
+                        return;
                     }
-                    else if(aux[0].equals("OK")){
-                        Challenge challenge = new Challenge(window,client,nickname);
-                        window.setContentPane(challenge);
-                        window.validate();
-                    }
+                    else{
+                        String aux[] = (new String(buffer.array())).split("\n");
+                        System.out.println("[RESPONSE] "+aux[1]);
 
+                        if(aux[0].equals("KO")){
+                            response.setText(aux[1]);
+                            this.challengeFlag.flag.set(0);
+                            count = -1;
+                        }
+                        else if(aux[0].equals("OK")){
+                            if(aux[1].equals("Caricamento")){
+                                response.setText("Caricamento in corso");
+                            }
+                            else{
+                                Challenge challenge = new Challenge(window,client,nickname);
+                                window.setContentPane(challenge);
+                                window.validate();
+                            }
+                            count--;
+                        }
+
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
             }
+
         }
 
     }

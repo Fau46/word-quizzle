@@ -2,6 +2,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
 public class Challenge extends JPanel implements ActionListener {
@@ -25,6 +27,7 @@ public class Challenge extends JPanel implements ActionListener {
         titlePanel.add(title);
 
         JPanel buttonPanel = new JPanel();
+        buttonPanel = new JPanel();
         JButton homeButton = new JButton("HOME");
 
         homeButton.addActionListener(this);
