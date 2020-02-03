@@ -14,9 +14,9 @@ public class Challenge extends JPanel implements ActionListener {
     public SocketChannel client;
     private String nickname;
     private ChallengeFlag challengeFlag;
-    private JPanel buttonPanel, inputPanel;
     private JLabel response, word;
     private JTextField inputWord;
+    private JButton traduci, homeButton, skip;
 
     public Challenge(JFrame window, SocketChannel client, String nickname){
         this.window = window;
@@ -33,16 +33,33 @@ public class Challenge extends JPanel implements ActionListener {
 
         word = new JLabel();
 
-        inputPanel = new JPanel();
+        inputWord = new JTextField("",10);
+        inputWord.setBackground(Color.WHITE);
+        inputWord.setVisible(false);
+
+        JPanel inputPanel = new JPanel();
         inputPanel.setLayout(new GridLayout(0, 1));
 
-//        JPanel buttonPanel = new JPanel();
-        buttonPanel = new JPanel();
-        JButton homeButton = new JButton("HOME");
+        inputPanel.add(word);
+        inputPanel.add(inputWord);
+
+        JPanel buttonPanel = new JPanel();
+//        JButton homeButton = new JButton("HOME");
+        homeButton = new JButton("HOME");
+        traduci = new JButton("TRADUCI");
+        skip = new JButton("SKIP");
+
+        traduci.setVisible(false);
+        homeButton.setVisible(false);
+        skip.setVisible(false);
 
         homeButton.addActionListener(this);
+        traduci.addActionListener(this);
+        skip.addActionListener(this);
 
         buttonPanel.add(homeButton);
+        buttonPanel.add(traduci);
+        buttonPanel.add(skip);
 
         JPanel responsePanel = new JPanel();
 
@@ -61,30 +78,25 @@ public class Challenge extends JPanel implements ActionListener {
     }
 
     public void run(){
-        JOptionPane.showMessageDialog(window, "La sfida comincerà a breve", "Loadin", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(window, "La sfida comincerà a breve", "Loading", JOptionPane.INFORMATION_MESSAGE);
 
         String[] responseArray = readResponse();
 
         if(responseArray[0].equals("KO")){
-//                    response.setText(aux[1]);
             this.challengeFlag.flag.set(0);
         }
         else if(responseArray[0].equals("OK")){
-            inputWord = new JTextField("",10);
-            inputWord.setBackground(Color.WHITE);
+            inputWord.setVisible(true);
+            traduci.setVisible(true);
+            skip.setVisible(true);
 
             word.setText(responseArray[2]);
-
-            inputPanel.add(word);
-            inputPanel.add(inputWord);
-
-            JButton traduci = new JButton("TRADUCI");
-            traduci.addActionListener(this);
-            buttonPanel.add(traduci);
             response.setText("");
+
             window.validate();
         }
     }
+
 
     public void sendWord(String word){
         ByteBuffer buffer = ByteBuffer.allocate(word.length());
@@ -103,6 +115,7 @@ public class Challenge extends JPanel implements ActionListener {
             }
         }
     }
+
 
     private String[] readResponse(){
         try {
@@ -130,9 +143,26 @@ public class Challenge extends JPanel implements ActionListener {
 
     private void serverComunication(String word){
         sendWord(word);
+        System.out.println("INVIO "+word);
         String[] response = readResponse();
 
-        this.word.setText(response[0]);
+        if(response[0].equals("OK")){
+            this.word.setText(response[1]);
+            this.inputWord.setText("");
+        }
+        else if(response[0].equals("FINISH")){
+            inputWord.setVisible(false);
+
+            traduci.setVisible(false);
+            skip.setVisible(false);
+            homeButton.setVisible(true);
+
+            this.response.setText("<html>"+response[1]+".<br/>In attesa che finisca il tuo avversario.</html>");
+            this.word.setText("");
+
+            window.validate();
+        }
+
     }
 
     @Override
@@ -143,8 +173,17 @@ public class Challenge extends JPanel implements ActionListener {
             window.setContentPane(homePage);
             window.validate();
         }
-        if(actionEvent.getActionCommand().equals("TRADUCI")){
-            serverComunication(inputWord.getText());
+        else if(actionEvent.getActionCommand().equals("TRADUCI")){
+            String word = inputWord.getText();
+            if(!word.equals("")){
+                serverComunication(word);
+            }
+            else{
+                response.setText("Inserisci la traduzione.");
+            }
+        }
+        else if(actionEvent.getActionCommand().equals("SKIP")){
+            serverComunication("skip");
         }
     }
 }

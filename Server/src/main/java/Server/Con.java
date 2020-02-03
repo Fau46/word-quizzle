@@ -6,6 +6,7 @@ public class Con {
     public String request;
     public Boolean logout;
     public Integer lenght = 0;
+    public Integer score = 0;
 
     public Con(){
         logout = false;

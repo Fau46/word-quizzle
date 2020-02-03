@@ -28,7 +28,8 @@ public class DictionaryDispatcher {
 
         try {
             dictionary = Files.readAllLines(Paths.get("./Server/src/main/resources/words.italian.txt"), StandardCharsets.UTF_8);
-//            translatedWords = new ConcurrentHashMap<>();
+
+            //            translatedWords = new ConcurrentHashMap<>();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -107,7 +108,7 @@ public class DictionaryDispatcher {
 
                         yardTranslate = (jsonObject.getAsJsonArray("text")).get(0).toString();
                         yardTranslate = yardTranslate.replace("\"","");
-                        System.out.println("word: " + word + " " + yardTranslate);
+//                        System.out.println("word: " + word + " " + yardTranslate);
 
 //                        wordTanslated = yardTranslate;
 
@@ -129,7 +130,7 @@ public class DictionaryDispatcher {
                         for (int i = 0; i < auxArray.size(); i++) {
                             myMemoryTranslate = (auxArray.get(i)).getAsJsonObject().get("translation").toString();
                             myMemoryTranslate = myMemoryTranslate.replace("\"","");
-                            System.out.println("RESPONSE[" + word + "] " + myMemoryTranslate);
+//                            System.out.println("RESPONSE[" + word + "] " + myMemoryTranslate);
 
                             if (yardTranslate.equalsIgnoreCase(myMemoryTranslate)) {
 //                                System.out.println("ritorno mymemory");

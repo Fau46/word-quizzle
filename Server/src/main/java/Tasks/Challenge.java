@@ -31,14 +31,9 @@ public class Challenge {
         this.friendKey = friendKey;
         this.serverSelector = serverSelector;
         this.dictionaryDispatcher = DictionaryDispatcher.getInstance();
-
-
     }
 
     public void startChallenge(){
-//            Con keyAttachment;
-
-
         try {
             Selector selector = Selector.open();
 
@@ -48,11 +43,17 @@ public class Challenge {
             Writable(newUserKey);
             Writable(newFriendKey);
 
-            wordsList = dictionaryDispatcher.getList();
+            wordsList = dictionaryDispatcher.getList(); //Prendo la lista di parole da usare nella sfida
             SHUTDOWN = wordsList.size() * 2;
 
             keySet = wordsList.keySet().toArray();
             String key = (String) keySet[0];
+
+            System.out.print("KEYSET: ");
+            for(Object i : keySet){
+                System.out.print((String) i+" ");
+            }
+            System.out.println();
 
             //Setup utenti per l'inizio della sfida
             ConChallenge keyAttachmentUser = new ConChallenge();
@@ -82,7 +83,7 @@ public class Challenge {
 
 
     private SelectionKey registerKey(Selector selector, SelectionKey key) throws ClosedChannelException {
-        Con keyAttachment = (Con) key.attachment();
+//        Con keyAttachment = (Con) key.attachment();
         ConChallenge keyAttachmentChalleng = new ConChallenge();
 
         key.interestOps(0);
@@ -147,6 +148,7 @@ public class Challenge {
         else{ //Allego ciò che ho letto alla request della key
             String string = new String(byteBuffer,0,read);
             requestBuilder.append(string);
+            System.out.println("LETTO: "+string);
             keyAttachment.request = requestBuilder.toString();
         }
     }
@@ -171,8 +173,43 @@ public class Challenge {
         key.interestOps(SelectionKey.OP_READ);
     }
 
+
+    private void parser(SelectionKey key){
+        ConChallenge keyAttachment = (ConChallenge) key.attachment();
+        String[] response = keyAttachment.request.split("\n");
+
+        SHUTDOWN--;
+
+        if(!response[0].equals("skip")){
+            if(response[0].equals(keyAttachment.translate)){
+                keyAttachment.correct++;
+            }
+            else{
+                keyAttachment.not_correct++;
+            }
+        }
+
+//        System.out.println("INDEX: "+keyAttachment.nextIndex+" SHUTDOWN: "+SHUTDOWN);
+        if(keyAttachment.nextIndex<keySet.length){
+            String word = (String) keySet[keyAttachment.nextIndex];
+            keyAttachment.response = "OK\n"+word;
+            keyAttachment.translate = wordsList.get(word);
+            keyAttachment.nextIndex++;
+        }
+        else{
+            keyAttachment.response = "FINISH\nSfida terminata";
+        }
+
+//        keyAttachment.response
+
+        key.interestOps(SelectionKey.OP_WRITE);
+
+    }
+
+
+    //Deregistra key dal selettore e lo registra sul selettore principale
     private Con deregisterKey(SelectionKey key){
-        Con keyAttachment = (Con) key.attachment();
+        Con keyAttachment = (Con) key.attachment(); //TODO migliorare con con conchallege
         try {
             key.interestOps(0);
 
@@ -185,31 +222,5 @@ public class Challenge {
         }
 
         return keyAttachment;
-    }
-
-    private void parser(SelectionKey key){
-        ConChallenge keyAttachment = (ConChallenge) key.attachment();
-        String[] response = keyAttachment.response.split("\n");
-
-        SHUTDOWN--;
-
-        if(!response[0].equals("")){
-            if(response[0].equals(keyAttachment.translate)){
-                keyAttachment.correct++;
-            }
-            else{
-                keyAttachment.not_correct++;
-            }
-
-            if(keyAttachment.nextIndex<keySet.length){
-                String word = (String) keySet[keyAttachment.nextIndex];
-                keyAttachment.response = word;
-                keyAttachment.translate = wordsList.get(word);
-            }
-        }
-
-
-
-
     }
 }
