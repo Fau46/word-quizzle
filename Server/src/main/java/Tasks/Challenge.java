@@ -18,11 +18,15 @@ public class Challenge {
     private User user,friend;
     private SelectionKey userKey,friendKey;
     private Selector serverSelector;
-    private int SHUTDOWN;
+
+    private int count_word_user;
+    private int count_word_friend;
     private int TIMER = 100;
     private DictionaryDispatcher dictionaryDispatcher;
     private Map<String,String> wordsList;
     private Object[] keySet;
+    private SelectionKey newUserKey,newFriendKey;
+
 
     public Challenge(User user, User friend, SelectionKey userKey, SelectionKey friendKey, Selector serverSelector){
         this.user = user;
@@ -33,23 +37,27 @@ public class Challenge {
         this.dictionaryDispatcher = DictionaryDispatcher.getInstance();
     }
 
+    //Funzione che si occupa del setup iniziale della sfida
     public void startChallenge(){
         try {
             Selector selector = Selector.open();
 
-            SelectionKey newUserKey = registerKey(selector,userKey);
-            SelectionKey newFriendKey = registerKey(selector,friendKey);
+            //Registro gli utenti sul nuovo selettore
+            newUserKey = registerKey(selector,userKey);
+            newFriendKey = registerKey(selector,friendKey);
 
             Writable(newUserKey);
             Writable(newFriendKey);
 
             wordsList = dictionaryDispatcher.getList(); //Prendo la lista di parole da usare nella sfida
-            SHUTDOWN = wordsList.size() * 2;
+
+            count_word_user = wordsList.size();
+            count_word_friend = wordsList.size();
 
             keySet = wordsList.keySet().toArray();
-            String key = (String) keySet[0];
+            String key = (String) keySet[0]; //prendo la prima parola da tradurre
 
-            System.out.print("KEYSET: ");
+            System.out.print("KEYSET: "); //TODO elimina
             for(Object i : keySet){
                 System.out.print((String) i+" ");
             }
@@ -74,7 +82,7 @@ public class Challenge {
             newUserKey.interestOps(SelectionKey.OP_WRITE);
             newFriendKey.interestOps(SelectionKey.OP_WRITE);
 
-            run(selector);
+            run(selector); //avvio la sfida
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -100,7 +108,7 @@ public class Challenge {
 
 
     private void run(Selector selector){
-        while (SHUTDOWN > 0){
+        while (count_word_user > 0 || count_word_friend > 0){ //finchè entrambi gli utenti hanno parole da tradurre
             try {
                 selector.select(TIMER);
             } catch (IOException e) {
@@ -125,6 +133,9 @@ public class Challenge {
                 }
             }
         }
+
+        System.out.println("Esco");
+        finishChallenge();
     }
 
 
@@ -174,12 +185,18 @@ public class Challenge {
     }
 
 
-    private void parser(SelectionKey key){
+    private void parser(SelectionKey key) throws IOException {
         ConChallenge keyAttachment = (ConChallenge) key.attachment();
         String[] response = keyAttachment.request.split("\n");
 
-        SHUTDOWN--;
+        if(keyAttachment.user.equals("user")){
+            count_word_user--;
+        }
+        else{
+            count_word_friend--;
+        }
 
+        
         if(!response[0].equals("skip")){
             if(response[0].equals(keyAttachment.translate)){
                 keyAttachment.correct++;
@@ -195,32 +212,111 @@ public class Challenge {
             keyAttachment.response = "OK\n"+word;
             keyAttachment.translate = wordsList.get(word);
             keyAttachment.nextIndex++;
+
+            key.interestOps(SelectionKey.OP_WRITE);
         }
         else{
             keyAttachment.response = "FINISH\nSfida terminata";
+
+            Writable(key);
         }
 
 //        keyAttachment.response
 
-        key.interestOps(SelectionKey.OP_WRITE);
 
     }
 
 
+    private void finishChallenge() {
+        ConChallenge keyAttachmentChallenge;
+        Con userKeyAttachment = null, friendKeyAttachment = null;
+
+        int userScore = 0, friendScore = 0;
+        int winnerScore = 3, correctScore = 2, notCorretScore = -1;
+
+        if(newUserKey.isValid()){
+            keyAttachmentChallenge = (ConChallenge) newUserKey.attachment();
+            userKeyAttachment = (Con) userKey.attachment();
+
+            userScore = (correctScore * keyAttachmentChallenge.correct) + (notCorretScore * keyAttachmentChallenge.not_correct);
+            int neutralWords = keySet.length - keyAttachmentChallenge.correct - keyAttachmentChallenge.not_correct;
+
+            userKeyAttachment.response = "TERMINATED\nParole corrette "+keyAttachmentChallenge.correct+"\nParole sbagliate "+keyAttachmentChallenge.not_correct+"\nParole non tradotte "+neutralWords+"\nPunti totalizzati "+userScore+"\n";
+            user.addScore(userScore);
+        }
+
+        if(newFriendKey.isValid()){
+            keyAttachmentChallenge = (ConChallenge) newFriendKey.attachment();
+            friendKeyAttachment = (Con) friendKey.attachment();
+
+            friendScore = (2 * keyAttachmentChallenge.correct) + (-1 * keyAttachmentChallenge.not_correct);
+            int neutralWords = keySet.length - keyAttachmentChallenge.correct - keyAttachmentChallenge.not_correct;
+
+            friendKeyAttachment.response = "TERMINATED\nParole corrette "+keyAttachmentChallenge.correct+"\nParole sbagliate "+keyAttachmentChallenge.not_correct+"\nParole non tradotte "+neutralWords+"\nPunti totalizzati "+friendScore+"\n";
+            friend.addScore(friendScore);;
+        }
+
+
+        if(newUserKey.isValid() && newFriendKey.isValid()){
+
+            if(userScore > friendScore){
+                user.addScore(winnerScore);
+                userKeyAttachment.response += "Hai vinto, guadagni "+winnerScore+" punti extra!"+"\nPunti attuali "+user.getScore()+"\n";
+
+                friendKeyAttachment.response += "Hai perso!\nPunti attuali"+friend.getScore()+"\n";
+            }
+            else if(friendScore > userScore){
+                friend.addScore(winnerScore);
+                friendKeyAttachment.response += "Hai vinto, guadagni "+winnerScore+" punti extra!"+"\nPunti attuali "+friend.getScore()+"\n";
+
+                userKeyAttachment.response += "Hai perso!\nPunti attuali "+user.getScore()+"\n";
+            }
+            else{
+                friendKeyAttachment.response += "Pareggio!\nPunti attuali "+friend.getScore()+"\n";
+                userKeyAttachment.response += "Pareggio!\nPunti attuali "+user.getScore()+"\n";
+            }
+            deregisterKey(newUserKey);
+            deregisterKey(newFriendKey);
+        }
+        else if(newUserKey.isValid()){
+            userKeyAttachment.response += "Il tuo sfidante ha abbandonato!\nPunti attuali"+user.getScore()+"\n";
+            deregisterKey(newUserKey);
+
+        }
+        else if(newFriendKey.isValid()){
+            friendKeyAttachment.response += "Il tuo sfidante ha abbandonato!\nPunti attuali"+friend.getScore()+"\n";
+            deregisterKey(newFriendKey);
+        }
+    }
+
+
     //Deregistra key dal selettore e lo registra sul selettore principale
-    private Con deregisterKey(SelectionKey key){
-        Con keyAttachment = (Con) key.attachment(); //TODO migliorare con con conchallege
+    private void deregisterKey(SelectionKey key){
+        Con keyAttachment;
+        ConChallenge keyAttachmentChallenge = (ConChallenge) key.attachment();
+
+        if(keyAttachmentChallenge.user.equals("user")){
+            keyAttachment = (Con) userKey.attachment();
+            user.decrementUse();
+            count_word_user = 0;
+        }
+        else{
+            keyAttachment = (Con) friendKey.attachment();
+            friend.decrementUse();
+            count_word_friend = 0;
+        }
+
         try {
             key.interestOps(0);
 
             SocketChannel keySocket = (SocketChannel) key.channel();
 
-            SelectionKey key1 = keySocket.register(this.serverSelector, SelectionKey.OP_READ);
+            SelectionKey key1 = keySocket.register(this.serverSelector, SelectionKey.OP_WRITE);
             key1.attach(keyAttachment);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return keyAttachment;
+//        return keyAttachment;
     }
 }

@@ -62,7 +62,7 @@ public class Server {
                         if(nick != null) {
                             User user = mapUser.get(nick);
                             user.decrementUse(); //Decremento use in user
-                            user.setPort(0);
+//                            user.setPort(0);
                             mapUser.remove(nick); //Rimuovo dagli user online
                             mapKey.remove(nick); //Rimuovo la sua chiave
                         }
@@ -340,6 +340,7 @@ public class Server {
     private void badRequest(String[] aux, SelectionKey key) {
         Con keyAttachment = (Con) key.attachment();
 
+        System.out.println(aux[0]);
         System.out.println("[BAD REQUEST] "+aux[1]+" ("+keyAttachment.nickname+")");
 
         if(aux[1].equals("Sfida accettata")){

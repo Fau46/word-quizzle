@@ -161,8 +161,28 @@ public class Challenge extends JPanel implements ActionListener {
             this.word.setText("");
 
             window.validate();
+
+            finishChallenge();
         }
 
+
+    }
+
+    private void finishChallenge(){
+        JOptionPane.showMessageDialog(window, "Sfida terminata!", "Finish", JOptionPane.INFORMATION_MESSAGE);
+
+        String[] response = readResponse();
+
+        System.out.println("RESPONSE: "+response.length);
+        StringBuilder stringBuilder = new StringBuilder("<html>");
+
+        for(int i = 1; i<response.length; i++){
+            stringBuilder.append(response[i]+"<br/>");
+        }
+
+        stringBuilder.append("</html>");
+
+        this.response.setText(stringBuilder.toString());
     }
 
     @Override
