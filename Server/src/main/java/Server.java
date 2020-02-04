@@ -310,15 +310,27 @@ public class Server {
 
         System.out.println("[CHALLENGE] nickname "+user.getNickname()+" friend nickname: "+friendNick+" ("+keyAttachment.nickname+")");
 
-        if(!user.getNickname().equals(friendNick)){
-            if((friend = mapUser.get(friendNick)) != null){
-                if((user.getFriends()).contains(friendNick)){
-                    user.incrementUse();;
-                    friend.incrementUse();
-                    SelectionKey keyFriend = mapKey.get(friendNick);
+        if(!user.getNickname().equals(friendNick)){ //Controllo che friend non abbia lo stesso nickname di user
+            if((friend = mapUser.get(friendNick)) != null){ //Controllo che friend sia online
+                if((user.getFriends()).contains(friendNick)){ //Controllo che friend sia amico di user
 
-                    ChallengeRequest task = new ChallengeRequest(user,friend,key,keyFriend,selector);
-                    executor.execute(task);
+                    SelectionKey keyFriend = mapKey.get(friendNick); //Prendo la chiave di friend
+                    Con keyAttachmentFriend = (Con) keyFriend.attachment();
+
+                    if(!keyAttachmentFriend.challenge) { //Controllo che friend non sia già occupato con un'altra sfida
+                        user.incrementUse();
+                        friend.incrementUse();
+
+                        keyAttachment.challenge = true;
+                        keyAttachmentFriend.challenge = true;
+
+                        ChallengeRequest task = new ChallengeRequest(user,friend,key,keyFriend,selector);
+                        executor.execute(task);
+                    }
+                    else{
+                        keyAttachment.response = "KO\n"+friendNick+" e' impegnato in un'altra sfida\n";
+                        key.interestOps(SelectionKey.OP_WRITE);
+                    }
                 }
                 else{
                     keyAttachment.response = "KO\n"+friendNick+" non e' tuo amico";
@@ -340,7 +352,6 @@ public class Server {
     private void badRequest(String[] aux, SelectionKey key) {
         Con keyAttachment = (Con) key.attachment();
 
-        System.out.println(aux[0]);
         System.out.println("[BAD REQUEST] "+aux[1]+" ("+keyAttachment.nickname+")");
 
         if(aux[1].equals("Sfida accettata")){

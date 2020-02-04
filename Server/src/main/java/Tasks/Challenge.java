@@ -1,5 +1,6 @@
 package Tasks;
 
+import Costanti.Costanti;
 import Server.Con;
 import Server.ConChallenge;
 import Server.DictionaryDispatcher;
@@ -13,19 +14,17 @@ import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.*;
 
-public class Challenge {
-    private int BUF_SIZE = 512 ;
+public class Challenge implements Costanti {
     private User user,friend;
-    private SelectionKey userKey,friendKey;
     private Selector serverSelector;
+    private SelectionKey userKey,friendKey;
 
+    private Object[] keySet;
     private int count_word_user;
     private int count_word_friend;
-    private int TIMER = 100;
-    private DictionaryDispatcher dictionaryDispatcher;
     private Map<String,String> wordsList;
-    private Object[] keySet;
     private SelectionKey newUserKey,newFriendKey;
+    private DictionaryDispatcher dictionaryDispatcher;
 
 
     public Challenge(User user, User friend, SelectionKey userKey, SelectionKey friendKey, Selector serverSelector){
@@ -37,13 +36,14 @@ public class Challenge {
         this.dictionaryDispatcher = DictionaryDispatcher.getInstance();
     }
 
+
     //Funzione che si occupa del setup iniziale della sfida
     public void startChallenge(){
         try {
             Selector selector = Selector.open();
 
             //Registro gli utenti sul nuovo selettore
-            newUserKey = registerKey(selector,userKey);
+            newUserKey = registerKey(selector,userKey); //TODO proseguire con l'ispezione del codice
             newFriendKey = registerKey(selector,friendKey);
 
             Writable(newUserKey);
@@ -91,7 +91,6 @@ public class Challenge {
 
 
     private SelectionKey registerKey(Selector selector, SelectionKey key) throws ClosedChannelException {
-//        Con keyAttachment = (Con) key.attachment();
         ConChallenge keyAttachmentChalleng = new ConChallenge();
 
         key.interestOps(0);
@@ -99,7 +98,6 @@ public class Challenge {
         SocketChannel keySocket = (SocketChannel) key.channel();
         SelectionKey key1 =  keySocket.register(selector, SelectionKey.OP_WRITE);
 
-//        keyAttachment.request = null;
         keyAttachmentChalleng.response = "OK\nCaricamento";
         key1.attach(keyAttachmentChalleng);
 
@@ -129,12 +127,11 @@ public class Challenge {
                         iterator.remove();
                     }
                 } catch (IOException e) {
-                    deregisterKey(key);
+                    deregisterKey(key,"not finished");
                 }
             }
         }
 
-        System.out.println("Esco");
         finishChallenge();
     }
 
@@ -151,7 +148,7 @@ public class Challenge {
         else requestBuilder = new StringBuilder(request);
         int read=client.read(intput); //Leggo dalla socket
 
-        if (read ==- 1) throw new IOException("Canale chiuso"); //Mi accerto che il canale non sia chiuso
+        if (read == -1) throw new IOException("Canale chiuso"); //Mi accerto che il canale non sia chiuso
         else if(read == 0){ //Se ho finito di leggere parso la request
             parser(key);
             iterator.remove();
@@ -159,7 +156,7 @@ public class Challenge {
         else{ //Allego ciò che ho letto alla request della key
             String string = new String(byteBuffer,0,read);
             requestBuilder.append(string);
-            System.out.println("LETTO: "+string);
+            System.out.println("LETTO "+string); //TODO elimina
             keyAttachment.request = requestBuilder.toString();
         }
     }
@@ -206,7 +203,6 @@ public class Challenge {
             }
         }
 
-//        System.out.println("INDEX: "+keyAttachment.nextIndex+" SHUTDOWN: "+SHUTDOWN);
         if(keyAttachment.nextIndex<keySet.length){
             String word = (String) keySet[keyAttachment.nextIndex];
             keyAttachment.response = "OK\n"+word;
@@ -221,15 +217,13 @@ public class Challenge {
             Writable(key);
         }
 
-//        keyAttachment.response
-
-
     }
 
 
     private void finishChallenge() {
         ConChallenge keyAttachmentChallenge;
         Con userKeyAttachment = null, friendKeyAttachment = null;
+        String challenge = "finished";
 
         int userScore = 0, friendScore = 0;
         int winnerScore = 3, correctScore = 2, notCorretScore = -1;
@@ -275,23 +269,23 @@ public class Challenge {
                 friendKeyAttachment.response += "Pareggio!\nPunti attuali "+friend.getScore()+"\n";
                 userKeyAttachment.response += "Pareggio!\nPunti attuali "+user.getScore()+"\n";
             }
-            deregisterKey(newUserKey);
-            deregisterKey(newFriendKey);
+            deregisterKey(newUserKey,challenge);
+            deregisterKey(newFriendKey,challenge);
         }
         else if(newUserKey.isValid()){
-            userKeyAttachment.response += "Il tuo sfidante ha abbandonato!\nPunti attuali"+user.getScore()+"\n";
-            deregisterKey(newUserKey);
+            userKeyAttachment.response += "Il tuo sfidante ha abbandonato!\nPunti attuali "+user.getScore()+"\n";
+            deregisterKey(newUserKey,challenge);
 
         }
         else if(newFriendKey.isValid()){
-            friendKeyAttachment.response += "Il tuo sfidante ha abbandonato!\nPunti attuali"+friend.getScore()+"\n";
-            deregisterKey(newFriendKey);
+            friendKeyAttachment.response += "Il tuo sfidante ha abbandonato!\nPunti attuali "+friend.getScore()+"\n";
+            deregisterKey(newFriendKey,challenge);
         }
     }
 
 
     //Deregistra key dal selettore e lo registra sul selettore principale
-    private void deregisterKey(SelectionKey key){
+    private void deregisterKey(SelectionKey key, String challenge){
         Con keyAttachment;
         ConChallenge keyAttachmentChallenge = (ConChallenge) key.attachment();
 
@@ -311,7 +305,15 @@ public class Challenge {
 
             SocketChannel keySocket = (SocketChannel) key.channel();
 
-            SelectionKey key1 = keySocket.register(this.serverSelector, SelectionKey.OP_WRITE);
+            SelectionKey key1;
+
+            if(challenge.equals("finished")){
+             key1 = keySocket.register(this.serverSelector, SelectionKey.OP_WRITE);
+            }
+            else{
+                key1 = keySocket.register(this.serverSelector, SelectionKey.OP_READ);
+            }
+
             key1.attach(keyAttachment);
         } catch (Exception e) {
             e.printStackTrace();

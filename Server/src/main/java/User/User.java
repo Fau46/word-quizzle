@@ -40,14 +40,6 @@ public class User {
         return use.intValue();
     }
 
-//    public int getPort() {
-//        return port;
-//    }
-//
-//    public void setPort(int port) {
-//        this.port = port;
-//    }
-
     public void incrementUse(){
         use.getAndIncrement();
     }

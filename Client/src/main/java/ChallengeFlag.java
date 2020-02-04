@@ -1,7 +1,7 @@
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ChallengeFlag {
-    public AtomicInteger flag;
+    private AtomicInteger flag;
     private static ChallengeFlag challengeFlag;
 
     private ChallengeFlag(){
@@ -14,5 +14,15 @@ public class ChallengeFlag {
         return challengeFlag;
     }
 
+    public void setFlag() {
+        this.flag.set(1);
+    }
 
+    public void resetFlag(){
+        this.flag.set(0);
+    }
+
+    public boolean isOccupied(){
+        return this.flag.intValue() == 1;
+    }
 }

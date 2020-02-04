@@ -9,14 +9,16 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
 public class Challenge extends JPanel implements ActionListener {
-    private int BUF_SIZE = 512;
     private JFrame window;
-    public SocketChannel client;
     private String nickname;
+    public SocketChannel client;
+
+    private int BUF_SIZE = 512;
     private ChallengeFlag challengeFlag;
     private JLabel response, word;
     private JTextField inputWord;
     private JButton traduci, homeButton, skip;
+
 
     public Challenge(JFrame window, SocketChannel client, String nickname){
         this.window = window;
@@ -77,23 +79,26 @@ public class Challenge extends JPanel implements ActionListener {
 
     }
 
+    //Metodo che si occupa di far cominciare la sfida
     public void run(){
         JOptionPane.showMessageDialog(window, "La sfida comincerà a breve", "Loading", JOptionPane.INFORMATION_MESSAGE);
 
         String[] responseArray = readResponse();
 
-        if(responseArray[0].equals("KO")){
-            this.challengeFlag.flag.set(0);
-        }
-        else if(responseArray[0].equals("OK")){
-            inputWord.setVisible(true);
-            traduci.setVisible(true);
-            skip.setVisible(true);
+        if(responseArray != null){
+            if(responseArray[0].equals("KO")){
+                this.challengeFlag.resetFlag();
+            }
+            else if(responseArray[0].equals("OK")){
+                inputWord.setVisible(true);
+                traduci.setVisible(true);
+                skip.setVisible(true);
 
-            word.setText(responseArray[2]);
-            response.setText("");
+                word.setText(responseArray[2]);
+                response.setText("");
 
-            window.validate();
+                window.validate();
+            }
         }
     }
 
@@ -110,7 +115,7 @@ public class Challenge extends JPanel implements ActionListener {
                 client.write(buffer);
             } catch (Exception e) {
                 System.out.println("[ERROR] Errore scrittura del buffer nella socket del server (LOGIN)");
-//                connectAnswer.setText("Errore di connessione col server");
+                UDPListener.getInstance().serverError();
                 return;
             }
         }
@@ -146,23 +151,25 @@ public class Challenge extends JPanel implements ActionListener {
         System.out.println("INVIO "+word);
         String[] response = readResponse();
 
-        if(response[0].equals("OK")){
-            this.word.setText(response[1]);
-            this.inputWord.setText("");
-        }
-        else if(response[0].equals("FINISH")){
-            inputWord.setVisible(false);
+        if(response != null){
+            if(response[0].equals("OK")){
+                this.word.setText(response[1]);
+                this.inputWord.setText("");
+            }
+            else if(response[0].equals("FINISH")){
+                inputWord.setVisible(false);
 
-            traduci.setVisible(false);
-            skip.setVisible(false);
-            homeButton.setVisible(true);
+                traduci.setVisible(false);
+                skip.setVisible(false);
+                homeButton.setVisible(true);
 
-            this.response.setText("<html>"+response[1]+".<br/>In attesa che finisca il tuo avversario.</html>");
-            this.word.setText("");
+                this.response.setText("<html>"+response[1]+".<br/>In attesa che finisca il tuo avversario.</html>");
+                this.word.setText("");
 
-            window.validate();
+                window.validate();
 
-            finishChallenge();
+                finishChallenge();
+            }
         }
 
 
@@ -173,7 +180,6 @@ public class Challenge extends JPanel implements ActionListener {
 
         String[] response = readResponse();
 
-        System.out.println("RESPONSE: "+response.length);
         StringBuilder stringBuilder = new StringBuilder("<html>");
 
         for(int i = 1; i<response.length; i++){
@@ -189,7 +195,7 @@ public class Challenge extends JPanel implements ActionListener {
     public void actionPerformed(ActionEvent actionEvent) {
         if(actionEvent.getActionCommand().equals("HOME")){
             HomePage homePage = new HomePage(nickname,window,client);
-            challengeFlag.flag.set(0); //abilito il flag per ricevere richieste di sfida
+            challengeFlag.resetFlag(); //abilito il flag per ricevere richieste di sfida
             window.setContentPane(homePage);
             window.validate();
         }

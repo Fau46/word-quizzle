@@ -8,6 +8,7 @@ Database/DBMS.class
 Server/Con.class
 Database/Costants.class
 Tasks/ChallengeRequest.class
+Costanti/Costanti.class
 Tasks/ShowRank$1.class
 Database/CrunchifyInMemoryCache.class
 RMIRegistrationImpl.class

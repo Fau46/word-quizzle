@@ -1,5 +1,6 @@
 package Tasks;
 
+import Costanti.Costanti;
 import Server.Con;
 import Server.DictionaryDispatcher;
 import User.User;
@@ -17,14 +18,14 @@ import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.*;
 
-public class ChallengeRequest implements Runnable {
+public class ChallengeRequest implements Runnable, Costanti {
     private User user, friend;
-    private SelectionKey userKey, friendKey;
-    private int BUF_SIZE = 256;
-    private int SELECTOR_TIMEOUT = 5000;
     private Selector serverSelector; //Selector principale del server
+    private SelectionKey userKey, friendKey;
+
+
     private SelectionKey newFriendKey;
-    private boolean stopSelector = false; //Flag che mi fa eventualmente terminare il selector di sfida
+    private boolean stopSelector = false; //Flag che mi fa eventualmente terminare il selector temporaneo di sfida
 
     public ChallengeRequest(User user, User friend, SelectionKey userKey, SelectionKey friendKey, Selector selector){
         this.user = user;
@@ -36,25 +37,27 @@ public class ChallengeRequest implements Runnable {
 
     @Override
     public void run() {
-            sendChallengeRequest();
-            registerFriendKey();
+            sendChallengeRequest(); //Invio la richiesta di sfida
+            Selector selector = registerFriendKey(); //Registro la key di friend sul selettore temporaneo di sfida
+            if(selector != null) readResponse(selector); //Leggo la risposta di friend
     }
 
-    //Procedura che si occupa di inviare la richiesta di sfida a friend
+    //Metodo che si occupa di inviare la richiesta di sfida a friend
     private void sendChallengeRequest(){
-        DatagramSocket datagramSocket;
         InetAddress address;
+        DatagramSocket datagramSocket;
         DatagramPacket datagramPacket;
 
         try {
             datagramSocket = new DatagramSocket();
-            address = InetAddress.getByName("localhost");//TODO mettere costante
+            address = InetAddress.getByName(HOSTNAME);
 
-            String request = user.getNickname()+"\n"+(SELECTOR_TIMEOUT/1000)+"\n";
+            String request = user.getNickname()+"\n"+(SELECTOR_TIMEOUT/1000)+"\n"; //Invio la richiesta indicando quanto tempo il server attende per la risposta (intervallo di tempo T1)
             byte[] byteRequest = request.getBytes();
 
-            int friendSocketPort = ((SocketChannel) friendKey.channel()).socket().getPort(); //Prendo la porta della socket di friend
-            datagramPacket = new DatagramPacket(byteRequest,byteRequest.length,address,friendSocketPort);
+            int friendSocketPort = ((SocketChannel) friendKey.channel()).socket().getPort(); //Reperisco la porta della socket di friend dalla sua key
+
+            datagramPacket = new DatagramPacket(byteRequest,byteRequest.length,address,friendSocketPort); //Creo il pacchetto da spedire
             datagramSocket.send(datagramPacket); //Invio il pacchetto di richiesta di sfida a friend
         } catch (SocketException | UnknownHostException e) {
             e.printStackTrace();
@@ -64,32 +67,35 @@ public class ChallengeRequest implements Runnable {
     }
 
 
-    private void registerFriendKey(){
+    //Metodo che si occupa di registrare friendKey di friend sul selettore temporaneo di sfida
+    private Selector registerFriendKey(){
         try {
-            Selector selector = Selector.open();
+            Selector selector = Selector.open(); //Apro un selettore per la sfida
 
             Con keyAttachmentFriend = (Con) this.friendKey.attachment();
             this.friendKey.interestOps(0); //resetto l'interestop della chiave di friend registrata nel selettore principale
 
             SocketChannel friendSocket = (SocketChannel) this.friendKey.channel();
-            newFriendKey = friendSocket.register(selector, SelectionKey.OP_READ); //registro la key di friend col nuovo selettore
-            keyAttachmentFriend.response = "Risposta non ancora data";
+            newFriendKey = friendSocket.register(selector, SelectionKey.OP_READ); //Registro la key di friend sul selettore temporaneo di sfida
+            keyAttachmentFriend.response = "Risposta non ancora data"; //Indico che non ho ancora ricevuto risposta da friend
             newFriendKey.attach(keyAttachmentFriend);
 
-            readResponse(selector);
+            return selector;
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return null;
     }
 
 
+    //Metodo che si occupa di leggere la risposta di friend se arriva prima del timeout, termina altrimenti mandando un KO
     private void readResponse(Selector selector){
-        boolean receivedResponse = false;
+        boolean receivedResponse = false; //Flag che mi indica se ho ricevuto la risposta da friend
 
         do{
             try {
 
-                if(receivedResponse) selector.select(100);
+                if(receivedResponse) selector.select(TIMER);
                 else selector.select(SELECTOR_TIMEOUT);
 
             } catch (IOException e) {
@@ -109,7 +115,7 @@ public class ChallengeRequest implements Runnable {
                         this.Readable(key, iterator);
                     }
                 } catch (IOException e) {
-//                      Gestisco la chiusura del canale
+//                  Gestisco la chiusura del canale
                     Con keyAttachment = (Con) key.attachment();
 
                     deregisterFriendKey(key);
@@ -153,6 +159,7 @@ public class ChallengeRequest implements Runnable {
         }
     }
 
+
     private void Write(String string, SelectionKey key){
         ByteBuffer buffer = ByteBuffer.allocate(string.length());
 
@@ -175,27 +182,26 @@ public class ChallengeRequest implements Runnable {
         stopSelector = true;
 
         if(aux[0].equals("KO")){
+            Write("OK\nOK richiesta rifiutata\n", key); //Rispondo a friend
 
-            //Rispondo al thread UDP di friend
-            Write("OK\nOK richiesta rifiutata\n", key);
-
-            negativeResponse("KO\nSfida non accettata");
+            negativeResponse("KO\nSfida non accettata"); //Rispondo a user
         }
         else if(aux[0].equals("OK")){
             if(!userKey.isValid()){ //Controllo che user non abbia chiuso la connessione
                 String string = "KO\n"+((Con)userKey.attachment()).nickname+" ha abbandonato\n";
                 Write(string,key);
+
                 deregisterFriendKey(key);
+                setFlag(); //Resetto i flag necessari
             }
             else{
                 deregisterFriendKey(key);
-//                Map<String,String> dictionary = translateWords();
                 Challenge challenge = new Challenge(user, friend, userKey,friendKey,serverSelector); //TODO forse problema con friendKey
                 challenge.startChallenge();
             }
         }
-
     }
+
 
     //Funzione che ritorna una risposta negativa a user
     private void negativeResponse(String response) {
@@ -203,24 +209,23 @@ public class ChallengeRequest implements Runnable {
 
         keyAttachment.response =  response; //Allego la risposta negativa a user
 
-        Con keyAttachmentFriend = deregisterFriendKey(newFriendKey);
+        Con keyAttachmentFriend = deregisterFriendKey(newFriendKey); //Registro nuovamente friend sul selettore principale
 
         keyAttachmentFriend.request = null;
         keyAttachmentFriend.response = null;
 
         try{
             userKey.interestOps(SelectionKey.OP_WRITE);
-            user.decrementUse();
-            friend.decrementUse();
+            setFlag(); //Resetto i flag necessari
         }catch (Exception e){
-            user.decrementUse();
-            friend.decrementUse();
             e.printStackTrace();
+            setFlag();
             return;
         }
     }
 
-    //Procedura che si occupa di segnalare la risposta a user
+
+    //Metodo che si occupa di segnalare la risposta a user
     private void disconnectedFriend(String response) {
         Con keyAttachment = (Con) userKey.attachment();
 
@@ -228,20 +233,31 @@ public class ChallengeRequest implements Runnable {
 
         try{
             userKey.interestOps(SelectionKey.OP_WRITE);
-            user.decrementUse();
-            friend.decrementUse();
+            setFlag(); //Resetto i flag necessari
         }catch (Exception e){
-            user.decrementUse();
-            friend.decrementUse();
             e.printStackTrace();
+            setFlag();
             return;
         }
-
     }
 
-//    Procedura che si occupa di registrare nuovamente la chiave key sul selettore principale
+
+    //Metodo che si occupa di resettare diversi flag per la chiusura
+    private void setFlag(){
+        Con keyAttachment = (Con) userKey.attachment();
+        Con keyAttachmentFriend = (Con) friendKey.attachment();
+
+        keyAttachment.challenge = false;
+        keyAttachmentFriend.challenge = false;
+
+        user.decrementUse();
+        friend.decrementUse();
+    }
+
+//    Metodo che si occupa di registrare nuovamente la chiave key sul selettore principale
     private Con deregisterFriendKey(SelectionKey key){
         Con keyAttachment = (Con) key.attachment();
+
         try {
             key.interestOps(0);
 
@@ -255,69 +271,5 @@ public class ChallengeRequest implements Runnable {
 
         return keyAttachment;
     }
-
-
-
-
-//    -----------------------AREA DI TEST-----------------------
-
-    private Map<String,String> translateWords(){
-        Set<String> set = new TreeSet<>();
-
-        try {
-            for(int i=0; i<5; i++){
-                String string = test();
-                set.add(string);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        System.out.println("LUNGHEZZA set "+set.size());
-        traduzione(set);
-
-        return null;
-    }
-
-    private void traduzione(Set<String> set) {
-        for(String string : set){
-            try {
-                String req = "https://api.mymemory.translated.net/get?q="+string+"&langpair=it|en";
-                String req1 = "https://translate.yandex.net/api/v1.5/tr.json/translate?key=trnsl.1.1.20200201T115631Z.c3b0cdde609dde53.2228d16c158e2da155316068ad1bee64e3af99f5&text="+string+"&lang=it-en";
-                URL url = new URL(req);
-                URL url1 = new URL(req1);
-
-                Reader reader = new InputStreamReader(url.openStream());
-                Reader reader1 = new InputStreamReader(url1.openStream());
-
-                Gson gson = new Gson();
-
-                JsonObject aux = gson.fromJson(reader,JsonObject.class);
-                JsonObject aux1 = gson.fromJson(reader1, JsonObject.class);
-
-                JsonArray auxArray = aux.getAsJsonArray("matches");
-
-                for(int i=0; i<auxArray.size(); i++){
-                    System.out.println("RESPONSE["+string+"] "+(auxArray.get(i)).getAsJsonObject().get("translation"));
-                }
-                System.out.println("RESPONSE1["+string+"] "+aux1.toString());
-
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private String test() throws IOException {
-        File file = new File("./Server/src/main/resources/words.italian.txt");
-        final RandomAccessFile f = new RandomAccessFile(file, "r");
-        final long randomLocation = (long) (Math.random() * f.length());
-        f.seek(randomLocation);
-        f.readLine();
-        return f.readLine();
-    }
-
 }
 
