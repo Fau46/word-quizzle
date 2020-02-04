@@ -6,7 +6,6 @@ public class ConChallenge {
     public String response;
     public String translate;
     public int nextIndex;
-    public int point = 0;
     public int correct = 0;
     public int not_correct = 0;
 

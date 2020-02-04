@@ -1,4 +1,3 @@
-import com.sun.media.sound.JDK13Services;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,10 +13,11 @@ public class Challenge extends JPanel implements ActionListener {
     public SocketChannel client;
 
     private int BUF_SIZE = 512;
-    private ChallengeFlag challengeFlag;
-    private JLabel response, word;
     private JTextField inputWord;
-    private JButton traduci, homeButton, skip;
+    private JLabel response, word;
+    private ChallengeFlag challengeFlag;
+    private JButton traduciButton, homeButton, skipButton;
+    private Timer challengeTimer, test;
 
 
     public Challenge(JFrame window, SocketChannel client, String nickname){
@@ -46,29 +46,29 @@ public class Challenge extends JPanel implements ActionListener {
         inputPanel.add(inputWord);
 
         JPanel buttonPanel = new JPanel();
-//        JButton homeButton = new JButton("HOME");
         homeButton = new JButton("HOME");
-        traduci = new JButton("TRADUCI");
-        skip = new JButton("SKIP");
+        traduciButton = new JButton("TRADUCI");
+        skipButton = new JButton("SKIP");
 
-        traduci.setVisible(false);
+        traduciButton.setVisible(false);
         homeButton.setVisible(false);
-        skip.setVisible(false);
+        skipButton.setVisible(false);
 
         homeButton.addActionListener(this);
-        traduci.addActionListener(this);
-        skip.addActionListener(this);
+        traduciButton.addActionListener(this);
+        skipButton.addActionListener(this);
 
         buttonPanel.add(homeButton);
-        buttonPanel.add(traduci);
-        buttonPanel.add(skip);
+        buttonPanel.add(traduciButton);
+        buttonPanel.add(skipButton);
 
         JPanel responsePanel = new JPanel();
 
         response = new JLabel("Caricamento...");
+        JLabel time = new JLabel();
 
         responsePanel.add(response);
-
+        responsePanel.add(time);
 
         setLayout(new GridLayout(4,1,3,3));
 
@@ -77,7 +77,24 @@ public class Challenge extends JPanel implements ActionListener {
         add(buttonPanel);
         add(responsePanel);
 
+
+        //-----------TEST-------
+        ActionListener al = new ActionListener() {
+            Integer i = 0;
+
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                time.setText(i.toString());
+                i++;
+            }
+        };
+
+        test = new Timer(1000,al);
+
+//        test.start();
+
     }
+
 
     //Metodo che si occupa di far cominciare la sfida
     public void run(){
@@ -91,11 +108,17 @@ public class Challenge extends JPanel implements ActionListener {
             }
             else if(responseArray[0].equals("OK")){
                 inputWord.setVisible(true);
-                traduci.setVisible(true);
-                skip.setVisible(true);
+                traduciButton.setVisible(true);
+                skipButton.setVisible(true);
 
                 word.setText(responseArray[2]);
                 response.setText("");
+
+                int time = Integer.parseInt(responseArray[3]);
+                time = time * 1000;
+
+                challengeTimer = new Timer(time,this::actionPerformed);
+                challengeTimer.start();
 
                 window.validate();
             }
@@ -152,15 +175,18 @@ public class Challenge extends JPanel implements ActionListener {
         String[] response = readResponse();
 
         if(response != null){
-            if(response[0].equals("OK")){
+            if(response[0].equals("CHALLENGE")){
                 this.word.setText(response[1]);
                 this.inputWord.setText("");
+                challengeTimer.restart();
             }
             else if(response[0].equals("FINISH")){
+                challengeTimer.stop();
+
                 inputWord.setVisible(false);
 
-                traduci.setVisible(false);
-                skip.setVisible(false);
+                traduciButton.setVisible(false);
+                skipButton.setVisible(false);
                 homeButton.setVisible(true);
 
                 this.response.setText("<html>"+response[1]+".<br/>In attesa che finisca il tuo avversario.</html>");
@@ -193,7 +219,10 @@ public class Challenge extends JPanel implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent actionEvent) {
-        if(actionEvent.getActionCommand().equals("HOME")){
+        if(actionEvent.getActionCommand() == null){
+            serverComunication("skip");
+        }
+        else if(actionEvent.getActionCommand().equals("HOME")){
             HomePage homePage = new HomePage(nickname,window,client);
             challengeFlag.resetFlag(); //abilito il flag per ricevere richieste di sfida
             window.setContentPane(homePage);
@@ -211,5 +240,8 @@ public class Challenge extends JPanel implements ActionListener {
         else if(actionEvent.getActionCommand().equals("SKIP")){
             serverComunication("skip");
         }
+
+//        test.restart();
     }
+
 }

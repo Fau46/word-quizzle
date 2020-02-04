@@ -2,17 +2,11 @@ package Tasks;
 
 import Costanti.Costanti;
 import Server.Con;
-import Server.DictionaryDispatcher;
 import User.User;
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import jdk.internal.jline.internal.Urls;
 
 import java.io.*;
 import java.net.*;
 import java.nio.ByteBuffer;
-import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
@@ -181,10 +175,11 @@ public class ChallengeRequest implements Runnable, Costanti {
         String[] aux = keyAttachment.request.split("\n");
         stopSelector = true;
 
+        System.out.println(aux[1]);
         if(aux[0].equals("KO")){
             Write("OK\nOK richiesta rifiutata\n", key); //Rispondo a friend
 
-            negativeResponse("KO\nSfida non accettata"); //Rispondo a user
+            negativeResponse("KO\n"+aux[1]); //Rispondo a user
         }
         else if(aux[0].equals("OK")){
             if(!userKey.isValid()){ //Controllo che user non abbia chiuso la connessione

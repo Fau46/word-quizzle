@@ -7,4 +7,10 @@ public interface Costanti {
     //------- ChallengeRequest -------
     int SELECTOR_TIMEOUT = 5000; //(Intervallo T1)
     String HOSTNAME = "localhost";
+
+    //------- Challenge -------
+    int winnerScore = 3,
+        correctScore = 2,
+        notCorretScore = -1;
+    int CHALLENGE_TIMER = 10;
 }

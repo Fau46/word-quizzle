@@ -93,7 +93,7 @@ public class UDPListener implements Runnable,TCPConnection{
                     }
                 }
                 else {
-                    String response = "KO\nSfida rifiutata\n";
+                    String response = "KO\nSfida non accettata\n";
                     ReadWrite(response);
 
                     challengeFlag.resetFlag();
