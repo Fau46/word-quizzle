@@ -1,3 +1,4 @@
+import Costanti.Costanti;
 import Tasks.*;
 import User.*;
 import Server.*;
@@ -9,12 +10,11 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadPoolExecutor;
 
-public class Server {
+public class Server implements Costanti {
     private Selector selector;
     private ThreadPoolExecutor executor;
+
     private UserDispatcher userDispatcher;
-    private int BUF_SIZE = 512;
-    private int SELECTOR_TIMEOUT = 100;
     private ConcurrentHashMap<String, User> mapUser;
     private ConcurrentHashMap<String, SelectionKey> mapKey;
 
@@ -31,7 +31,7 @@ public class Server {
     public void run() {
         while (true) {
             try {
-                selector.select(SELECTOR_TIMEOUT);
+                selector.select(TIMER);
             } catch (IOException e) {
                 System.out.println("[ERROR] Errore nel selettore");
                 return;
@@ -127,7 +127,7 @@ public class Server {
         buffer.flip();
 
         if(keyAttachment.lenght!=0){ //Controllo se devo passare prima la lunghezza
-            String responseLen = keyAttachment.lenght.toString();
+            String responseLen = keyAttachment.lenght.toString()+"\n";
             ByteBuffer auxBuffer = ByteBuffer.allocate(responseLen.length());
 
             auxBuffer.put(responseLen.getBytes());

@@ -332,20 +332,30 @@ public class HomePage extends JPanel implements ActionListener{
                 return;
             }
             else{
-                String auxString = new String(auxBuffer.array(),0,read);
-                int responseLen = Integer.parseInt(auxString); //Converto la lunghezza in int
+                String tempString = new String(auxBuffer.array(),0,read);
 
-                buffer = ByteBuffer.allocate(responseLen);
-                read = client.read(buffer); //leggo la risposta del server
+                String responseLenString = new String(auxBuffer.array(),0,tempString.indexOf('\n'));
+                StringBuilder responseServer = new StringBuilder(tempString.replace(responseLenString+"\n","")); //TODO risolvere il problema della lunghezza inviata per prima
 
-                if(read == - 1){//Se riscontro un errore nella lettura
-                    System.out.println("[ERROR] Errore lettura della socket del server (SHOWFRIENDS)");
-                    serverError();
-                    return;
+                int responseLen = Integer.parseInt(responseLenString); //Converto la lunghezza in int
+                System.out.println("READ "+responseLen+" sentence "+responseServer+" len "+(responseLen!=responseServer.length()));
+
+
+                if(responseLen !=  responseServer.length()){ //Se ho ancora roba da leggere
+                    buffer = ByteBuffer.allocate(responseLen);
+                    read = client.read(buffer); //leggo la risposta del server
+
+                    responseServer.append(new String(auxBuffer.array(),0,read)); //Appendo la stringa rimanente che devo ancora leggere
+                    System.out.println("LETTO: "+responseServer.toString());
+                    if(read == - 1){//Se riscontro un errore nella lettura
+                        System.out.println("[ERROR] Errore lettura della socket del server (SHOWFRIENDS)");
+                        serverError();
+                        return;
+                    }
                 }
                 else{
                     Gson gson = new Gson();
-                    String aux[] = (new String(buffer.array())).split("\n");
+                    String aux[] = (responseServer.toString().split("\n"));
                     System.out.println("[RESPONSE] "+aux[1]);
 
                     Type listType = new TypeToken<Map<String,Integer>>(){}.getType();

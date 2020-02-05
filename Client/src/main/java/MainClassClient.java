@@ -8,8 +8,9 @@ public class MainClassClient extends JPanel {
         StartGUI startGUI = new StartGUI(window);
         window.setContentPane(startGUI);
         window.pack();
-        window.setLocation(100,100);
-        window.setPreferredSize(new Dimension(400, 300));
+        window.setLocation(550,200);
+        window.setSize(600,600);
+//        window.setPreferredSize(new Dimension(400, 300));
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         window.setVisible(true);
     }
