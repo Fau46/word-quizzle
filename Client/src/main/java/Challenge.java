@@ -10,13 +10,13 @@ import java.nio.channels.SocketChannel;
 public class Challenge extends JPanel implements ActionListener {
     private JFrame window;
     private String nickname;
-    public SocketChannel client;
+    private SocketChannel client;
 
     private int TIMER;
+    private Timer countdown;
     private int BUF_SIZE = 512;
     private JTextField inputWord;
     private ChallengeFlag challengeFlag;
-    private Timer /*challengeTimer,*/ countdown;
     private JLabel response, word, countdownDisplay;
     private JButton traduciButton, homeButton, skipButton;
 
@@ -78,7 +78,6 @@ public class Challenge extends JPanel implements ActionListener {
         add(inputPanel);
         add(buttonPanel);
         add(responsePanel);
-
     }
 
 
@@ -145,7 +144,7 @@ public class Challenge extends JPanel implements ActionListener {
     }
 
 
-    public void sendWord(String response){
+    private void sendWord(String response){
         ByteBuffer buffer = ByteBuffer.allocate(response.length());
 
         buffer.put(response.getBytes());
@@ -228,7 +227,7 @@ public class Challenge extends JPanel implements ActionListener {
         }
     }
 
-
+    //Classe che si occupa del countdown per il termine della sfida
     class Countdown implements ActionListener{
         Integer time;
 

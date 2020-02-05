@@ -1,16 +1,16 @@
 package Tasks;
 
-import Costanti.Costanti;
-import Server.Con;
 import User.User;
+import Server.Con;
+import Costanti.Costanti;
 
 import java.io.*;
 import java.net.*;
-import java.nio.ByteBuffer;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.nio.channels.SocketChannel;
 import java.util.*;
+import java.nio.ByteBuffer;
+import java.nio.channels.Selector;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.SocketChannel;
 
 public class ChallengeRequest implements Runnable, Costanti {
     private User user, friend;
@@ -35,6 +35,7 @@ public class ChallengeRequest implements Runnable, Costanti {
             Selector selector = registerFriendKey(); //Registro la key di friend sul selettore temporaneo di sfida
             if(selector != null) readResponse(selector); //Leggo la risposta di friend
     }
+
 
     //Metodo che si occupa di inviare la richiesta di sfida a friend
     private void sendChallengeRequest(){
@@ -175,7 +176,6 @@ public class ChallengeRequest implements Runnable, Costanti {
         String[] aux = keyAttachment.request.split("\n");
         stopSelector = true;
 
-        System.out.println(aux[1]);
         if(aux[0].equals("KO")){
             Write("OK\nOK richiesta rifiutata\n", key); //Rispondo a friend
 

@@ -19,9 +19,9 @@ public class Challenge implements Costanti {
     private Selector serverSelector;
     private SelectionKey userKey,friendKey;
 
-    private Object[] italian_words_list;
     private int count_word_user; //Contatore che indica quante parole deve tradurre user
     private int count_word_friend; //Contatore che indica quante parole deve tradurre friend
+    private Object[] italian_words_list;
     private Map<String,String> wordsList;
     private SelectionKey newUserKey,newFriendKey;
     private DictionaryDispatcher dictionaryDispatcher;
@@ -188,39 +188,7 @@ public class Challenge implements Costanti {
         ConChallenge keyAttachment = (ConChallenge) key.attachment();
         String[] response = keyAttachment.request.split("\n");
 
-//        if(keyAttachment.user.equals("user")){
-//            count_word_user--;
-//        }
-//        else{
-//            count_word_friend--;
-//        }
-//
-//
-//        if(!response[0].equals("SKIP")){
-//            if(response[1].equalsIgnoreCase(keyAttachment.translate)){
-//                keyAttachment.correct++;
-//            }
-//            else{
-//                keyAttachment.not_correct++;
-//            }
-//        }
-//
-//        if(keyAttachment.nextIndex<italian_words_list.length){
-//            String word = (String) italian_words_list[keyAttachment.nextIndex];
-//            keyAttachment.response = "CHALLENGE\n"+word;
-//            keyAttachment.translate = wordsList.get(word);
-//            keyAttachment.nextIndex++;
-//
-//            key.interestOps(SelectionKey.OP_WRITE);
-//        }
-//        else{
-//            keyAttachment.response = "FINISH\nSfida terminata";
-//
-//            Writable(key);
-//        }
-
-
-        if(response[0].equals("COUNTDOWN")){
+        if(response[0].equals("COUNTDOWN")){ //Se è scattato il countdown al client allora gli faccio terminare la sfida
             if(keyAttachment.user.equals("user")){
                 count_word_user = 0;
             }
@@ -239,7 +207,7 @@ public class Challenge implements Costanti {
                 count_word_friend--;
             }
 
-            if(!response[0].equals("SKIP")){
+            if(!response[0].equals("SKIP")){ //Controllo  che non abbia premuto il pulsante skip
                 if(response[1].equalsIgnoreCase(keyAttachment.translate)){
                     keyAttachment.correct++;
                 }
@@ -248,7 +216,7 @@ public class Challenge implements Costanti {
                 }
             }
 
-            if(keyAttachment.nextIndex<italian_words_list.length){
+            if(keyAttachment.nextIndex<italian_words_list.length){ //Controllo che ci siano ancora parola da tradurre
                 String word = (String) italian_words_list[keyAttachment.nextIndex];
                 keyAttachment.response = "CHALLENGE\n"+word;
                 keyAttachment.translate = wordsList.get(word);

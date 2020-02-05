@@ -420,6 +420,7 @@ public class HomePage extends JPanel implements ActionListener{
             }
 
         }
+        else this.challengeFlag.resetFlag();
 
     }
 
