@@ -12,12 +12,13 @@ public class Challenge extends JPanel implements ActionListener {
     private String nickname;
     public SocketChannel client;
 
+    private int TIMER;
     private int BUF_SIZE = 512;
     private JTextField inputWord;
-    private JLabel response, word;
     private ChallengeFlag challengeFlag;
+    private Timer /*challengeTimer,*/ countdown;
+    private JLabel response, word, countdownDisplay;
     private JButton traduciButton, homeButton, skipButton;
-    private Timer challengeTimer, test;
 
 
     public Challenge(JFrame window, SocketChannel client, String nickname){
@@ -65,10 +66,11 @@ public class Challenge extends JPanel implements ActionListener {
         JPanel responsePanel = new JPanel();
 
         response = new JLabel("Caricamento...");
-        JLabel time = new JLabel();
+
+        countdownDisplay = new JLabel();
 
         responsePanel.add(response);
-        responsePanel.add(time);
+        responsePanel.add(countdownDisplay);
 
         setLayout(new GridLayout(4,1,3,3));
 
@@ -76,22 +78,6 @@ public class Challenge extends JPanel implements ActionListener {
         add(inputPanel);
         add(buttonPanel);
         add(responsePanel);
-
-
-        //-----------TEST-------
-        ActionListener al = new ActionListener() {
-            Integer i = 0;
-
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                time.setText(i.toString());
-                i++;
-            }
-        };
-
-        test = new Timer(1000,al);
-
-//        test.start();
 
     }
 
@@ -107,29 +93,62 @@ public class Challenge extends JPanel implements ActionListener {
                 this.challengeFlag.resetFlag();
             }
             else if(responseArray[0].equals("OK")){
+                TIMER = Integer.parseInt(responseArray[3]);
+
+                countdown = new Timer(1000, new Countdown(TIMER));
+
+                countdown.start();
+
+
                 inputWord.setVisible(true);
                 traduciButton.setVisible(true);
                 skipButton.setVisible(true);
 
                 word.setText(responseArray[2]);
                 response.setText("");
-
-                int time = Integer.parseInt(responseArray[3]);
-                time = time * 1000;
-
-                challengeTimer = new Timer(time,this::actionPerformed);
-                challengeTimer.start();
-
                 window.validate();
             }
         }
     }
 
 
-    public void sendWord(String word){
-        ByteBuffer buffer = ByteBuffer.allocate(word.length());
+    private void serverComunication(String word){
+        sendWord(word);
+        System.out.println("[SEND] "+word);
+        String[] response = readResponse();
 
-        buffer.put(word.getBytes());
+        if(response != null){
+            if(response[0].equals("CHALLENGE")){
+                this.word.setText(response[1]);
+                this.inputWord.setText("");
+
+            }
+            else if(response[0].equals("FINISH")){
+                countdown.stop();
+
+                countdownDisplay.setVisible(false);
+
+                inputWord.setVisible(false);
+
+                traduciButton.setVisible(false);
+                skipButton.setVisible(false);
+                homeButton.setVisible(true);
+
+                this.response.setText("<html>"+response[1]+".<br/>In attesa che finisca il tuo avversario.</html>");
+                this.word.setText("");
+
+                window.validate();
+
+                finishChallenge();
+            }
+        }
+    }
+
+
+    public void sendWord(String response){
+        ByteBuffer buffer = ByteBuffer.allocate(response.length());
+
+        buffer.put(response.getBytes());
         buffer.flip();
 
         //Invio la stringa di registrazione al server con nick e password
@@ -169,38 +188,6 @@ public class Challenge extends JPanel implements ActionListener {
     }
 
 
-    private void serverComunication(String word){
-        sendWord(word);
-        System.out.println("INVIO "+word);
-        String[] response = readResponse();
-
-        if(response != null){
-            if(response[0].equals("CHALLENGE")){
-                this.word.setText(response[1]);
-                this.inputWord.setText("");
-                challengeTimer.restart();
-            }
-            else if(response[0].equals("FINISH")){
-                challengeTimer.stop();
-
-                inputWord.setVisible(false);
-
-                traduciButton.setVisible(false);
-                skipButton.setVisible(false);
-                homeButton.setVisible(true);
-
-                this.response.setText("<html>"+response[1]+".<br/>In attesa che finisca il tuo avversario.</html>");
-                this.word.setText("");
-
-                window.validate();
-
-                finishChallenge();
-            }
-        }
-
-
-    }
-
     private void finishChallenge(){
         JOptionPane.showMessageDialog(window, "Sfida terminata!", "Finish", JOptionPane.INFORMATION_MESSAGE);
 
@@ -217,10 +204,12 @@ public class Challenge extends JPanel implements ActionListener {
         this.response.setText(stringBuilder.toString());
     }
 
+
     @Override
     public void actionPerformed(ActionEvent actionEvent) {
-        if(actionEvent.getActionCommand() == null){
-            serverComunication("skip");
+
+        if(actionEvent.getActionCommand() == null || actionEvent.getActionCommand().equals("SKIP")){
+            serverComunication("SKIP\n");
         }
         else if(actionEvent.getActionCommand().equals("HOME")){
             HomePage homePage = new HomePage(nickname,window,client);
@@ -231,17 +220,31 @@ public class Challenge extends JPanel implements ActionListener {
         else if(actionEvent.getActionCommand().equals("TRADUCI")){
             String word = inputWord.getText();
             if(!word.equals("")){
-                serverComunication(word);
+                serverComunication("RESPONSE\n"+word+"\n");
             }
             else{
                 response.setText("Inserisci la traduzione.");
             }
         }
-        else if(actionEvent.getActionCommand().equals("SKIP")){
-            serverComunication("skip");
+    }
+
+
+    class Countdown implements ActionListener{
+        Integer time;
+
+        public Countdown(int timer){
+            this.time = timer;
         }
 
-//        test.restart();
+        @Override
+        public void actionPerformed(ActionEvent actionEvent) {
+            countdownDisplay.setText(time.toString());
+            time--;
+
+            if(time == -1) {
+                serverComunication("COUNTDOWN\n");
+            }
+        }
     }
 
 }

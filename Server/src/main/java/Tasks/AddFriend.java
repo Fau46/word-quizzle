@@ -10,13 +10,13 @@ public class AddFriend implements Runnable{
     private User user;
     private User friend;
     private SelectionKey key;
-    private UserDispatcher userDispatcher;
+//    private UserDispatcher userDispatcher;
 
     public AddFriend(User user, User friend, SelectionKey key) {
         this.user = user;
         this.friend = friend;
         this.key = key;
-        this.userDispatcher = UserDispatcher.getIstance();
+//        this.userDispatcher = UserDispatcher.getIstance();
     }
 
 

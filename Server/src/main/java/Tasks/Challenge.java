@@ -188,35 +188,79 @@ public class Challenge implements Costanti {
         ConChallenge keyAttachment = (ConChallenge) key.attachment();
         String[] response = keyAttachment.request.split("\n");
 
-        if(keyAttachment.user.equals("user")){
-            count_word_user--;
-        }
-        else{
-            count_word_friend--;
-        }
+//        if(keyAttachment.user.equals("user")){
+//            count_word_user--;
+//        }
+//        else{
+//            count_word_friend--;
+//        }
+//
+//
+//        if(!response[0].equals("SKIP")){
+//            if(response[1].equalsIgnoreCase(keyAttachment.translate)){
+//                keyAttachment.correct++;
+//            }
+//            else{
+//                keyAttachment.not_correct++;
+//            }
+//        }
+//
+//        if(keyAttachment.nextIndex<italian_words_list.length){
+//            String word = (String) italian_words_list[keyAttachment.nextIndex];
+//            keyAttachment.response = "CHALLENGE\n"+word;
+//            keyAttachment.translate = wordsList.get(word);
+//            keyAttachment.nextIndex++;
+//
+//            key.interestOps(SelectionKey.OP_WRITE);
+//        }
+//        else{
+//            keyAttachment.response = "FINISH\nSfida terminata";
+//
+//            Writable(key);
+//        }
 
-        
-        if(!response[0].equals("skip")){
-            if(response[0].equals(keyAttachment.translate)){
-                keyAttachment.correct++;
+
+        if(response[0].equals("COUNTDOWN")){
+            if(keyAttachment.user.equals("user")){
+                count_word_user = 0;
             }
             else{
-                keyAttachment.not_correct++;
+                count_word_friend = 0;
             }
-        }
 
-        if(keyAttachment.nextIndex<italian_words_list.length){
-            String word = (String) italian_words_list[keyAttachment.nextIndex];
-            keyAttachment.response = "CHALLENGE\n"+word;
-            keyAttachment.translate = wordsList.get(word);
-            keyAttachment.nextIndex++;
-
-            key.interestOps(SelectionKey.OP_WRITE);
+            keyAttachment.response = "FINISH\nSfida terminata";
+            Writable(key);
         }
         else{
-            keyAttachment.response = "FINISH\nSfida terminata";
+            if(keyAttachment.user.equals("user")){
+                count_word_user--;
+            }
+            else{
+                count_word_friend--;
+            }
 
-            Writable(key);
+            if(!response[0].equals("SKIP")){
+                if(response[1].equalsIgnoreCase(keyAttachment.translate)){
+                    keyAttachment.correct++;
+                }
+                else{
+                    keyAttachment.not_correct++;
+                }
+            }
+
+            if(keyAttachment.nextIndex<italian_words_list.length){
+                String word = (String) italian_words_list[keyAttachment.nextIndex];
+                keyAttachment.response = "CHALLENGE\n"+word;
+                keyAttachment.translate = wordsList.get(word);
+                keyAttachment.nextIndex++;
+
+                key.interestOps(SelectionKey.OP_WRITE);
+            }
+            else{
+                keyAttachment.response = "FINISH\nSfida terminata";
+
+                Writable(key);
+            }
         }
 
     }

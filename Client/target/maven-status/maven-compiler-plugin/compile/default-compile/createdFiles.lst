@@ -2,10 +2,10 @@ Challenge.class
 Login.class
 UDPListener.class
 MainClassClient.class
-Challenge$1.class
 StartGUI.class
 HomePage$1.class
 Register.class
+Challenge$Countdown.class
 HomePage$2.class
 ShowFriends.class
 ChallengeFlag.class

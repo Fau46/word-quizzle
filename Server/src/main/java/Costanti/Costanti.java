@@ -12,5 +12,5 @@ public interface Costanti {
     int winnerScore = 3,
         correctScore = 2,
         notCorretScore = -1;
-    int CHALLENGE_TIMER = 10;
+    int CHALLENGE_TIMER = 15;
 }
