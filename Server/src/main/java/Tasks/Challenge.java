@@ -52,6 +52,14 @@ public class Challenge implements Costanti {
 
             wordsList = dictionaryDispatcher.getList(); //Richiedo la lista di parole da usare nella sfida
 
+            if(wordsList == null){
+
+                noInternet(userKey);
+                noInternet(friendKey);
+
+                return;
+            }
+
             count_word_user = wordsList.size();
             count_word_friend = wordsList.size();
 
@@ -90,6 +98,15 @@ public class Challenge implements Costanti {
         }
     }
 
+
+    private void noInternet(SelectionKey key){
+        Con keyAttachment = (Con) key.attachment();
+
+        keyAttachment.response = "KO\nNessuna connessione a internet\n";
+        keyAttachment.challenge = false;
+
+        key.interestOps(SelectionKey.OP_WRITE);
+    }
 
     //Funzione che si occupa di registrare key in selector e inserisce in response il messaggio di risposta
     private SelectionKey registerKey(Selector selector, SelectionKey key) throws ClosedChannelException {

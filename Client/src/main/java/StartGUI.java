@@ -13,6 +13,9 @@ public class StartGUI extends JPanel implements ActionListener {
         setBackground(Color.WHITE);
         setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
 
+        JPanel titlePanel = new JPanel();
+        titlePanel.add(new JLabel("WORD QUIZZLE"));
+
         JPanel buttonPanel = new JPanel();
 
         JButton register = new JButton("Iscriviti");
@@ -24,7 +27,8 @@ public class StartGUI extends JPanel implements ActionListener {
         buttonPanel.add(register);
         buttonPanel.add(login);
 
-        setLayout(new GridLayout(1,1));
+        setLayout(new GridLayout(2,1));
+        add(titlePanel);
         add(buttonPanel);
 
     }

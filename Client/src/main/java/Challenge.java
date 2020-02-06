@@ -89,7 +89,12 @@ public class Challenge extends JPanel implements ActionListener {
 
         if(responseArray != null){
             if(responseArray[0].equals("KO")){
-                this.challengeFlag.resetFlag();
+                JOptionPane.showMessageDialog(window, responseArray[1], "Error", JOptionPane.ERROR_MESSAGE);
+                HomePage homePage = new HomePage(nickname,window,client);
+                challengeFlag.resetFlag(); //abilito il flag per ricevere richieste di sfida
+                window.setContentPane(homePage);
+                window.validate();
+
             }
             else if(responseArray[0].equals("OK")){
                 TIMER = Integer.parseInt(responseArray[3]);

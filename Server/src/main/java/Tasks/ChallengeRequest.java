@@ -47,7 +47,7 @@ public class ChallengeRequest implements Runnable, Costanti {
             datagramSocket = new DatagramSocket();
             address = InetAddress.getByName(HOSTNAME);
 
-            String request = user.getNickname()+"\n"+(SELECTOR_TIMEOUT/1000)+"\n"; //Invio la richiesta indicando quanto tempo il server attende per la risposta (intervallo di tempo T1)
+            String request = "CHALLENGE\n"+user.getNickname()+"\n"+(SELECTOR_TIMEOUT/1000)+"\n"; //Invio la richiesta indicando quanto tempo il server attende per la risposta (intervallo di tempo T1)
             byte[] byteRequest = request.getBytes();
 
             int friendSocketPort = ((SocketChannel) friendKey.channel()).socket().getPort(); //Reperisco la porta della socket di friend dalla sua key
@@ -176,12 +176,12 @@ public class ChallengeRequest implements Runnable, Costanti {
         String[] aux = keyAttachment.request.split("\n");
         stopSelector = true;
 
-        if(aux[0].equals("KO")){
-            Write("OK\nOK richiesta rifiutata\n", key); //Rispondo a friend
+        if(aux[0].equals("REFUSED")){
+            if(!aux[1].equals("Utente occupato")) Write("OK\nOK richiesta rifiutata\n", key); //Rispondo a friend
 
             negativeResponse("KO\n"+aux[1]); //Rispondo a user
         }
-        else if(aux[0].equals("OK")){
+        else if(aux[0].equals("ACCEPTED")){
             if(!userKey.isValid()){ //Controllo che user non abbia chiuso la connessione
                 String string = "KO\n"+((Con)userKey.attachment()).nickname+" ha abbandonato\n";
                 Write(string,key);

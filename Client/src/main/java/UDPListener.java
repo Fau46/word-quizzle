@@ -20,11 +20,11 @@ public class UDPListener implements Runnable,TCPConnection{
 
 
     private UDPListener(int port, JFrame window, SocketChannel client, String nickname){
-        this.window = window;
         this.port = port;
-        this.challengeFlag = ChallengeFlag.getInstance();
         this.client = client;
+        this.window = window;
         this.nickname = nickname;
+        this.challengeFlag = ChallengeFlag.getInstance();
     }
 
 
@@ -55,10 +55,8 @@ public class UDPListener implements Runnable,TCPConnection{
 
         while (!SHUTDOWN){
             try {
-//                System.out.println("MI METTO IN ASCOLTO "+nickname); //TODO elimina
                 datagramSocket.receive(datagramPacket); //Leggo la richiesta di sfida
                 request = new String(datagramPacket.getData(),0,datagramPacket.getLength(),"UTF-8");
-                System.out.println("[CHALLENGE REQUEST] "+request);
             } catch (SocketException e){
                 break;
             } catch (IOException e) {
@@ -69,18 +67,21 @@ public class UDPListener implements Runnable,TCPConnection{
             String[] aux = request.split("\n");
             String[] buttons = {"ACCETTA", "RIFIUTA"};
 
+            System.out.println("[CHALLENGE REQUEST] User: "+aux[1]);
+
+
             if(!challengeFlag.isOccupied()){ //Se l'utente non è impegnato a effettuare una sfida gli mando la richiesta
                 challengeFlag.setFlag();
 
                 int choose = JOptionPane.showOptionDialog(window, aux[0]+" ti vuole sfidare\nHai "+aux[1]+" secondi per accettare la sfida", "Sfida",JOptionPane.INFORMATION_MESSAGE, JOptionPane.PLAIN_MESSAGE, null, buttons,null);
 
                 if(choose == 0){ //Se l'utente ha scelto 'ACCETTA'
-                    String response = "OK\nSfida accettata\n";
+                    String response = "ACCEPTED\nSfida accettata\n";
 
                     String[] responseArray = ReadWrite(response);
 
                     if(responseArray != null){
-                        if(responseArray[0].equals("KO")){ //Se ricevo una risposta negativa mi rimetto in ascolto
+                        if(responseArray[0].equals("KO")){ //Se ricevo una risposta negativa mi rimetto in ascolto di nuove richieste di sfida
                             JOptionPane.showMessageDialog(window, responseArray[1], "Error", JOptionPane.ERROR_MESSAGE);
                             challengeFlag.resetFlag();
                         }
@@ -93,14 +94,14 @@ public class UDPListener implements Runnable,TCPConnection{
                     }
                 }
                 else {
-                    String response = "KO\nSfida non accettata\n";
+                    String response = "REFUSED\nSfida non accettata\n";
                     ReadWrite(response);
 
                     challengeFlag.resetFlag();
                 }
             }
             else{
-                String response = "KO\nUtente occupato\n";
+                String response = "REFUSED\nUtente occupato\n";
                 ReadWrite(response);
             }
         }
@@ -129,22 +130,25 @@ public class UDPListener implements Runnable,TCPConnection{
 
         buffer = ByteBuffer.allocate(512);
 
-        try {
-            int read = client.read(buffer);
+        if(!response.contains("Utente occupato")){
 
-            if(read == - 1){//Se riscontro un errore nella lettura
-                System.out.println("[ERROR] Errore lettura della socket del server (UDP Thread)");
-                this.serverError();
+            try {
+                int read = client.read(buffer);
+
+                if(read == - 1){//Se riscontro un errore nella lettura
+                    System.out.println("[ERROR] Errore lettura della socket del server (UDP Thread)");
+                    this.serverError();
+                }
+                else { //se la lettura è andata a buon fine
+                    String[] aux1 = (new String(buffer.array())).split("\n");
+                    System.out.println("[RESPONSE] " + aux1[1]);
+                    return aux1;
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-            else { //se la lettura è andata a buon fine
-                String[] aux1 = (new String(buffer.array())).split("\n");
-                System.out.println("[RESPONSE] " + aux1[1]);
-                return aux1;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+
         }
-
         return  null;
     }
 

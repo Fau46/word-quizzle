@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -41,6 +42,9 @@ public class DictionaryDispatcher {
         return dictionaryDispatcher;
     }
 
+
+    //Ritorna una map formata dalla coppia <parola italiana, parola in inglese>.
+    //Ritorna invece null se ha riscontrato un errore nella traduzione delle parole
     public Map<String,String> getList(){
 //        Map<String,String> list = new TreeMap<>();
 //        List<String> list = new LinkedList<>();
@@ -56,6 +60,9 @@ public class DictionaryDispatcher {
             String word = dictionary.get(y);
 //            list.add(word);
             String translatedWord = myMemoryTanslator(word);
+
+            if(translatedWord == null) return null;
+
             translatedWords.put(word, translatedWord);
         }
 
@@ -88,6 +95,8 @@ public class DictionaryDispatcher {
 //        return null;
     }
 
+
+    //Ritorna la traduzione di word oppure null se non riesce a collegarsi al sito internet
     private String myMemoryTanslator(String word){
 //    private CompletableFuture<Void> myMemoryTanslator(String word){
 //        CompletableFuture.supplyAsync(
@@ -112,8 +121,9 @@ public class DictionaryDispatcher {
 
 //                        wordTanslated = yardTranslate;
 
-                    } catch (MalformedURLException e) {
+                    } catch (MalformedURLException | UnknownHostException e) {
                         e.printStackTrace();
+                        return null;
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -139,8 +149,9 @@ public class DictionaryDispatcher {
 //                                break;
                             }
                         }
-                    } catch (MalformedURLException e) {
+                    } catch (MalformedURLException | UnknownHostException e) {
                         e.printStackTrace();
+                        return null;
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

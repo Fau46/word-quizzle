@@ -13,12 +13,12 @@ import java.util.*;
 
 public class HomePage extends JPanel implements ActionListener{
     private JFrame window;
-    private JLabel response;
-    private SocketChannel client;
     private String nickname;
+    private SocketChannel client;
+
+    private JLabel response;
     private int BUF_SIZE = 512;
     private ChallengeFlag challengeFlag;
-    private static HomePage homePage;
 
     public HomePage(String nick, JFrame window, SocketChannel client) {
         this.window = window;
@@ -74,11 +74,6 @@ public class HomePage extends JPanel implements ActionListener{
         add(responsePanel);
     }
 
-
-//    public static HomePage getHomePage(String nick, JFrame window, SocketChannel client){
-//        if(homePage == null) homePage = new HomePage(nick,window,client);
-//        return homePage;
-//    }
 
     @Override
     public void actionPerformed(ActionEvent actionEvent) {
@@ -195,66 +190,24 @@ public class HomePage extends JPanel implements ActionListener{
 
 
     private void showFriends(){
+        Gson gson = new Gson();
         String request = "SHOWFRIENDS\n"+nickname+"\n";
-        ByteBuffer buffer = ByteBuffer.allocate(request.length());
+        String aux[] = ReadWriteLen(request,"SHOWRANK");
 
-        buffer.put(request.getBytes());
-        buffer.flip();
+        if(aux != null){
+            System.out.println("[RESPONSE] "+aux[1]);
 
-        while (buffer.hasRemaining()){
-            try {
-                client.write(buffer);
-            } catch (IOException e) {
-                System.out.println("[ERROR] Errore scrittura del buffer nella socket del server (SHOWFRIENDS)");
-                serverError();
-                break;
-            }
-        }
+            Type listType = new TypeToken<Vector<String>>(){}.getType();
+            Vector<String> listaAmici = gson.fromJson(aux[1],listType);
 
-        try {
-            int read;
-
-            ByteBuffer auxBuffer = ByteBuffer.allocate(BUF_SIZE);
-            read = client.read(auxBuffer); //Leggo la lunghezza della risposta
-
-            if(read == - 1){//Se riscontro un errore nella lettura
-                System.out.println("[ERROR] Errore lettura della socket del server (SHOWFRIENDS/LUNGHEZZA)");
-                serverError();
-                return;
+            if(aux[0].equals("OK")){ //se è andato a buon fine
+                ShowFriends showFriends= new ShowFriends(window,client,nickname,listaAmici);
+                window.setContentPane(showFriends);
+                window.validate();
             }
             else{
-                String auxString = new String(auxBuffer.array(),0,read);
-                int responseLen = Integer.parseInt(auxString); //Converto la lunghezza in int
-
-                buffer = ByteBuffer.allocate(responseLen);
-                read = client.read(buffer); //leggo la risposta del server
-
-                if(read == - 1){//Se riscontro un errore nella lettura
-                    System.out.println("[ERROR] Errore lettura della socket del server (SHOWFRIENDS)");
-                    serverError();
-                    return;
-                }
-                else{ //se la lettura è andata a buon fine
-                    Gson gson = new Gson();
-                    String aux[] = (new String(buffer.array())).split("\n");
-                    System.out.println("[RESPONSE] "+aux[1]);
-
-                    Type listType = new TypeToken<Vector<String>>(){}.getType();
-                    Vector<String> listaAmici = gson.fromJson(aux[1],listType);
-
-                    if(aux[0].equals("OK")){ //se è andato a buon fine
-                        ShowFriends showFriends= new ShowFriends(window,client,nickname,listaAmici);
-                        window.setContentPane(showFriends);
-                        window.validate();
-                    }
-                    else{
-                        response.setText(aux[1]);
-                    }
-                }
+                response.setText(aux[1]);
             }
-        } catch (IOException e) {
-            System.out.println("[ERROR] Server chiuso");
-            e.printStackTrace();
         }
     }
 
@@ -305,83 +258,30 @@ public class HomePage extends JPanel implements ActionListener{
 
     private void showRank() {
         String request = "SHOWRANK\n"+nickname+"\n";
-        ByteBuffer buffer = ByteBuffer.allocate(request.length());
+        Gson gson = new Gson();
+        String aux[] = ReadWriteLen(request,"SHOWRANK");
 
-        buffer.put(request.getBytes());
-        buffer.flip();
+        if(aux != null){
+            System.out.println("[RESPONSE] "+aux[1]);
 
-        while (buffer.hasRemaining()){
-            try {
-                client.write(buffer);
-            } catch (IOException e) {
-                System.out.println("[ERROR] Errore scrittura del buffer nella socket del server (SHOWSCORE)");
-                serverError();
-                break;
-            }
-        }
+            Type listType = new TypeToken<Map<String,Integer>>(){}.getType();
+            Map<String,Integer> listaAmici = gson.fromJson(aux[1],listType);
 
-        try{
-            int read;
-
-            ByteBuffer auxBuffer = ByteBuffer.allocate(BUF_SIZE);
-            read = client.read(auxBuffer); //Leggo la lunghezza della risposta
-
-            if(read == - 1){//Se riscontro un errore nella lettura
-                System.out.println("[ERROR] Errore lettura della socket del server (SHOWFRIENDS/LUNGHEZZA)");
-                serverError();
-                return;
+            if(aux[0].equals("OK")){ //se è andato a buon fine TODO forse inutile, controlla se il server ritorna sempre ok
+                ShowRank showRank = new ShowRank (window,client,nickname,listaAmici);
+                window.setContentPane(showRank);
+                window.validate();
             }
             else{
-                String tempString = new String(auxBuffer.array(),0,read);
-
-                String responseLenString = new String(auxBuffer.array(),0,tempString.indexOf('\n'));
-                StringBuilder responseServer = new StringBuilder(tempString.replace(responseLenString+"\n","")); //TODO risolvere il problema della lunghezza inviata per prima
-
-                int responseLen = Integer.parseInt(responseLenString); //Converto la lunghezza in int
-                System.out.println("READ "+responseLen+" sentence "+responseServer+" len "+(responseLen!=responseServer.length()));
-
-
-                if(responseLen !=  responseServer.length()){ //Se ho ancora roba da leggere
-                    buffer = ByteBuffer.allocate(responseLen);
-                    read = client.read(buffer); //leggo la risposta del server
-
-                    responseServer.append(new String(auxBuffer.array(),0,read)); //Appendo la stringa rimanente che devo ancora leggere
-                    System.out.println("LETTO: "+responseServer.toString());
-                    if(read == - 1){//Se riscontro un errore nella lettura
-                        System.out.println("[ERROR] Errore lettura della socket del server (SHOWFRIENDS)");
-                        serverError();
-                        return;
-                    }
-                }
-                else{
-                    Gson gson = new Gson();
-                    String aux[] = (responseServer.toString().split("\n"));
-                    System.out.println("[RESPONSE] "+aux[1]);
-
-                    Type listType = new TypeToken<Map<String,Integer>>(){}.getType();
-                    Map<String,Integer> listaAmici = gson.fromJson(aux[1],listType);
-
-                    if(aux[0].equals("OK")){ //se è andato a buon fine TODO forse inutile, controlla se il server ritorna sempre ok
-                        ShowRank showRank = new ShowRank (window,client,nickname,listaAmici);
-                        window.setContentPane(showRank);
-                        window.validate();
-                    }
-                    else{
-                        response.setText(aux[1]);
-                    }
-                }
+                response.setText(aux[1]);
             }
-        } catch (IOException e) {
-            System.out.println("[ERROR] Server chiuso");
-            e.printStackTrace();
         }
-
     }
 
 
     private void challenge() {
         this.challengeFlag.setFlag();
-        String friend = JOptionPane.showInputDialog(window,"Inserisci l'amico che vuoi aggiungere","");
+        String friend = JOptionPane.showInputDialog(window,"Inserisci l'amico che sfidare","");
 
         if(friend!=null && !friend.equals("")){
             String request = "CHALLENGE\n"+nickname+"\n"+friend+"\n";
@@ -440,4 +340,65 @@ public class HomePage extends JPanel implements ActionListener{
     }
 
 
+    private String[] ReadWriteLen(String request, String operation){
+        ByteBuffer buffer = ByteBuffer.allocate(request.length());
+
+        buffer.put(request.getBytes());
+        buffer.flip();
+
+        while (buffer.hasRemaining()){
+            try {
+                client.write(buffer);
+            } catch (IOException e) {
+                System.out.println("[ERROR] Errore scrittura del buffer nella socket del server ("+operation+")");
+                serverError();
+                break;
+            }
+        }
+
+        try{
+            int read;
+
+            buffer = ByteBuffer.allocate(BUF_SIZE);
+
+            read = client.read(buffer); //Leggo la risposta
+
+            if(read == - 1){//Se riscontro un errore nella lettura
+                System.out.println("[ERROR] Errore lettura della socket del server ("+operation+"/1)");
+                serverError();
+                return null;
+            }
+            else{
+                String tempString = new String(buffer.array(),0,read); //Inserisco quello che ho letto in una stringa temporanea
+
+                int indexNewLine = tempString.indexOf('\n');
+
+                String responseLenString = new String(buffer.array(),0,indexNewLine); //Leggo la lunghezza della stringa
+                StringBuilder responseServer = new StringBuilder(tempString.substring(indexNewLine+1)); //Leggo la risposta del server
+
+                int responseLen = Integer.parseInt(responseLenString); //Converto la lunghezza in int
+
+                if(responseLen !=  responseServer.length()){ //Se ho ancora roba da leggere
+                    buffer = ByteBuffer.allocate(responseLen);
+                    read = client.read(buffer); //leggo la risposta del server
+
+                    responseServer.append(new String(buffer.array(),0,read)); //Appendo la stringa letta
+
+                    if(read == - 1){//Se riscontro un errore nella lettura
+                        System.out.println("[ERROR] Errore lettura della socket del server ("+operation+"/2)");
+                        serverError();
+                        return null;
+                    }
+                }
+
+                String aux[] = (responseServer.toString().split("\n"));
+                return aux;
+            }
+        } catch (IOException e) {
+            System.out.println("[ERROR] Server chiuso");
+            e.printStackTrace();
+        }
+
+        return null;
+    }
 }
