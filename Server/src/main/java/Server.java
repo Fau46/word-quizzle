@@ -57,7 +57,7 @@ public class Server implements Costanti {
                     key.cancel();
                     try {
                         //Gestisco la chiusura del canale
-                        Con keyAttachment = (Con) key.attachment();
+                        ConKey keyAttachment = (ConKey) key.attachment();
                         String nick = keyAttachment.nickname;
                         if(nick != null) {
                             User user = mapUser.get(nick);
@@ -88,7 +88,7 @@ public class Server implements Costanti {
 
         client.configureBlocking(false);
         SelectionKey key1 = client.register(selector, SelectionKey.OP_READ);
-        key1.attach(new Con());
+        key1.attach(new ConKey());
     }
 
 
@@ -96,7 +96,7 @@ public class Server implements Costanti {
         SocketChannel client = (SocketChannel) key.channel();
         byte[] byteBuffer = new byte[BUF_SIZE];
         ByteBuffer intput = ByteBuffer.wrap(byteBuffer);
-        Con keyAttachment = (Con) key.attachment();
+        ConKey keyAttachment = (ConKey) key.attachment();
         StringBuilder requestBuilder;
 
         String request = keyAttachment.request;
@@ -119,7 +119,7 @@ public class Server implements Costanti {
 
     private void Writable(SelectionKey key) throws IOException{
         SocketChannel client = (SocketChannel) key.channel();
-        Con keyAttachment = (Con) key.attachment();
+        ConKey keyAttachment = (ConKey) key.attachment();
         String string = keyAttachment.response;
         ByteBuffer buffer = ByteBuffer.allocate(string.length());
 
@@ -158,7 +158,7 @@ public class Server implements Costanti {
 
 
     private void parser(SelectionKey key) throws IOException{
-        Con keyAttachment = (Con) key.attachment();
+        ConKey keyAttachment = (ConKey) key.attachment();
         String[] aux = keyAttachment.request.split("\n"); //Splitto la request
 
         String op = aux[0];
@@ -196,7 +196,7 @@ public class Server implements Costanti {
 
     //Funzione che effettua il login
     private void login(String[] aux, SelectionKey key) throws IOException { //TODO forse da delegare a un thread
-        Con keyAttachment = (Con) key.attachment();
+        ConKey keyAttachment = (ConKey) key.attachment();
         keyAttachment.nickname = null;
 
         String nickname = aux[1];
@@ -227,7 +227,7 @@ public class Server implements Costanti {
     private void logout(String[] aux, SelectionKey key) throws IOException {
         String nickname = aux[1];
 
-        Con keyAttachment = (Con) key.attachment();
+        ConKey keyAttachment = (ConKey) key.attachment();
 
         if(mapUser.get(nickname) == null) keyAttachment.response = "KO\nUtente non in linea"; //TODO forse inutile
         else {
@@ -240,7 +240,7 @@ public class Server implements Costanti {
     private void addFriend(String[] aux, SelectionKey key){
         String nickname = aux[1];
         String nickFriend = aux[2];
-        Con keyAttachment = (Con) key.attachment();
+        ConKey keyAttachment = (ConKey) key.attachment();
         User user = mapUser.get(nickname);
         User friend;
 
@@ -270,7 +270,7 @@ public class Server implements Costanti {
 
     private void showFriends(String[] aux, SelectionKey key) {
         User user = mapUser.get(aux[1]);
-        Con keyAttachment = (Con) key.attachment();
+        ConKey keyAttachment = (ConKey) key.attachment();
 
         System.out.println("[SHOW FRIENDS] "+user.getNickname()+" ("+keyAttachment.nickname+")");
 
@@ -282,7 +282,7 @@ public class Server implements Costanti {
 
     private void showScore(String[] aux, SelectionKey key) {
         User user = mapUser.get(aux[1]);
-        Con keyAttachment = (Con) key.attachment();
+        ConKey keyAttachment = (ConKey) key.attachment();
 
         System.out.println("[SHOW SCORE] "+user.getNickname()+" ("+keyAttachment.nickname+")");
 
@@ -292,7 +292,7 @@ public class Server implements Costanti {
 
     private void showRank(String[] aux, SelectionKey key) {
         User user = mapUser.get(aux[1]);
-        Con keyAttachment = (Con) key.attachment();
+        ConKey keyAttachment = (ConKey) key.attachment();
 
         System.out.println("[SHOW RANK] "+user.getNickname()+" ("+keyAttachment.nickname+")");
 
@@ -303,7 +303,7 @@ public class Server implements Costanti {
 
 
     private void challenge(String[] aux, SelectionKey key) {
-        Con keyAttachment = (Con) key.attachment();
+        ConKey keyAttachment = (ConKey) key.attachment();
         User user = mapUser.get(aux[1]);
         String friendNick = aux[2];
         User friend;
@@ -315,7 +315,7 @@ public class Server implements Costanti {
                 if((user.getFriends()).contains(friendNick)){ //Controllo che friend sia amico di user
 
                     SelectionKey keyFriend = mapKey.get(friendNick); //Prendo la chiave di friend
-                    Con keyAttachmentFriend = (Con) keyFriend.attachment();
+                    ConKey keyAttachmentFriend = (ConKey) keyFriend.attachment();
 
                     if(!keyAttachmentFriend.challenge) { //Controllo che friend non sia già occupato con un'altra sfida
                         user.incrementUse();
@@ -350,7 +350,7 @@ public class Server implements Costanti {
 
 
     private void badRequest(String[] aux, SelectionKey key) {
-        Con keyAttachment = (Con) key.attachment();
+        ConKey keyAttachment = (ConKey) key.attachment();
 
         System.out.println("[BAD REQUEST] "+aux[1]+" ("+keyAttachment.nickname+")");
 

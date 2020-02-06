@@ -1,6 +1,6 @@
 package Tasks;
 
-import Server.Con;
+import Server.ConKey;
 import User.User;
 import com.google.gson.Gson;
 
@@ -24,7 +24,7 @@ public class ShowFriends implements Runnable{
         Vector<String> friendList;
         StringBuilder string = new StringBuilder();
         Gson gson = new Gson();
-        Con keyAttachment = (Con) key.attachment();
+        ConKey keyAttachment = (ConKey) key.attachment();
 
         synchronized (friendList= user.getFriends()){
             string.append("OK\n");

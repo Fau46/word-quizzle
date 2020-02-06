@@ -1,7 +1,7 @@
 package Tasks;
 
 import User.User;
-import Server.Con;
+import Server.ConKey;
 import Costanti.Costanti;
 
 import java.io.*;
@@ -67,7 +67,7 @@ public class ChallengeRequest implements Runnable, Costanti {
         try {
             Selector selector = Selector.open(); //Apro un selettore per la sfida
 
-            Con keyAttachmentFriend = (Con) this.friendKey.attachment();
+            ConKey keyAttachmentFriend = (ConKey) this.friendKey.attachment();
             this.friendKey.interestOps(0); //resetto l'interestop della chiave di friend registrata nel selettore principale
 
             SocketChannel friendSocket = (SocketChannel) this.friendKey.channel();
@@ -111,7 +111,7 @@ public class ChallengeRequest implements Runnable, Costanti {
                     }
                 } catch (IOException e) {
 //                  Gestisco la chiusura del canale
-                    Con keyAttachment = (Con) key.attachment();
+                    ConKey keyAttachment = (ConKey) key.attachment();
 
                     deregisterFriendKey(key);
 
@@ -134,7 +134,7 @@ public class ChallengeRequest implements Runnable, Costanti {
         SocketChannel client = (SocketChannel) key.channel();
         byte[] byteBuffer = new byte[BUF_SIZE];
         ByteBuffer intput = ByteBuffer.wrap(byteBuffer);
-        Con keyAttachment = (Con) key.attachment();
+        ConKey keyAttachment = (ConKey) key.attachment();
         StringBuilder requestBuilder;
 
         String request = keyAttachment.request;
@@ -172,7 +172,7 @@ public class ChallengeRequest implements Runnable, Costanti {
 
     //Parser che si occupa di interpretare l'operazione richiesta
     private void parser(SelectionKey key) {
-        Con keyAttachment = (Con) key.attachment();
+        ConKey keyAttachment = (ConKey) key.attachment();
         String[] aux = keyAttachment.request.split("\n");
         stopSelector = true;
 
@@ -183,7 +183,7 @@ public class ChallengeRequest implements Runnable, Costanti {
         }
         else if(aux[0].equals("ACCEPTED")){
             if(!userKey.isValid()){ //Controllo che user non abbia chiuso la connessione
-                String string = "KO\n"+((Con)userKey.attachment()).nickname+" ha abbandonato\n";
+                String string = "KO\n"+((ConKey)userKey.attachment()).nickname+" ha abbandonato\n";
                 Write(string,key);
 
                 deregisterFriendKey(key);
@@ -200,11 +200,11 @@ public class ChallengeRequest implements Runnable, Costanti {
 
     //Funzione che ritorna una risposta negativa a user
     private void negativeResponse(String response) {
-        Con keyAttachment = (Con) userKey.attachment();
+        ConKey keyAttachment = (ConKey) userKey.attachment();
 
         keyAttachment.response =  response; //Allego la risposta negativa a user
 
-        Con keyAttachmentFriend = deregisterFriendKey(newFriendKey); //Registro nuovamente friend sul selettore principale
+        ConKey keyAttachmentFriend = deregisterFriendKey(newFriendKey); //Registro nuovamente friend sul selettore principale
 
         keyAttachmentFriend.request = null;
         keyAttachmentFriend.response = null;
@@ -222,7 +222,7 @@ public class ChallengeRequest implements Runnable, Costanti {
 
     //Metodo che si occupa di segnalare la risposta a user
     private void disconnectedFriend(String response) {
-        Con keyAttachment = (Con) userKey.attachment();
+        ConKey keyAttachment = (ConKey) userKey.attachment();
 
         keyAttachment.response =  response; //Allego la risposta negativa a user
 
@@ -239,8 +239,8 @@ public class ChallengeRequest implements Runnable, Costanti {
 
     //Metodo che si occupa di resettare diversi flag per la chiusura
     private void setFlag(){
-        Con keyAttachment = (Con) userKey.attachment();
-        Con keyAttachmentFriend = (Con) friendKey.attachment();
+        ConKey keyAttachment = (ConKey) userKey.attachment();
+        ConKey keyAttachmentFriend = (ConKey) friendKey.attachment();
 
         keyAttachment.challenge = false;
         keyAttachmentFriend.challenge = false;
@@ -250,8 +250,8 @@ public class ChallengeRequest implements Runnable, Costanti {
     }
 
 //    Metodo che si occupa di registrare nuovamente la chiave key sul selettore principale
-    private Con deregisterFriendKey(SelectionKey key){
-        Con keyAttachment = (Con) key.attachment();
+    private ConKey deregisterFriendKey(SelectionKey key){
+        ConKey keyAttachment = (ConKey) key.attachment();
 
         try {
             key.interestOps(0);

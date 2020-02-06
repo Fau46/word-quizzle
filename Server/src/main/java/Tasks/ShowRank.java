@@ -1,6 +1,6 @@
 package Tasks;
 
-import Server.Con;
+import Server.ConKey;
 import User.*;
 import com.google.gson.Gson;
 
@@ -22,7 +22,7 @@ public class ShowRank implements Runnable{
     public void run() {
         TreeMap<String,Integer> unsortedRank = new TreeMap<>();
         StringBuilder stringBuilder = new StringBuilder();
-        Con keyAttachment = (Con) key.attachment();
+        ConKey keyAttachment = (ConKey) key.attachment();
         Vector<String> friendList;
         Gson  gson = new Gson();
 

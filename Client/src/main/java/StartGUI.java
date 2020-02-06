@@ -2,10 +2,14 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import Costanti.*;
 
-public class StartGUI extends JPanel implements ActionListener {
+public class StartGUI extends JPanel implements ActionListener,Costanti {
 
     private JFrame window;
+    private int BUTTONWIDTH = 100;
+    private int BUTTONHEIGHT = 30;
+
 
     public StartGUI(JFrame window){
         this.window = window;
@@ -14,15 +18,28 @@ public class StartGUI extends JPanel implements ActionListener {
         setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
 
         JPanel titlePanel = new JPanel();
-        titlePanel.add(new JLabel("WORD QUIZZLE"));
+        titlePanel.setBackground(Color.WHITE);
+
+        JLabel title = new JLabel();
+
+//        title.setMaximumSize(new Dimension(10,10));
+        title.setIcon(new ImageIcon(new ImageIcon(IMAGEPATH+"logo.png").getImage().getScaledInstance(350, 170, Image.SCALE_DEFAULT)));
+        title.setBackground(Color.WHITE);
+//        title.setHorizontalAlignment(JLabel.CENTER);
+
+        titlePanel.add(title);
 
         JPanel buttonPanel = new JPanel();
+        buttonPanel.setBackground(Color.WHITE);
 
-        JButton register = new JButton("Iscriviti");
-        JButton login = new JButton("Login");
+        JButton register = new JButton("ISCRIVITI");
+        JButton login = new JButton("LOGIN");
 
         register.addActionListener(this);
         login.addActionListener(this);
+
+        register.setPreferredSize(new Dimension(BUTTONWIDTH,BUTTONHEIGHT));
+        login.setPreferredSize(new Dimension(BUTTONWIDTH,BUTTONHEIGHT));
 
         buttonPanel.add(register);
         buttonPanel.add(login);
@@ -35,7 +52,7 @@ public class StartGUI extends JPanel implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if(e.getActionCommand().equals("Iscriviti")){
+        if(e.getActionCommand().equals("ISCRIVITI")){
             Register registerGUI = new Register(window);
             window.setContentPane(registerGUI);
             window.validate();

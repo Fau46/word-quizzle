@@ -1,6 +1,6 @@
 package Tasks;
 
-import Server.Con;
+import Server.ConKey;
 import User.*;
 
 import java.nio.channels.SelectionKey;
@@ -25,7 +25,7 @@ public class AddFriend implements Runnable{
         Vector<String> friendsList;
         String friendName = friend.getNickname();
         String userName = user.getNickname();
-        Con keyAttachment = (Con) key.attachment();
+        ConKey keyAttachment = (ConKey) key.attachment();
 
         if(!userName.equals(friendName)){//Controllo che un utente non si aggiunga da solo alla lista di amici
 

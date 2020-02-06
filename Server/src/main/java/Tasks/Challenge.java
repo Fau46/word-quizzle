@@ -1,7 +1,7 @@
 package Tasks;
 
 import Costanti.Costanti;
-import Server.Con;
+import Server.ConKey;
 import Server.ConChallenge;
 import Server.DictionaryDispatcher;
 import User.User;
@@ -100,13 +100,14 @@ public class Challenge implements Costanti {
 
 
     private void noInternet(SelectionKey key){
-        Con keyAttachment = (Con) key.attachment();
+        ConKey keyAttachment = (ConKey) key.attachment();
 
         keyAttachment.response = "KO\nNessuna connessione a internet\n";
         keyAttachment.challenge = false;
 
         key.interestOps(SelectionKey.OP_WRITE);
     }
+
 
     //Funzione che si occupa di registrare key in selector e inserisce in response il messaggio di risposta
     private SelectionKey registerKey(Selector selector, SelectionKey key) throws ClosedChannelException {
@@ -256,12 +257,12 @@ public class Challenge implements Costanti {
         String challenge = "finished";
         int userScore = 0, friendScore = 0;
         ConChallenge keyAttachmentChallenge;
-        Con userKeyAttachment = null, friendKeyAttachment = null;
+        ConKey userKeyAttachment = null, friendKeyAttachment = null;
 
 
         if(newUserKey.isValid()){ //Controllo che user non abbia abbandonato la sfida
             keyAttachmentChallenge = (ConChallenge) newUserKey.attachment();
-            userKeyAttachment = (Con) userKey.attachment();
+            userKeyAttachment = (ConKey) userKey.attachment();
 
             userScore = (correctScore * keyAttachmentChallenge.correct) + (notCorretScore * keyAttachmentChallenge.not_correct);
             int neutralWords = italian_words_list.length - keyAttachmentChallenge.correct - keyAttachmentChallenge.not_correct; //Numero di parole che non sono state tradotte
@@ -272,7 +273,7 @@ public class Challenge implements Costanti {
 
         if(newFriendKey.isValid()){ //Controllo che friend non abbia abbandonato la sfida
             keyAttachmentChallenge = (ConChallenge) newFriendKey.attachment();
-            friendKeyAttachment = (Con) friendKey.attachment();
+            friendKeyAttachment = (ConKey) friendKey.attachment();
 
             friendScore = (2 * keyAttachmentChallenge.correct) + (-1 * keyAttachmentChallenge.not_correct);
             int neutralWords = italian_words_list.length - keyAttachmentChallenge.correct - keyAttachmentChallenge.not_correct;
@@ -316,17 +317,17 @@ public class Challenge implements Costanti {
 
     //Deregistra key dal selettore e lo registra sul selettore principale
     private void deregisterKey(SelectionKey key, String challenge){
-        Con keyAttachment;
+        ConKey keyAttachment;
         ConChallenge keyAttachmentChallenge = (ConChallenge) key.attachment();
 
         //Resetto i flag necessari
         if(keyAttachmentChallenge.user.equals("user")){
-            keyAttachment = (Con) userKey.attachment();
+            keyAttachment = (ConKey) userKey.attachment();
             user.decrementUse();
             count_word_user = 0;
         }
         else{
-            keyAttachment = (Con) friendKey.attachment();
+            keyAttachment = (ConKey) friendKey.attachment();
             friend.decrementUse();
             count_word_friend = 0;
         }
@@ -348,6 +349,7 @@ public class Challenge implements Costanti {
             }
 
             key1.attach(keyAttachment);
+            key.cancel();
         } catch (Exception e) {
             e.printStackTrace();
         }
