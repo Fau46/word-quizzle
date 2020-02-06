@@ -73,7 +73,7 @@ public class UDPListener implements Runnable,TCPConnection{
             if(!challengeFlag.isOccupied()){ //Se l'utente non è impegnato a effettuare una sfida gli mando la richiesta
                 challengeFlag.setFlag();
 
-                int choose = JOptionPane.showOptionDialog(window, aux[0]+" ti vuole sfidare\nHai "+aux[1]+" secondi per accettare la sfida", "Sfida",JOptionPane.INFORMATION_MESSAGE, JOptionPane.PLAIN_MESSAGE, null, buttons,null);
+                int choose = JOptionPane.showOptionDialog(window, aux[1]+" ti vuole sfidare\nHai "+aux[2]+" secondi per accettare la sfida", "Sfida",JOptionPane.INFORMATION_MESSAGE, JOptionPane.PLAIN_MESSAGE, null, buttons,null);
 
                 if(choose == 0){ //Se l'utente ha scelto 'ACCETTA'
                     String response = "ACCEPTED\nSfida accettata\n";
