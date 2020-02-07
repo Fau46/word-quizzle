@@ -244,7 +244,7 @@ public class Server implements Costanti {
         User user = mapUser.get(nickname);
         User friend;
 
-        System.out.println("[ADD FRIEND] nickname: "+nickname+" friend nickname: "+nickFriend);
+        System.out.println("[ADD FRIEND] NICKNAME: "+nickname+" | FRIEND NICKNAME: "+nickFriend);
 
         if((friend = mapUser.get(nickFriend)) == null){ //se non trovo friend tra gli utenti online
             friend = userDispatcher.getUser(nickFriend); //chiedo friend al dispatcher

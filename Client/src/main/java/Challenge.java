@@ -1,4 +1,6 @@
 
+import Costanti.Costanti;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -7,7 +9,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
-public class Challenge extends JPanel implements ActionListener {
+
+public class Challenge extends JPanel implements ActionListener,Costanti {
     private JFrame window;
     private String nickname;
     private SocketChannel client;
@@ -31,29 +34,46 @@ public class Challenge extends JPanel implements ActionListener {
         setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
 
         JPanel titlePanel = new JPanel();
+        titlePanel.setBackground(Color.WHITE);
+
         JLabel title = new JLabel("SFIDA");
+        title.setFont(new Font(title.getFont().getName(), Font.PLAIN,25));
+
+
         titlePanel.add(title);
 
         word = new JLabel();
+        word.setFont(new Font(word.getFont().getName(), Font.PLAIN,15));
 
         inputWord = new JTextField("",10);
         inputWord.setBackground(Color.WHITE);
         inputWord.setVisible(false);
 
         JPanel inputPanel = new JPanel();
+        inputPanel.setBackground(Color.WHITE);
         inputPanel.setLayout(new GridLayout(0, 1));
 
         inputPanel.add(word);
         inputPanel.add(inputWord);
 
         JPanel buttonPanel = new JPanel();
+        buttonPanel.setBackground(Color.WHITE);
+
         homeButton = new JButton("HOME");
         traduciButton = new JButton("TRADUCI");
         skipButton = new JButton("SKIP");
 
+        homeButton.setPreferredSize(new Dimension(BUTTONWIDTH,BUTTONHEIGHT));
+        traduciButton.setPreferredSize(new Dimension(BUTTONWIDTH+30,BUTTONHEIGHT));
+        skipButton.setPreferredSize(new Dimension(BUTTONWIDTH,BUTTONHEIGHT));
+
         traduciButton.setVisible(false);
         homeButton.setVisible(false);
         skipButton.setVisible(false);
+
+        homeButton.setIcon(new ImageIcon(new ImageIcon(IMAGEPATH+"home.png").getImage().getScaledInstance(15, 15, Image.SCALE_DEFAULT)));
+        traduciButton.setIcon(new ImageIcon(new ImageIcon(IMAGEPATH+"translate.png").getImage().getScaledInstance(25, 25, Image.SCALE_DEFAULT)));
+        skipButton.setIcon(new ImageIcon(new ImageIcon(IMAGEPATH+"skip.png").getImage().getScaledInstance(15, 15, Image.SCALE_DEFAULT)));
 
         homeButton.addActionListener(this);
         traduciButton.addActionListener(this);
@@ -64,6 +84,7 @@ public class Challenge extends JPanel implements ActionListener {
         buttonPanel.add(skipButton);
 
         JPanel responsePanel = new JPanel();
+        responsePanel.setBackground(Color.WHITE);
 
         response = new JLabel("Caricamento...");
 
@@ -136,10 +157,10 @@ public class Challenge extends JPanel implements ActionListener {
 
                 traduciButton.setVisible(false);
                 skipButton.setVisible(false);
-                homeButton.setVisible(true);
+//                homeButton.setVisible(true);
 
                 this.response.setText("<html>"+response[1]+".<br/>In attesa che finisca il tuo avversario.</html>");
-                this.word.setText("");
+                this.word.setVisible(false);
 
                 window.validate();
 
@@ -195,6 +216,8 @@ public class Challenge extends JPanel implements ActionListener {
     private void finishChallenge(){
         JOptionPane.showMessageDialog(window, "Sfida terminata!", "Finish", JOptionPane.INFORMATION_MESSAGE);
 
+        homeButton.setVisible(true);
+
         String[] response = readResponse();
 
         StringBuilder stringBuilder = new StringBuilder("<html>");
@@ -214,6 +237,7 @@ public class Challenge extends JPanel implements ActionListener {
 
         if(actionEvent.getActionCommand() == null || actionEvent.getActionCommand().equals("SKIP")){
             serverComunication("SKIP\n");
+            response.setText("");
         }
         else if(actionEvent.getActionCommand().equals("HOME")){
             HomePage homePage = new HomePage(nickname,window,client);
@@ -223,6 +247,9 @@ public class Challenge extends JPanel implements ActionListener {
         }
         else if(actionEvent.getActionCommand().equals("TRADUCI")){
             String word = inputWord.getText();
+
+            response.setText("");
+
             if(!word.equals("")){
                 serverComunication("RESPONSE\n"+word+"\n");
             }

@@ -191,7 +191,8 @@ public class HomePage extends JPanel implements ActionListener, Costanti {
 
 
     private void addFriend(){
-        String friend = JOptionPane.showInputDialog(window,"Inserisci l'amico che vuoi aggiungere","");
+        ImageIcon icon = new ImageIcon(new ImageIcon(IMAGEPATH+"friend.png").getImage().getScaledInstance(50, 50, Image.SCALE_DEFAULT));
+        String friend = (String) JOptionPane.showInputDialog(window,"Inserisci il nickname dell'amico che vuoi aggiungere","Aggiungi amico",JOptionPane.INFORMATION_MESSAGE,icon,null,"");
 
         if(friend!=null && !friend.equals("")){
             String request = "ADDFRIEND\n"+nickname+"\n"+friend+"\n";
@@ -287,7 +288,8 @@ public class HomePage extends JPanel implements ActionListener, Costanti {
                 System.out.println("[RESPONSE] " + aux[1]);
 
                 if(aux[0].equals("OK")){
-                    JOptionPane.showMessageDialog(window, "Il tuo punteggio è "+aux[1], "Punti", JOptionPane.INFORMATION_MESSAGE);
+                    ImageIcon icon = new ImageIcon(new ImageIcon(IMAGEPATH+"trophy.png").getImage().getScaledInstance(50, 50, Image.SCALE_DEFAULT));
+                    JOptionPane.showMessageDialog(window, "Il tuo punteggio è "+aux[1], "Punti", JOptionPane.INFORMATION_MESSAGE,icon);
                 }
                 else{
                     response.setText(aux[1]);
@@ -325,7 +327,8 @@ public class HomePage extends JPanel implements ActionListener, Costanti {
 
     private void challenge() {
         this.challengeFlag.setFlag();
-        String friend = JOptionPane.showInputDialog(window,"Inserisci l'amico che sfidare","");
+        ImageIcon icon = new ImageIcon(new ImageIcon(IMAGEPATH+"battle.png").getImage().getScaledInstance(50, 50, Image.SCALE_DEFAULT));
+        String friend = (String) JOptionPane.showInputDialog(window,"Inserisci l'amico che sfidare","Challenge",JOptionPane.INFORMATION_MESSAGE,icon,null,"");
 
         if(friend!=null && !friend.equals("")){
             String request = "CHALLENGE\n"+nickname+"\n"+friend+"\n";

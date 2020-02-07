@@ -25,26 +25,40 @@ public class ShowFriends extends JPanel implements ActionListener,Costanti {
         setBackground(Color.WHITE);
         setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
 
-//        JTextArea friendList = new JTextArea(1,1);
+        JPanel headPanel = new JPanel();
+        headPanel.setBackground(Color.WHITE);
+
+        JLabel title = new JLabel("LISTA AMICI");
+        title.setFont(new Font(title.getFont().getName(), Font.PLAIN,25));
+
+        headPanel.add(title);
+
         JTextPane friendList = new JTextPane();
         friendList.setEditable(false);
 
         SimpleAttributeSet attribs = new SimpleAttributeSet();
         StyleConstants.setAlignment(attribs, StyleConstants.ALIGN_CENTER);
+        StyleConstants.setFontFamily(attribs,title.getFont().getName());
+        StyleConstants.setFontSize(attribs,15);
+        StyleConstants.setBold(attribs,false);
+
+        friendList.setCharacterAttributes(attribs,true);
         friendList.setParagraphAttributes(attribs, true);
         StyledDocument doc = friendList.getStyledDocument();
 
 
         for(String amico : listaAmici){
-//            friendList.append();
             try {
-                doc.insertString(doc.getLength(),amico+"\n",attribs);
+                doc.insertString(doc.getLength(),amico+"\n\n",attribs);
             } catch (BadLocationException e) {
                 e.printStackTrace();
             }
         }
 
+//        friendList.setFont(font);
+
         JScrollPane friendPanel = new JScrollPane(friendList);
+        friendPanel.setBorder(BorderFactory.createEmptyBorder());
 
         JPanel buttonPanel = new JPanel();
         buttonPanel.setBackground(Color.WHITE);
@@ -57,8 +71,9 @@ public class ShowFriends extends JPanel implements ActionListener,Costanti {
 
         buttonPanel.add(home);
 
-        setLayout(new GridLayout(2,1,3,3));
-        add(friendPanel,BorderLayout.CENTER);
+        setLayout(new GridLayout(3,1,3,3));
+        add(headPanel);
+        add(friendPanel);
         add(buttonPanel);
 
     }
