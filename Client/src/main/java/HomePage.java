@@ -1,3 +1,4 @@
+import Costanti.Costanti;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -11,7 +12,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.*;
 
-public class HomePage extends JPanel implements ActionListener{
+public class HomePage extends JPanel implements ActionListener, Costanti {
     private JFrame window;
     private String nickname;
     private SocketChannel client;
@@ -26,17 +27,44 @@ public class HomePage extends JPanel implements ActionListener{
         this.nickname = nick;
         this.challengeFlag = ChallengeFlag.getInstance();
 
-
         setBackground(Color.WHITE);
         setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
 
-        JPanel welcomePanel = new JPanel();
-        welcomePanel.add(new JLabel("BENVENUTO IN WORD QUIZZLE"));
+        JPanel headPanel = new JPanel();
+        headPanel.setLayout(new FlowLayout());
+        headPanel.setBackground(Color.WHITE);
 
-        JPanel nickPanel = new JPanel();
-        nickPanel.add(new JLabel(nickname));
+        JPanel welcomePanel = new JPanel();
+        welcomePanel.setBackground(Color.WHITE);
+
+        JLabel title = new JLabel();
+        JLabel nickLabel = new JLabel(nickname);
+
+        nickLabel.setFont(new Font(title.getFont().getName(),Font.PLAIN,20));
+
+        title.setIcon(new ImageIcon(new ImageIcon(IMAGEPATH+"welcome.png").getImage().getScaledInstance(200, 110, Image.SCALE_DEFAULT)));
+
+        title.setAlignmentX(Component.CENTER_ALIGNMENT);
+        nickLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        welcomePanel.add(title);
+        welcomePanel.add(Box.createVerticalStrut(10));
+        welcomePanel.add(nickLabel);
+        welcomePanel.setLayout(new BoxLayout(welcomePanel,BoxLayout.Y_AXIS));
+
+        headPanel.add(welcomePanel);
 
         JPanel buttonPanel = new JPanel();
+        buttonPanel.setBackground(Color.WHITE);
+        buttonPanel.setLayout(new GridLayout(1,1));
+
+        JPanel buttonPanel1 = new JPanel();
+        buttonPanel1.setBackground(Color.WHITE);
+        buttonPanel1.setLayout(new BoxLayout(buttonPanel1,BoxLayout.Y_AXIS));
+
+        JPanel buttonPanel2 = new JPanel();
+        buttonPanel2.setBackground(Color.WHITE);
+        buttonPanel2.setLayout(new BoxLayout(buttonPanel2,BoxLayout.Y_AXIS));
 
         JButton logout = new JButton("LOGOUT");
         JButton addFriend = new JButton("AGGIUNGI AMICO");
@@ -52,12 +80,27 @@ public class HomePage extends JPanel implements ActionListener{
         showRank.addActionListener(this);
         sfida.addActionListener(this);
 
-        buttonPanel.add(logout);
-        buttonPanel.add(addFriend);
-        buttonPanel.add(showFriends);
-        buttonPanel.add(showScore);
-        buttonPanel.add(showRank);
-        buttonPanel.add(sfida);
+        addFriend.setAlignmentX(Component.CENTER_ALIGNMENT);
+        showFriends.setAlignmentX(Component.CENTER_ALIGNMENT);
+        showScore.setAlignmentX(Component.CENTER_ALIGNMENT);
+        showRank.setAlignmentX(Component.CENTER_ALIGNMENT);
+        sfida.setAlignmentX(Component.CENTER_ALIGNMENT);
+        logout.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        buttonPanel1.add(addFriend);
+        buttonPanel1.add(Box.createVerticalStrut(20));
+        buttonPanel1.add(showFriends);
+        buttonPanel1.add(Box.createVerticalStrut(20));
+        buttonPanel1.add(showScore);
+
+        buttonPanel2.add(showRank);
+        buttonPanel2.add(Box.createVerticalStrut(20));
+        buttonPanel2.add(sfida);
+        buttonPanel2.add(Box.createVerticalStrut(20));
+        buttonPanel2.add(logout);
+
+        buttonPanel.add(buttonPanel1);
+        buttonPanel.add(buttonPanel2);
 
         response = new JLabel("",JLabel.CENTER);
         response.setForeground(Color.BLACK);
@@ -65,11 +108,12 @@ public class HomePage extends JPanel implements ActionListener{
         response.setOpaque(true);
 
         JPanel responsePanel = new JPanel();
+        responsePanel.setBackground(Color.WHITE);
         responsePanel.add(response);
 
-        setLayout(new GridLayout(4,1,3,3));
-        add(welcomePanel);
-        add(nickPanel);
+        setLayout(new GridLayout(3,1,3,3));
+        add(headPanel);
+//        add(nickPanel);
         add(buttonPanel);
         add(responsePanel);
     }

@@ -7,9 +7,6 @@ import Costanti.*;
 public class StartGUI extends JPanel implements ActionListener,Costanti {
 
     private JFrame window;
-    private int BUTTONWIDTH = 100;
-    private int BUTTONHEIGHT = 30;
-
 
     public StartGUI(JFrame window){
         this.window = window;

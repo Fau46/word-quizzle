@@ -37,19 +37,24 @@ public class Register extends JPanel implements ActionListener,Costanti {
         headPanel.add(title);
 
         nickInput = new JTextField("",10);
-        nickInput.setBackground(Color.WHITE);
         pwdInput = new JTextField("",10);
 
         JPanel nickPanel = new JPanel();
-        nickPanel.add(new JLabel("Nickname = "));
+        nickPanel.setBackground(Color.WHITE);
+        nickPanel.add(new JLabel("Nickname: "));
         nickPanel.add(nickInput);
+
         JPanel pwdPanel = new JPanel();
-        pwdPanel.add(new JLabel("Password = "));
+        pwdPanel.setBackground(Color.WHITE);
+        pwdPanel.add(new JLabel("Password: "));
         pwdPanel.add(pwdInput);
 
         JPanel buttonPanel = new JPanel();
+        buttonPanel.setBackground(Color.WHITE);
 
-        JButton go = new JButton("GO");
+        JButton go = new JButton("ISCRIVITI");
+
+        go.setPreferredSize(new Dimension(BUTTONWIDTH,BUTTONHEIGHT));
 
         go.addActionListener(this);
 
@@ -82,6 +87,16 @@ public class Register extends JPanel implements ActionListener,Costanti {
             nick = nickInput.getText();
             pwd = pwdInput.getText();
 
+            //Controllo che i campi di input non siano vuoti
+            if(nick.equals("")) {
+                answer.setText("Inserire un nickname");
+                return;
+            }
+            if(pwd.equals("")){
+                answer.setText("Inserire una password");
+                return;
+            }
+
             try{
 
                 Registry registry = LocateRegistry.getRegistry(RMIRegistrationInterface.PORT);
@@ -107,7 +122,9 @@ public class Register extends JPanel implements ActionListener,Costanti {
                     case 1: message = "Ok";
                         break;
                 }
+
                 answer.setText(message);
+
                 if(response>0){
                     Login login = new Login(window);
                     window.setContentPane(login);

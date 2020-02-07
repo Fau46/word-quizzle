@@ -12,11 +12,12 @@ import java.nio.channels.SocketChannel;
 
 public class Login extends JPanel implements ActionListener,Costanti{
     private JFrame window;
+
     private SocketChannel client;
+    private JButton connectButton;
     private JLabel answer,connectAnswer;
     private JTextField nickInput, pwdInput;
 
-//    private int socketPort;
 
     public Login(JFrame window){
         this.window = window;
@@ -60,6 +61,7 @@ public class Login extends JPanel implements ActionListener,Costanti{
         nickPanel.setBackground(Color.WHITE);
         nickPanel.add(new JLabel("Nickname: "));
         nickPanel.add(nickInput);
+
         JPanel pwdPanel = new JPanel();
         pwdPanel.setBackground(Color.WHITE);
         pwdPanel.add(new JLabel("Password: "));
@@ -68,14 +70,19 @@ public class Login extends JPanel implements ActionListener,Costanti{
         JPanel buttonPanel = new JPanel();
         buttonPanel.setBackground(Color.WHITE);
 
-        JButton go = new JButton("GO");
-        JButton connect = new JButton("CONNECT");
+        JButton go = new JButton("LOGIN");
+        connectButton = new JButton("CONNECT");
+
+        go.setPreferredSize(new Dimension(BUTTONWIDTH,BUTTONHEIGHT));
+        connectButton.setPreferredSize(new Dimension(BUTTONWIDTH,BUTTONHEIGHT));
+
+        connectButton.setVisible(false);
 
         go.addActionListener(this);
-        connect.addActionListener(this);
+        connectButton.addActionListener(this);
 
         buttonPanel.add(go);
-        buttonPanel.add(connect);
+        buttonPanel.add(connectButton);
 
         JPanel answerPanel = new JPanel();
         answerPanel.setBackground(Color.WHITE);
@@ -86,13 +93,7 @@ public class Login extends JPanel implements ActionListener,Costanti{
         answer.setBackground(Color.WHITE);
         answer.setOpaque(true);
 
-//        connectAnswer = new JLabel("", JLabel.CENTER);
-//        connectAnswer.setForeground(Color.BLACK);
-//        connectAnswer.setBackground(Color.WHITE);
-//        connectAnswer.setOpaque(true);
-
         answerPanel.add(answer);
-//        answerPanel.add(connectAnswer);
 
         setLayout(new GridLayout(5,1,3,3));
         add(headPanel);
@@ -116,14 +117,20 @@ public class Login extends JPanel implements ActionListener,Costanti{
             client = SocketChannel.open(address);
         } catch (IOException e) {
             System.out.println("[ERROR] Server non disponibile");
+
             connectAnswer.setText("Server non disponibile");
             connectAnswer.setIcon(new ImageIcon(new ImageIcon(IMAGEPATH+"notconnected.png").getImage().getScaledInstance(15, 15, Image.SCALE_DEFAULT)));
+
+            connectButton.setVisible(true);
             return;
         }
 
         System.out.println("[OK] Connessione col server stabilita");
+
         connectAnswer.setText("Connessione stabilita");
         connectAnswer.setIcon(new ImageIcon(new ImageIcon(IMAGEPATH+"connected.png").getImage().getScaledInstance(15, 15, Image.SCALE_DEFAULT)));
+
+        connectButton.setVisible(false);
     }
 
 
@@ -131,7 +138,7 @@ public class Login extends JPanel implements ActionListener,Costanti{
 
         System.out.println(actionEvent.getActionCommand());
 
-        if (actionEvent.getActionCommand().equals("GO")){
+        if (actionEvent.getActionCommand().equals("LOGIN")){
 
             String nick, pwd;
             nick = nickInput.getText();
@@ -147,7 +154,7 @@ public class Login extends JPanel implements ActionListener,Costanti{
                 return;
             }
 
-            String request = "LOGIN\n"+nick+"\n"+pwd+"\n"; //Creo la stringa del protocollo TODO eliminare new string
+            String request = "LOGIN\n"+nick+"\n"+pwd+"\n"; //Creo la stringa del protocollo
 
             ByteBuffer buffer = ByteBuffer.allocate(request.length());
 
@@ -160,8 +167,12 @@ public class Login extends JPanel implements ActionListener,Costanti{
                     client.write(buffer);
                 } catch (Exception e) {
                     System.out.println("[ERROR] Errore scrittura del buffer nella socket del server (LOGIN)");
+
                     connectAnswer.setText("<html>Errore di connessione<br/> col server</html>");
                     connectAnswer.setIcon(new ImageIcon(new ImageIcon(IMAGEPATH+"notconnected.png").getImage().getScaledInstance(15, 15, Image.SCALE_DEFAULT)));
+
+                    connectButton.setVisible(true);
+
                     return;
                 }
             }
@@ -173,8 +184,12 @@ public class Login extends JPanel implements ActionListener,Costanti{
 
                 if(read == -1){
                     System.out.println("[ERROR] Errore lettura della socket del server (LOGIN)");
+
                     connectAnswer.setText("<html>Impossibile comunicare</br> col server</html>");
                     connectAnswer.setIcon(new ImageIcon(new ImageIcon(IMAGEPATH+"notconnected.png").getImage().getScaledInstance(15, 15, Image.SCALE_DEFAULT)));
+
+                    connectButton.setVisible(true);
+
                     return;
                 }
                 else {
@@ -194,8 +209,12 @@ public class Login extends JPanel implements ActionListener,Costanti{
                 }
             } catch (IOException e) {
                 System.out.println("[ERROR] Server chiuso");
+
                 connectAnswer.setText("<html>Impossibile comunicare</br> col server</html>");
                 connectAnswer.setIcon(new ImageIcon(new ImageIcon(IMAGEPATH+"notconnected.png").getImage().getScaledInstance(15, 15, Image.SCALE_DEFAULT)));
+
+                connectButton.setVisible(true);
+
                 e.printStackTrace();
             }
         }
