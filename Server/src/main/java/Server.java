@@ -120,25 +120,25 @@ public class Server implements Costanti {
     private void Writable(SelectionKey key) throws IOException{
         SocketChannel client = (SocketChannel) key.channel();
         ConKey keyAttachment = (ConKey) key.attachment();
-        String string = keyAttachment.response;
+        String string = keyAttachment.response.length()+"\n"+keyAttachment.response;
         ByteBuffer buffer = ByteBuffer.allocate(string.length());
 
         buffer.put(string.getBytes());
         buffer.flip();
 
-        if(keyAttachment.lenght!=0){ //Controllo se devo passare prima la lunghezza
-            String responseLen = keyAttachment.lenght.toString()+"\n";
-            ByteBuffer auxBuffer = ByteBuffer.allocate(responseLen.length());
+//        if(keyAttachment.lenght!=0){ //Controllo se devo passare prima la lunghezza
+//            String responseLen = keyAttachment.lenght.toString()+"\n";
+//            ByteBuffer auxBuffer = ByteBuffer.allocate(responseLen.length());
+//
+//            auxBuffer.put(responseLen.getBytes());
+//            auxBuffer.flip();
+//
+//            while (auxBuffer.hasRemaining()){
+//                client.write(auxBuffer);
+//            }
 
-            auxBuffer.put(responseLen.getBytes());
-            auxBuffer.flip();
-
-            while (auxBuffer.hasRemaining()){
-                client.write(auxBuffer);
-            }
-
-            keyAttachment.lenght = 0;
-        }
+//            keyAttachment.lenght = 0;
+//        }
 
         //Scrivo la risposta al client
         while (buffer.hasRemaining()){

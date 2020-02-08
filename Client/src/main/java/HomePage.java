@@ -18,7 +18,7 @@ public class HomePage extends JPanel implements ActionListener, Costanti {
     private SocketChannel client;
 
     private JLabel response;
-    private int BUF_SIZE = 512;
+//    private int BUF_SIZE = 512;
     private ChallengeFlag challengeFlag;
 
     public HomePage(String nick, JFrame window, SocketChannel client) {
@@ -144,48 +144,21 @@ public class HomePage extends JPanel implements ActionListener, Costanti {
 
     private void logout(){
         String request = "LOGOUT\n"+nickname+"\n";
-        ByteBuffer buffer = ByteBuffer.allocate(request.length());
+        String aux[] =ReadWrite(request,"LOGOUT");
 
-        buffer.put(request.getBytes());
-        buffer.flip();
+        if(aux !=  null){
+            System.out.println("[RESPONSE] "+aux[1]);
 
-        while (buffer.hasRemaining()){
-            try {
-                client.write(buffer);
-            } catch (IOException e) {
-                System.out.println("[ERROR] Errore scrittura del buffer nella socket del server (LOGOUT)");
-                this.serverError();
-                break;
+            if(aux[0].equals("OK")){ //se il logout è andato a buon fine
+                UDPListener.getInstance().shutdownAndClear();
+
+                StartGUI startGUI = new StartGUI(window);
+                window.setContentPane(startGUI);
+                window.validate();
             }
-        }
-
-        buffer = ByteBuffer.allocate(BUF_SIZE);
-
-        try {
-            int read = client.read(buffer);
-            if(read == - 1){//Se riscontro un errore nella lettura
-                System.out.println("[ERROR] Errore lettura della socket del server (LOGOUT)");
-                this.serverError();
+            else {
+                response.setText(aux[1]);
             }
-            else{ //se la lettura è andata a buon fine
-                String aux[] = (new String(buffer.array())).split("\n");
-                System.out.println("[RESPONSE] "+aux[1]);
-
-                if(aux[0].equals("OK")){ //se il logout è andato a buon fine
-                    UDPListener.getInstance().shutdownAndClear();
-
-                    StartGUI startGUI = new StartGUI(window);
-                    window.setContentPane(startGUI);
-                    window.validate();
-                }
-                else {
-                    response.setText(aux[1]);
-                }
-            }
-
-        } catch (IOException e) {
-            System.out.println("[ERROR] Server chiuso");
-            e.printStackTrace();
         }
     }
 
@@ -196,40 +169,13 @@ public class HomePage extends JPanel implements ActionListener, Costanti {
 
         if(friend!=null && !friend.equals("")){
             String request = "ADDFRIEND\n"+nickname+"\n"+friend+"\n";
-            ByteBuffer buffer = ByteBuffer.allocate(request.length());
+            String aux[] = ReadWrite(request,"ADDFRIEND");
 
-            buffer.put(request.getBytes());
-            buffer.flip();
-
-            while (buffer.hasRemaining()){
-                try {
-                    client.write(buffer);
-                } catch (IOException e) {
-                    System.out.println("[ERROR] Errore scrittura del buffer nella socket del server (ADDFRIEND)");
-                    this.serverError();
-                    break;
-                }
-            }
-
-            buffer = ByteBuffer.allocate(BUF_SIZE);
-
-            try {
-                int read = client.read(buffer);
-                if(read == - 1){//Se riscontro un errore nella lettura
-                    System.out.println("[ERROR] Errore lettura della socket del server (ADDFRIEND)");
-                    this.serverError();
-
-                }
-                else { //se la lettura è andata a buon fine
-                    String aux[] = (new String(buffer.array())).split("\n");
-                    System.out.println("[RESPONSE] " + aux[1]);
-                    response.setText(aux[1]);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
+            if(aux != null){
+                System.out.println("[RESPONSE] " + aux[1]);
+                response.setText(aux[1]);
             }
         }
-
 
     }
 
@@ -237,7 +183,7 @@ public class HomePage extends JPanel implements ActionListener, Costanti {
     private void showFriends(){
         Gson gson = new Gson();
         String request = "SHOWFRIENDS\n"+nickname+"\n";
-        String aux[] = ReadWriteLen(request,"SHOWRANK");
+        String aux[] = ReadWrite(request,"SHOWRANK");
 
         if(aux != null){
             System.out.println("[RESPONSE] "+aux[1]);
@@ -259,53 +205,26 @@ public class HomePage extends JPanel implements ActionListener, Costanti {
 
     private void showScore() {
         String request = "SHOWSCORE\n"+nickname+"\n";
-        ByteBuffer buffer = ByteBuffer.allocate(request.length());
+        String aux[] = ReadWrite(request,"SHOWSCORE");
 
-        buffer.put(request.getBytes());
-        buffer.flip();
+        if(aux != null){
+            System.out.println("[RESPONSE] " + aux[1]);
 
-        while (buffer.hasRemaining()){
-            try {
-                client.write(buffer);
-            } catch (IOException e) {
-                System.out.println("[ERROR] Errore scrittura del buffer nella socket del server (SHOWSCORE)");
-                serverError();
-                break;
+            if(aux[0].equals("OK")){
+                ImageIcon icon = new ImageIcon(new ImageIcon(IMAGEPATH+"trophy.png").getImage().getScaledInstance(50, 50, Image.SCALE_DEFAULT));
+                JOptionPane.showMessageDialog(window, "Il tuo punteggio è "+aux[1], "Punti", JOptionPane.INFORMATION_MESSAGE,icon);
+            }
+            else{
+                response.setText(aux[1]);
             }
         }
-
-        buffer = ByteBuffer.allocate(BUF_SIZE);
-
-        try {
-            int read = client.read(buffer);
-            if(read == - 1){//Se riscontro un errore nella lettura
-                System.out.println("[ERROR] Errore lettura della socket del server (ADDFRIEND)");
-                this.serverError();
-
-            }
-            else { //se la lettura è andata a buon fine
-                String aux[] = (new String(buffer.array())).split("\n");
-                System.out.println("[RESPONSE] " + aux[1]);
-
-                if(aux[0].equals("OK")){
-                    ImageIcon icon = new ImageIcon(new ImageIcon(IMAGEPATH+"trophy.png").getImage().getScaledInstance(50, 50, Image.SCALE_DEFAULT));
-                    JOptionPane.showMessageDialog(window, "Il tuo punteggio è "+aux[1], "Punti", JOptionPane.INFORMATION_MESSAGE,icon);
-                }
-                else{
-                    response.setText(aux[1]);
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
     }
 
 
     private void showRank() {
         String request = "SHOWRANK\n"+nickname+"\n";
         Gson gson = new Gson();
-        String aux[] = ReadWriteLen(request,"SHOWRANK");
+        String aux[] = ReadWrite(request,"SHOWRANK");
 
         if(aux != null){
             System.out.println("[RESPONSE] "+aux[1]);
@@ -332,33 +251,9 @@ public class HomePage extends JPanel implements ActionListener, Costanti {
 
         if(friend!=null && !friend.equals("")){
             String request = "CHALLENGE\n"+nickname+"\n"+friend+"\n";
-            ByteBuffer buffer = ByteBuffer.allocate(request.length());
+            String aux[] = ReadWrite(request,"CHALLENGE");
 
-            buffer.put(request.getBytes());
-            buffer.flip();
-
-            while (buffer.hasRemaining()) {
-                try {
-                    client.write(buffer);
-                } catch (Exception e) {
-                    System.out.println("[ERROR] Errore scrittura del buffer nella socket del server (CHALLENGE)");
-                    serverError();
-                    break;
-                }
-            }
-
-        buffer = ByteBuffer.allocate(BUF_SIZE);
-
-        try {
-            int read = client.read(buffer);
-
-            if(read == -1){
-                System.out.println("[ERROR] Errore lettura della socket del server (CHALLENGE)");
-                serverError();
-                return;
-            }
-            else{
-                String aux[] = (new String(buffer.array())).split("\n");
+            if(aux != null){
                 System.out.println("[RESPONSE] "+aux[1]);
 
                 if(aux[0].equals("KO")){
@@ -366,16 +261,12 @@ public class HomePage extends JPanel implements ActionListener, Costanti {
                     this.challengeFlag.resetFlag();
                 }
                 else if(aux[0].equals("OK")){
-                        Challenge challenge = new Challenge(window,client,nickname);
-                        window.setContentPane(challenge);
-                        window.validate();
-                        challenge.run();
-                    }
+                    Challenge challenge = new Challenge(window,client,nickname);
+                    window.setContentPane(challenge);
+                    window.validate();
+                    challenge.run();
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
             }
-
         }
         else this.challengeFlag.resetFlag();
 
@@ -387,7 +278,9 @@ public class HomePage extends JPanel implements ActionListener, Costanti {
     }
 
 
-    private String[] ReadWriteLen(String request, String operation){
+    //Metodo che si occupa di inviare request al server e leggere la risposta.
+    //Ritorna un array contenente la response suddivisa o null se vi è un errore di comunicazione
+    private String[] ReadWrite(String request, String operation){
         ByteBuffer buffer = ByteBuffer.allocate(request.length());
 
         buffer.put(request.getBytes());
@@ -426,16 +319,18 @@ public class HomePage extends JPanel implements ActionListener, Costanti {
                 int responseLen = Integer.parseInt(responseLenString); //Converto la lunghezza in int
 
                 if(responseLen !=  responseServer.length()){ //Se ho ancora roba da leggere
-                    buffer = ByteBuffer.allocate(responseLen);
+                    buffer = ByteBuffer.allocate(responseLen); //
                     read = client.read(buffer); //leggo la risposta del server
 
-                    responseServer.append(new String(buffer.array(),0,read)); //Appendo la stringa letta
 
                     if(read == - 1){//Se riscontro un errore nella lettura
                         System.out.println("[ERROR] Errore lettura della socket del server ("+operation+"/2)");
                         serverError();
                         return null;
                     }
+                    else{
+                        responseServer.append(new String(buffer.array(),0,read)); //Appendo la stringa letta
+                     }
                 }
 
                 String aux[] = (responseServer.toString().split("\n"));
@@ -443,6 +338,7 @@ public class HomePage extends JPanel implements ActionListener, Costanti {
             }
         } catch (IOException e) {
             System.out.println("[ERROR] Server chiuso");
+            serverError();
             e.printStackTrace();
         }
 

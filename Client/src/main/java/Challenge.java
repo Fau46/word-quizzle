@@ -146,6 +146,7 @@ public class Challenge extends JPanel implements ActionListener,Costanti {
             if(response[0].equals("CHALLENGE")){
                 this.word.setText(response[1]);
                 this.inputWord.setText("");
+                this.response.setText("");
 
             }
             else if(response[0].equals("FINISH")){
@@ -157,12 +158,11 @@ public class Challenge extends JPanel implements ActionListener,Costanti {
 
                 traduciButton.setVisible(false);
                 skipButton.setVisible(false);
-//                homeButton.setVisible(true);
 
                 this.response.setText("<html>"+response[1]+".<br/>In attesa che finisca il tuo avversario.</html>");
                 this.word.setVisible(false);
 
-                window.validate();
+//                window.validate();
 
                 finishChallenge();
             }
@@ -196,12 +196,37 @@ public class Challenge extends JPanel implements ActionListener,Costanti {
             int read = client.read(buffer);
 
             if(read == -1){
-                System.out.println("[ERROR] Errore lettura della socket del server (CHALLENGE)");
+                System.out.println("[ERROR] Errore lettura della socket del server (CHALLENGE/1)");
                 UDPListener.getInstance().serverError();
                 return null;
             }
             else{
-                String aux[] = (new String(buffer.array())).split("\n");
+                String tempString = new String(buffer.array(),0,read); //Inserisco quello che ho letto in una stringa temporanea
+
+                int indexNewLine = tempString.indexOf('\n');
+
+                String responseLenString = new String(buffer.array(),0,indexNewLine); //Leggo la lunghezza della stringa
+                StringBuilder responseServer = new StringBuilder(tempString.substring(indexNewLine+1)); //Leggo la risposta del server
+
+                int responseLen = Integer.parseInt(responseLenString); //Converto la lunghezza in int
+
+                if(responseLen !=  responseServer.length()){ //Se ho ancora roba da leggere
+                    buffer = ByteBuffer.allocate(responseLen); //
+                    read = client.read(buffer); //leggo la risposta del server
+
+
+                    if(read == - 1){//Se riscontro un errore nella lettura
+                        System.out.println("[ERROR] Errore lettura della socket del server (CHALLENGE//2)");
+                        UDPListener.getInstance().serverError();
+                        return null;
+                    }
+                    else{
+                        responseServer.append(new String(buffer.array(),0,read)); //Appendo la stringa letta
+                    }
+                }
+
+                String aux[] = (responseServer.toString().split("\n"));
+
                 System.out.println("[RESPONSE] "+aux[1]);
 
                 return aux;
@@ -218,16 +243,17 @@ public class Challenge extends JPanel implements ActionListener,Costanti {
 
         homeButton.setVisible(true);
 
-        String[] response = readResponse();
+        String[] responseArray = readResponse();
 
         StringBuilder stringBuilder = new StringBuilder("<html>");
 
-        for(int i = 1; i<response.length; i++){
-            stringBuilder.append(response[i]+"<br/>");
+        for(int i = 1; i<responseArray.length; i++){
+            stringBuilder.append(responseArray[i]+"<br/>");
         }
 
         stringBuilder.append("</html>");
 
+        this.response.setText("stringBuilder.toString()");
         this.response.setText(stringBuilder.toString());
     }
 
@@ -237,7 +263,6 @@ public class Challenge extends JPanel implements ActionListener,Costanti {
 
         if(actionEvent.getActionCommand() == null || actionEvent.getActionCommand().equals("SKIP")){
             serverComunication("SKIP\n");
-            response.setText("");
         }
         else if(actionEvent.getActionCommand().equals("HOME")){
             HomePage homePage = new HomePage(nickname,window,client);
@@ -247,8 +272,6 @@ public class Challenge extends JPanel implements ActionListener,Costanti {
         }
         else if(actionEvent.getActionCommand().equals("TRADUCI")){
             String word = inputWord.getText();
-
-            response.setText("");
 
             if(!word.equals("")){
                 serverComunication("RESPONSE\n"+word+"\n");

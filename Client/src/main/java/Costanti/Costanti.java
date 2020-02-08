@@ -1,6 +1,7 @@
 package Costanti;
 
 public interface Costanti {
+    //GENERAL COSTANTS
     String IMAGEPATH = "Client/src/main/java/Immagini/";
     int BUF_SIZE = 512;
 

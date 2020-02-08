@@ -1,3 +1,5 @@
+import Costanti.Costanti;
+
 import javax.swing.*;
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -6,16 +8,15 @@ import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
-public class UDPListener implements Runnable,TCPConnection{
+public class UDPListener implements Runnable,TCPConnection,Costanti {
     private int port;
     private JFrame window;
     private String nickname;
     private SocketChannel client;
 
-    private DatagramSocket datagramSocket;
-    private ChallengeFlag challengeFlag;
-    private int BUF_SIZE = 512;
     private boolean SHUTDOWN = false;
+    private ChallengeFlag challengeFlag;
+    private DatagramSocket datagramSocket;
     private static UDPListener udpListener;
 
 
@@ -136,11 +137,36 @@ public class UDPListener implements Runnable,TCPConnection{
                 int read = client.read(buffer);
 
                 if(read == - 1){//Se riscontro un errore nella lettura
-                    System.out.println("[ERROR] Errore lettura della socket del server (UDP Thread)");
+                    System.out.println("[ERROR] Errore lettura della socket del server (UDP Thread/1)");
                     this.serverError();
                 }
                 else { //se la lettura è andata a buon fine
-                    String[] aux1 = (new String(buffer.array())).split("\n");
+                    String tempString = new String(buffer.array(),0,read); //Inserisco quello che ho letto in una stringa temporanea
+                    System.out.println(tempString);
+                    int indexNewLine = tempString.indexOf('\n');
+
+                    String responseLenString = new String(buffer.array(),0,indexNewLine); //Leggo la lunghezza della stringa
+                    StringBuilder responseServer = new StringBuilder(tempString.substring(indexNewLine+1)); //Leggo la risposta del server
+
+                    int responseLen = Integer.parseInt(responseLenString); //Converto la lunghezza in int //TODO fixare
+
+                    if(responseLen !=  responseServer.length()){ //Se ho ancora roba da leggere
+                        buffer = ByteBuffer.allocate(responseLen);
+                        read = client.read(buffer); //leggo la risposta del server
+
+
+                        if(read == - 1){//Se riscontro un errore nella lettura
+                            System.out.println("[ERROR] Errore lettura della socket del server (UDP Thread/2)");
+                            serverError();
+                            return null;
+                        }
+                        else{
+                            responseServer.append(new String(buffer.array(),0,read)); //Appendo la stringa letta
+                        }
+                    }
+
+                    String aux1[] = (responseServer.toString().split("\n"));
+
                     System.out.println("[RESPONSE] " + aux1[1]);
                     return aux1;
                 }

@@ -53,7 +53,6 @@ public class Challenge implements Costanti {
             wordsList = dictionaryDispatcher.getList(); //Richiedo la lista di parole da usare nella sfida
 
             if(wordsList == null){
-
                 noInternet(userKey);
                 noInternet(friendKey);
 
@@ -66,11 +65,11 @@ public class Challenge implements Costanti {
             italian_words_list = wordsList.keySet().toArray();
             String italianWord = (String) italian_words_list[0]; //prendo la prima parola da tradurre
 
-            System.out.print("KEYSET: "); //TODO elimina
-            for(Object i : italian_words_list){
-                System.out.print((String) i+" ");
-            }
-            System.out.println();
+//            System.out.print("KEYSET: "); //TODO elimina
+//            for(Object i : italian_words_list){
+//                System.out.print((String) i+" ");
+//            }
+//            System.out.println();
 
             //Setup utenti per l'inizio della sfida
             ConChallenge keyAttachmentUser = new ConChallenge();
@@ -176,7 +175,6 @@ public class Challenge implements Costanti {
         else{ //Allego ciò che ho letto alla request della key
             String string = new String(byteBuffer,0,read);
             requestBuilder.append(string);
-            System.out.println("LETTO "+string); //TODO elimina
             keyAttachment.request = requestBuilder.toString();
         }
     }
@@ -185,7 +183,7 @@ public class Challenge implements Costanti {
     private void Writable(SelectionKey key) throws IOException{
         SocketChannel client = (SocketChannel) key.channel();
         ConChallenge keyAttachment = (ConChallenge) key.attachment();
-        String string = keyAttachment.response;
+        String string = keyAttachment.response.length()+"\n"+keyAttachment.response;
         ByteBuffer buffer = ByteBuffer.allocate(string.length());
 
         buffer.put(string.getBytes());

@@ -136,8 +136,6 @@ public class Login extends JPanel implements ActionListener,Costanti{
 
     public void actionPerformed(ActionEvent actionEvent) {
 
-        System.out.println(actionEvent.getActionCommand());
-
         if (actionEvent.getActionCommand().equals("LOGIN")){
 
             String nick, pwd;
@@ -193,7 +191,38 @@ public class Login extends JPanel implements ActionListener,Costanti{
                     return;
                 }
                 else {
-                    String aux[] = (new String(buffer.array())).split("\n");
+                    String tempString = new String(buffer.array(),0,read); //Inserisco quello che ho letto in una stringa temporanea
+                    System.out.println(tempString);
+                    int indexNewLine = tempString.indexOf('\n');
+
+                    String responseLenString = new String(buffer.array(),0,indexNewLine); //Leggo la lunghezza della stringa
+                    StringBuilder responseServer = new StringBuilder(tempString.substring(indexNewLine+1)); //Leggo la risposta del server
+
+                    int responseLen = Integer.parseInt(responseLenString); //Converto la lunghezza in int
+
+                    if(responseLen !=  responseServer.length()){ //Se ho ancora roba da leggere
+                        buffer = ByteBuffer.allocate(responseLen-responseServer.length()); //
+                        read = client.read(buffer); //leggo la risposta del server
+
+                        if(read == - 1){//Se riscontro un errore nella lettura
+                            System.out.println("[ERROR] Errore lettura della socket del server (LOGIN)");
+
+                            connectAnswer.setText("<html>Impossibile comunicare</br> col server</html>");
+                            connectAnswer.setIcon(new ImageIcon(new ImageIcon(IMAGEPATH+"notconnected.png").getImage().getScaledInstance(15, 15, Image.SCALE_DEFAULT)));
+
+                            connectButton.setVisible(true);
+
+                            return;
+                        }
+                        else{
+                            responseServer.append(new String(buffer.array(),0,read)); //Appendo la stringa letta
+                        }
+                    }
+
+
+//                    String aux[] = (new String(buffer.array())).split("\n");
+                    String aux[] = (responseServer.toString().split("\n"));
+                    System.out.println(aux.length);
                     System.out.println("[RESPONSE] "+aux[1]);
                     answer.setText(aux[1]);
 

@@ -5,7 +5,6 @@ Tasks/Challenge.class
 User/UserDispatcher$1.class
 Tasks/AddFriend.class
 Database/DBMS.class
-Server/Con.class
 Database/Costants.class
 Tasks/ChallengeRequest.class
 Costanti/Costanti.class
