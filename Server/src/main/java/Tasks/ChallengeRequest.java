@@ -159,7 +159,7 @@ public class ChallengeRequest implements Runnable, Costanti {
         String response = string.length()+"\n"+string;
         ByteBuffer buffer = ByteBuffer.allocate(response.length());
 
-        buffer.put(string.getBytes());
+        buffer.put(response.getBytes());
         buffer.flip();
 
         while (buffer.hasRemaining()){

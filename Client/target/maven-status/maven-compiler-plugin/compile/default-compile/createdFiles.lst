@@ -1,5 +1,5 @@
-Challenge.class
 Login.class
+Challenge.class
 UDPListener.class
 MainClassClient.class
 StartGUI.class
@@ -7,6 +7,7 @@ HomePage$1.class
 Register.class
 Challenge$Countdown.class
 HomePage$2.class
+Costanti/Costanti.class
 ShowFriends.class
 ChallengeFlag.class
 HomePage.class

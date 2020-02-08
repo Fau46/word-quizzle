@@ -42,6 +42,7 @@ public class UDPListener implements Runnable,TCPConnection,Costanti {
 
     @Override
     public void run() {
+        int SIZE_BUFFER = 512;
         try {
             datagramSocket = new DatagramSocket(port); //Apro la socket UDP
             System.out.println("[OK] Listener UDP in ascolto");
@@ -50,7 +51,7 @@ public class UDPListener implements Runnable,TCPConnection,Costanti {
             e.printStackTrace();
         }
 
-        byte[] bufferByte = new byte[BUF_SIZE];
+        byte[] bufferByte = new byte[SIZE_BUFFER];
         DatagramPacket datagramPacket = new DatagramPacket(bufferByte,bufferByte.length);
         String request = null;
 
@@ -129,7 +130,7 @@ public class UDPListener implements Runnable,TCPConnection,Costanti {
             }
         }
 
-        buffer = ByteBuffer.allocate(512);
+        buffer = ByteBuffer.allocate(BUF_SIZE);
 
         if(!response.contains("Utente occupato")){
 
@@ -142,7 +143,6 @@ public class UDPListener implements Runnable,TCPConnection,Costanti {
                 }
                 else { //se la lettura è andata a buon fine
                     String tempString = new String(buffer.array(),0,read); //Inserisco quello che ho letto in una stringa temporanea
-                    System.out.println(tempString);
                     int indexNewLine = tempString.indexOf('\n');
 
                     String responseLenString = new String(buffer.array(),0,indexNewLine); //Leggo la lunghezza della stringa

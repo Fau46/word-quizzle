@@ -192,7 +192,6 @@ public class Login extends JPanel implements ActionListener,Costanti{
                 }
                 else {
                     String tempString = new String(buffer.array(),0,read); //Inserisco quello che ho letto in una stringa temporanea
-                    System.out.println(tempString);
                     int indexNewLine = tempString.indexOf('\n');
 
                     String responseLenString = new String(buffer.array(),0,indexNewLine); //Leggo la lunghezza della stringa
@@ -222,7 +221,7 @@ public class Login extends JPanel implements ActionListener,Costanti{
 
 //                    String aux[] = (new String(buffer.array())).split("\n");
                     String aux[] = (responseServer.toString().split("\n"));
-                    System.out.println(aux.length);
+
                     System.out.println("[RESPONSE] "+aux[1]);
                     answer.setText(aux[1]);
 

@@ -14,23 +14,17 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 public class DictionaryDispatcher {
     private static final int RANDOM_LINES = 5;
     private static DictionaryDispatcher dictionaryDispatcher;
     private List<String> dictionary;
-//    private Map<String,String> translatedWords;
 
     private DictionaryDispatcher(){
 
         try {
             dictionary = Files.readAllLines(Paths.get("./Server/src/main/resources/words.italian.txt"), StandardCharsets.UTF_8);
 
-            //            translatedWords = new ConcurrentHashMap<>();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -46,21 +40,16 @@ public class DictionaryDispatcher {
     //Ritorna una map formata dalla coppia <parola italiana, parola in inglese>.
     //Ritorna invece null se ha riscontrato un errore nella traduzione delle parole
     public Map<String,String> getList(){
-//        Map<String,String> list = new TreeMap<>();
-//        List<String> list = new LinkedList<>();
         Map<String,String> translatedWords = new HashMap<>();
         Random random = new Random();
         int dictionaryLen = dictionary.size();
         int y;
 
-//        long start = System.currentTimeMillis();
-
         for(int i=0; i<RANDOM_LINES; i++){
             y = random.nextInt(dictionaryLen);
             String word = dictionary.get(y);
-//            list.add(word);
             String translatedWord = myMemoryTanslator(word);
-
+            System.out.println(word+" "+translatedWord);
             if(translatedWord == null) return null;
 
             translatedWords.put(word, translatedWord);

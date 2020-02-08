@@ -5,12 +5,12 @@ public interface Costanti {
     int TIMER = 100; //Timer per il selector
 
     //------- ChallengeRequest -------
-    int SELECTOR_TIMEOUT = 5000; //(Intervallo T1)
+    int SELECTOR_TIMEOUT = 5000; //(Intervallo T1 in millisecondi)
     String HOSTNAME = "localhost";
 
     //------- Challenge -------
     int winnerScore = 3,
         correctScore = 2,
         notCorretScore = -1;
-    int CHALLENGE_TIMER = 15;
+    int CHALLENGE_TIMER = 30; //Timer per la sfida (secondi)
 }
