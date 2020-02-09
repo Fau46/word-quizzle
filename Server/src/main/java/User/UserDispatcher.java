@@ -62,7 +62,7 @@ public class UserDispatcher {
                 String key = entry.getKey();
 
                 if(value.getUse() == 0){
-                    System.out.println("Rimuovo "+value.getNickname());
+//                    System.out.println("Rimuovo "+value.getNickname());
                     this.Serialize(value);
                     userMap.remove(key);
                 }

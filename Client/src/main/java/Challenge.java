@@ -139,7 +139,7 @@ public class Challenge extends JPanel implements ActionListener,Costanti {
 
     private void serverComunication(String word){
         sendWord(word);
-        System.out.println("[SEND] "+word);
+//        System.out.println("[SEND] "+word);
         String[] response = readResponse();
 
         if(response != null){

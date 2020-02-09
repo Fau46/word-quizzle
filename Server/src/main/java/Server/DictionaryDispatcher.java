@@ -19,11 +19,12 @@ public class DictionaryDispatcher {
     private static final int RANDOM_LINES = 5;
     private static DictionaryDispatcher dictionaryDispatcher;
     private List<String> dictionary;
+    private String DICTIONARY_PATH = "src/main/resources/words.italian.txt";
 
     private DictionaryDispatcher(){
 
         try {
-            dictionary = Files.readAllLines(Paths.get("./Server/src/main/resources/words.italian.txt"), StandardCharsets.UTF_8);
+            dictionary = Files.readAllLines(Paths.get("src/main/resources/words.italian.txt"), StandardCharsets.UTF_8);
 
         } catch (IOException e) {
             e.printStackTrace();

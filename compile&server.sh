@@ -1,6 +1,7 @@
 #!/bin/bash
 
+# mvn clean
 mvn compile
 mvn install 
-cd Client
+cd Server
 mvn exec:java 
