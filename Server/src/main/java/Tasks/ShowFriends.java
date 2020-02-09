@@ -31,9 +31,7 @@ public class ShowFriends implements Runnable{
             string.append(gson.toJson(friendList));
             string.append("\n");
 
-            keyAttachment.lenght = string.toString().length();
             keyAttachment.response = string.toString();
-
         }
 
         try {

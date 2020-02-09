@@ -100,11 +100,12 @@ public class Register extends JPanel implements ActionListener,Costanti {
             try{
 
                 Registry registry = LocateRegistry.getRegistry(RMIRegistrationInterface.PORT);
-                RMIRegistrationInterface serverObject = (RMIRegistrationInterface) registry.lookup(RMIRegistrationInterface.REMOTE_OBJECT_NAME); //TODO mettere il caso in cui il server sia giù
+                RMIRegistrationInterface serverObject = (RMIRegistrationInterface) registry.lookup(RMIRegistrationInterface.REMOTE_OBJECT_NAME);
 
                 String message = null;
-                int response = serverObject.registra_utente(nick,pwd);
-                switch(response){ //effettuo la registrazione e leggo la risposta
+                int response = serverObject.registra_utente(nick,pwd); //Effettuo la registrazione
+
+                switch(response){ //Leggo la risposta
                     case -101: message = "Nickname non valido";
                         break;
                     case -102: message = "Nickname già esistente";
@@ -125,7 +126,7 @@ public class Register extends JPanel implements ActionListener,Costanti {
 
                 answer.setText(message);
 
-                if(response>0){
+                if(response>0){ //Se la registrazione è andata a buon fine mostro la schermata di login
                     Login login = new Login(window);
                     window.setContentPane(login);
                     window.validate();

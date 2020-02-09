@@ -55,8 +55,6 @@ public class ShowFriends extends JPanel implements ActionListener,Costanti {
             }
         }
 
-//        friendList.setFont(font);
-
         JScrollPane friendPanel = new JScrollPane(friendList);
         friendPanel.setBorder(BorderFactory.createEmptyBorder());
 

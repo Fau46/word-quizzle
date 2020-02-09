@@ -62,7 +62,6 @@ public class Server implements Costanti {
                         if(nick != null) {
                             User user = mapUser.get(nick);
                             user.decrementUse(); //Decremento use in user
-//                            user.setPort(0);
                             mapUser.remove(nick); //Rimuovo dagli user online
                             mapKey.remove(nick); //Rimuovo la sua chiave
                         }
@@ -75,7 +74,6 @@ public class Server implements Costanti {
                     }
                 }
             }
-
         }
     }
 
@@ -120,25 +118,11 @@ public class Server implements Costanti {
     private void Writable(SelectionKey key) throws IOException{
         SocketChannel client = (SocketChannel) key.channel();
         ConKey keyAttachment = (ConKey) key.attachment();
-        String string = keyAttachment.response.length()+"\n"+keyAttachment.response;
-        ByteBuffer buffer = ByteBuffer.allocate(string.length());
+        String response = keyAttachment.response.length()+"\n"+keyAttachment.response; //costruisco la risposta da inviare al client
+        ByteBuffer buffer = ByteBuffer.allocate(response.length());
 
-        buffer.put(string.getBytes());
+        buffer.put(response.getBytes());
         buffer.flip();
-
-//        if(keyAttachment.lenght!=0){ //Controllo se devo passare prima la lunghezza
-//            String responseLen = keyAttachment.lenght.toString()+"\n";
-//            ByteBuffer auxBuffer = ByteBuffer.allocate(responseLen.length());
-//
-//            auxBuffer.put(responseLen.getBytes());
-//            auxBuffer.flip();
-//
-//            while (auxBuffer.hasRemaining()){
-//                client.write(auxBuffer);
-//            }
-
-//            keyAttachment.lenght = 0;
-//        }
 
         //Scrivo la risposta al client
         while (buffer.hasRemaining()){
@@ -156,7 +140,7 @@ public class Server implements Costanti {
 
     }
 
-
+    //Metodo che si occupa di parsare la request
     private void parser(SelectionKey key) throws IOException{
         ConKey keyAttachment = (ConKey) key.attachment();
         String[] aux = keyAttachment.request.split("\n"); //Splitto la request
@@ -168,7 +152,7 @@ public class Server implements Costanti {
             key.interestOps(SelectionKey.OP_WRITE);
         }
         else if(op.equals("LOGOUT")){
-            logout(aux,key);
+            logout(key);
             key.interestOps(SelectionKey.OP_WRITE);
         }
         else if(op.equals("ADDFRIEND")){
@@ -208,32 +192,30 @@ public class Server implements Costanti {
             user = userDispatcher.getUser(nickname); //Chiedo al dispatcher l'oggetto relativo a nickname
 
             if (user == null){
-                keyAttachment.response = "KO\nNickname non presente";} //TODO non ha senso visto che dico 'nick o pwd errate'
+                keyAttachment.response = "KO\nNickname non presente";}
             else if (user.getNickname().equals(nickname) && user.getPassword().equals(password)){
                 System.out.println("[LOGIN] "+nickname);
+
                 mapUser.put(nickname,user);
                 mapKey.put(nickname,key);
+
                 keyAttachment.nickname = nickname;
                 keyAttachment.response = "OK\nLogin effettuato";
+
                 user.incrementUse();
-//                user.setPort(port);
             }
-            else keyAttachment.response = "KO\nNickname o password errate";
+            else keyAttachment.response = "KO\nPassword errata";
         } else keyAttachment.response = "KO\nUtente gia' connesso";
 
     }
 
 
-    private void logout(String[] aux, SelectionKey key) throws IOException {
-        String nickname = aux[1];
+    private void logout(SelectionKey key)  {
 
         ConKey keyAttachment = (ConKey) key.attachment();
 
-        if(mapUser.get(nickname) == null) keyAttachment.response = "KO\nUtente non in linea"; //TODO forse inutile
-        else {
-            keyAttachment.response = "OK\nUtente disconnesso";
-            keyAttachment.logout = true;
-        }
+        keyAttachment.response = "OK\nUtente disconnesso";
+        keyAttachment.logout = true;
     }
 
 
@@ -250,11 +232,7 @@ public class Server implements Costanti {
             friend = userDispatcher.getUser(nickFriend); //chiedo friend al dispatcher
         }
 
-        if(user == null){
-            keyAttachment.response = "KO\nUtente non online\n";
-            key.interestOps(SelectionKey.OP_WRITE);
-        }
-        else if(friend == null){
+         if(friend == null){ //Se nickFriend non è associato a un utente
             keyAttachment.response = "KO\nIl nickname "+nickFriend+" non valido\n";
             key.interestOps(SelectionKey.OP_WRITE);
         }
@@ -302,13 +280,14 @@ public class Server implements Costanti {
     }
 
 
+    //Metodo che delega a un thread il compito di inviare al client la lista dei suoi amici con i relativi punteggi
     private void challenge(String[] aux, SelectionKey key) {
         ConKey keyAttachment = (ConKey) key.attachment();
         User user = mapUser.get(aux[1]);
         String friendNick = aux[2];
         User friend;
 
-        System.out.println("[CHALLENGE] nickname "+user.getNickname()+" friend nickname: "+friendNick+" ("+keyAttachment.nickname+")");
+        System.out.println("[CHALLENGE] NICKNAME "+user.getNickname()+" | FRIEND NICKNAME: "+friendNick+" ("+keyAttachment.nickname+")");
 
         if(!user.getNickname().equals(friendNick)){ //Controllo che friend non abbia lo stesso nickname di user
             if((friend = mapUser.get(friendNick)) != null){ //Controllo che friend sia online
@@ -349,6 +328,7 @@ public class Server implements Costanti {
     }
 
 
+    //Metodo che gestisce una bad request
     private void badRequest(String[] aux, SelectionKey key) {
         ConKey keyAttachment = (ConKey) key.attachment();
 

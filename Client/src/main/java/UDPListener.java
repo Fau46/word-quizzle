@@ -29,12 +29,14 @@ public class UDPListener implements Runnable,TCPConnection,Costanti {
     }
 
 
+    //Metodo per ottenere l'istanza della classe
     public static UDPListener getInstance(int port, JFrame window, SocketChannel client, String nickname){
         if(udpListener == null) udpListener = new UDPListener(port,window,client,nickname);
         return udpListener;
     }
 
 
+    //Metodo per ottenere l'istanza della classe
     public static UDPListener getInstance(){
         return udpListener;
     }
@@ -43,6 +45,7 @@ public class UDPListener implements Runnable,TCPConnection,Costanti {
     @Override
     public void run() {
         int SIZE_BUFFER = 512;
+
         try {
             datagramSocket = new DatagramSocket(port); //Apro la socket UDP
             System.out.println("[OK] Listener UDP in ascolto");
@@ -72,7 +75,7 @@ public class UDPListener implements Runnable,TCPConnection,Costanti {
             System.out.println("[CHALLENGE REQUEST] User: "+aux[1]);
 
 
-            if(!challengeFlag.isOccupied()){ //Se l'utente non è impegnato a effettuare una sfida gli mando la richiesta
+            if(!challengeFlag.isOccupied()){ //Se l'utente non è impegnato a effettuare una sfida gli faccio comparire la richiesta
                 challengeFlag.setFlag();
 
                 int choose = JOptionPane.showOptionDialog(window, aux[1]+" ti vuole sfidare\nHai "+aux[2]+" secondi per accettare la sfida", "Sfida",JOptionPane.INFORMATION_MESSAGE, JOptionPane.PLAIN_MESSAGE, null, buttons,null);
@@ -148,7 +151,7 @@ public class UDPListener implements Runnable,TCPConnection,Costanti {
                     String responseLenString = new String(buffer.array(),0,indexNewLine); //Leggo la lunghezza della stringa
                     StringBuilder responseServer = new StringBuilder(tempString.substring(indexNewLine+1)); //Leggo la risposta del server
 
-                    int responseLen = Integer.parseInt(responseLenString); //Converto la lunghezza in int //TODO fixare
+                    int responseLen = Integer.parseInt(responseLenString); //Converto la lunghezza in int
 
                     if(responseLen !=  responseServer.length()){ //Se ho ancora roba da leggere
                         buffer = ByteBuffer.allocate(responseLen);
@@ -173,12 +176,12 @@ public class UDPListener implements Runnable,TCPConnection,Costanti {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
         }
         return  null;
     }
 
 
+    //Metodo che mostra la schermata iniziale nel caso ci sia un errore di comunicazione col server
     public void serverError(){
         shutdownAndClear();
 

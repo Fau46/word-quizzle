@@ -27,25 +27,23 @@ public class ShowRank implements Runnable{
         Gson  gson = new Gson();
 
         unsortedRank.put(user.getNickname(),user.getScore().intValue());
-        synchronized (friendList = user.getFriends()){
-            for(String friendNick : friendList){
-                User friend;
 
-                friend = userDispatcher.getUser(friendNick);
+        synchronized (friendList = user.getFriends()){ //Prendo la lista degli amici di user
+            for(String friendNick : friendList){
+                User friend = userDispatcher.getUser(friendNick); //Richiedo
 
                 friend.incrementUse();
                 unsortedRank.put(friendNick,friend.getScore().intValue());
                 friend.decrementUse();
             }
 
-            TreeMap<String,Integer> sortedRank = (TreeMap<String,Integer>) sortByValues(unsortedRank);
+            TreeMap<String,Integer> sortedRank = (TreeMap<String,Integer>) sortByValues(unsortedRank); //faccio il sort della lista di amici in base al loro punteggio
 
             stringBuilder.append("OK\n");
             stringBuilder.append(gson.toJson(sortedRank));
             stringBuilder.append("\n");
 
             keyAttachment.response = stringBuilder.toString();
-            keyAttachment.lenght = stringBuilder.toString().length();
         }
 
         try {

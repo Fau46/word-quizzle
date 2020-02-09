@@ -17,9 +17,9 @@ public class ChallengeRequest implements Runnable, Costanti {
     private Selector serverSelector; //Selector principale del server
     private SelectionKey userKey, friendKey;
 
-
     private SelectionKey newFriendKey;
     private boolean stopSelector = false; //Flag che mi fa eventualmente terminare il selector temporaneo di sfida
+
 
     public ChallengeRequest(User user, User friend, SelectionKey userKey, SelectionKey friendKey, Selector selector){
         this.user = user;
@@ -113,7 +113,7 @@ public class ChallengeRequest implements Runnable, Costanti {
 //                  Gestisco la chiusura del canale
                     ConKey keyAttachment = (ConKey) key.attachment();
 
-                    deregisterFriendKey(key);
+                    deregisterKey(key);
 
                     if(keyAttachment.response.equals("Risposta non ancora data")){ //Caso in cui friend si disconnette ancora prima di dare una risposta
                         disconnectedFriend("KO\n"+keyAttachment.nickname+" si e' disconnesso\n");
@@ -187,12 +187,12 @@ public class ChallengeRequest implements Runnable, Costanti {
                 String string = "KO\n"+((ConKey)userKey.attachment()).nickname+" ha abbandonato\n";
                 Write(string,key);
 
-                deregisterFriendKey(key);
+                deregisterKey(key);
                 setFlag(); //Resetto i flag necessari
             }
             else{
-                deregisterFriendKey(key);
-                Challenge challenge = new Challenge(user, friend, userKey,friendKey,serverSelector); //TODO forse problema con friendKey
+                deregisterKey(key);
+                Challenge challenge = new Challenge(user, friend, userKey,friendKey,serverSelector);
                 challenge.startChallenge();
             }
         }
@@ -205,7 +205,7 @@ public class ChallengeRequest implements Runnable, Costanti {
 
         keyAttachment.response =  response; //Allego la risposta negativa a user
 
-        ConKey keyAttachmentFriend = deregisterFriendKey(newFriendKey); //Registro nuovamente friend sul selettore principale
+        ConKey keyAttachmentFriend = deregisterKey(newFriendKey); //Registro nuovamente friend sul selettore principale
 
         keyAttachmentFriend.request = null;
         keyAttachmentFriend.response = null;
@@ -250,8 +250,9 @@ public class ChallengeRequest implements Runnable, Costanti {
         friend.decrementUse();
     }
 
+
 //    Metodo che si occupa di registrare nuovamente la chiave key sul selettore principale
-    private ConKey deregisterFriendKey(SelectionKey key){
+    private ConKey deregisterKey(SelectionKey key){
         ConKey keyAttachment = (ConKey) key.attachment();
 
         try {

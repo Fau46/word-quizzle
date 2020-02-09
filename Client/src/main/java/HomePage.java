@@ -18,7 +18,6 @@ public class HomePage extends JPanel implements ActionListener, Costanti {
     private SocketChannel client;
 
     private JLabel response;
-//    private int BUF_SIZE = 512;
     private ChallengeFlag challengeFlag;
 
     public HomePage(String nick, JFrame window, SocketChannel client) {
@@ -113,7 +112,6 @@ public class HomePage extends JPanel implements ActionListener, Costanti {
 
         setLayout(new GridLayout(3,1,3,3));
         add(headPanel);
-//        add(nickPanel);
         add(buttonPanel);
         add(responsePanel);
     }
@@ -144,11 +142,9 @@ public class HomePage extends JPanel implements ActionListener, Costanti {
 
     private void logout(){
         String request = "LOGOUT\n"+nickname+"\n";
-        String aux[] =ReadWrite(request,"LOGOUT");
+        String aux[] = ReadWrite(request,"LOGOUT");
 
         if(aux !=  null){
-            System.out.println("[RESPONSE] "+aux[1]);
-
             if(aux[0].equals("OK")){ //se il logout è andato a buon fine
                 UDPListener.getInstance().shutdownAndClear();
 
@@ -172,7 +168,6 @@ public class HomePage extends JPanel implements ActionListener, Costanti {
             String aux[] = ReadWrite(request,"ADDFRIEND");
 
             if(aux != null){
-                System.out.println("[RESPONSE] " + aux[1]);
                 response.setText(aux[1]);
             }
         }
@@ -186,10 +181,8 @@ public class HomePage extends JPanel implements ActionListener, Costanti {
         String aux[] = ReadWrite(request,"SHOWRANK");
 
         if(aux != null){
-            System.out.println("[RESPONSE] "+aux[1]);
-
             Type listType = new TypeToken<Vector<String>>(){}.getType();
-            Vector<String> listaAmici = gson.fromJson(aux[1],listType);
+            Vector<String> listaAmici = gson.fromJson(aux[1],listType); //Parso la risposta come un vector
 
             if(aux[0].equals("OK")){ //se è andato a buon fine
                 ShowFriends showFriends= new ShowFriends(window,client,nickname,listaAmici);
@@ -208,8 +201,6 @@ public class HomePage extends JPanel implements ActionListener, Costanti {
         String aux[] = ReadWrite(request,"SHOWSCORE");
 
         if(aux != null){
-            System.out.println("[RESPONSE] " + aux[1]);
-
             if(aux[0].equals("OK")){
                 ImageIcon icon = new ImageIcon(new ImageIcon(IMAGEPATH+"trophy.png").getImage().getScaledInstance(50, 50, Image.SCALE_DEFAULT));
                 JOptionPane.showMessageDialog(window, "Il tuo punteggio è "+aux[1], "Punti", JOptionPane.INFORMATION_MESSAGE,icon);
@@ -232,7 +223,7 @@ public class HomePage extends JPanel implements ActionListener, Costanti {
             Type listType = new TypeToken<Map<String,Integer>>(){}.getType();
             Map<String,Integer> listaAmici = gson.fromJson(aux[1],listType);
 
-            if(aux[0].equals("OK")){ //se è andato a buon fine TODO forse inutile, controlla se il server ritorna sempre ok
+            if(aux[0].equals("OK")){
                 ShowRank showRank = new ShowRank (window,client,nickname,listaAmici);
                 window.setContentPane(showRank);
                 window.validate();
@@ -245,7 +236,8 @@ public class HomePage extends JPanel implements ActionListener, Costanti {
 
 
     private void challenge() {
-        this.challengeFlag.setFlag();
+        this.challengeFlag.setFlag(); //Setto il flag per non ricevere richieste
+
         ImageIcon icon = new ImageIcon(new ImageIcon(IMAGEPATH+"battle.png").getImage().getScaledInstance(50, 50, Image.SCALE_DEFAULT));
         String friend = (String) JOptionPane.showInputDialog(window,"Inserisci l'amico che sfidare","Challenge",JOptionPane.INFORMATION_MESSAGE,icon,null,"");
 
@@ -254,11 +246,9 @@ public class HomePage extends JPanel implements ActionListener, Costanti {
             String aux[] = ReadWrite(request,"CHALLENGE");
 
             if(aux != null){
-                System.out.println("[RESPONSE] "+aux[1]);
-
                 if(aux[0].equals("KO")){
                     response.setText(aux[1]);
-                    this.challengeFlag.resetFlag();
+                    this.challengeFlag.resetFlag(); //Resetto il flag per ricevere altre richieste
                 }
                 else if(aux[0].equals("OK")){
                     Challenge challenge = new Challenge(window,client,nickname);
@@ -269,7 +259,6 @@ public class HomePage extends JPanel implements ActionListener, Costanti {
             }
         }
         else this.challengeFlag.resetFlag();
-
     }
 
 
@@ -334,6 +323,9 @@ public class HomePage extends JPanel implements ActionListener, Costanti {
                 }
 
                 String aux[] = (responseServer.toString().split("\n"));
+
+                System.out.println("[RESPONSE] "+aux[1]);
+
                 return aux;
             }
         } catch (IOException e) {

@@ -15,9 +15,7 @@ public class Challenge extends JPanel implements ActionListener,Costanti {
     private String nickname;
     private SocketChannel client;
 
-    private int TIMER;
     private Timer countdown;
-    private int BUF_SIZE = 512;
     private JTextField inputWord;
     private ChallengeFlag challengeFlag;
     private JLabel response, word, countdownDisplay;
@@ -60,24 +58,24 @@ public class Challenge extends JPanel implements ActionListener,Costanti {
         buttonPanel.setBackground(Color.WHITE);
 
         homeButton = new JButton("HOME");
-        traduciButton = new JButton("TRADUCI");
         skipButton = new JButton("SKIP");
+        traduciButton = new JButton("TRADUCI");
 
         homeButton.setPreferredSize(new Dimension(BUTTONWIDTH,BUTTONHEIGHT));
-        traduciButton.setPreferredSize(new Dimension(BUTTONWIDTH+30,BUTTONHEIGHT));
         skipButton.setPreferredSize(new Dimension(BUTTONWIDTH,BUTTONHEIGHT));
+        traduciButton.setPreferredSize(new Dimension(BUTTONWIDTH+30,BUTTONHEIGHT));
 
-        traduciButton.setVisible(false);
         homeButton.setVisible(false);
         skipButton.setVisible(false);
+        traduciButton.setVisible(false);
 
         homeButton.setIcon(new ImageIcon(new ImageIcon(IMAGEPATH+"home.png").getImage().getScaledInstance(15, 15, Image.SCALE_DEFAULT)));
-        traduciButton.setIcon(new ImageIcon(new ImageIcon(IMAGEPATH+"translate.png").getImage().getScaledInstance(25, 25, Image.SCALE_DEFAULT)));
         skipButton.setIcon(new ImageIcon(new ImageIcon(IMAGEPATH+"skip.png").getImage().getScaledInstance(15, 15, Image.SCALE_DEFAULT)));
+        traduciButton.setIcon(new ImageIcon(new ImageIcon(IMAGEPATH+"translate.png").getImage().getScaledInstance(25, 25, Image.SCALE_DEFAULT)));
 
         homeButton.addActionListener(this);
-        traduciButton.addActionListener(this);
         skipButton.addActionListener(this);
+        traduciButton.addActionListener(this);
 
         buttonPanel.add(homeButton);
         buttonPanel.add(traduciButton);
@@ -112,18 +110,18 @@ public class Challenge extends JPanel implements ActionListener,Costanti {
             if(responseArray[0].equals("KO")){
                 JOptionPane.showMessageDialog(window, responseArray[1], "Error", JOptionPane.ERROR_MESSAGE);
                 HomePage homePage = new HomePage(nickname,window,client);
+
                 challengeFlag.resetFlag(); //abilito il flag per ricevere richieste di sfida
                 window.setContentPane(homePage);
                 window.validate();
 
             }
             else if(responseArray[0].equals("OK")){
-                TIMER = Integer.parseInt(responseArray[3]);
+                int timer = Integer.parseInt(responseArray[3]); //Parso il timer da settare successivamente
 
-                countdown = new Timer(1000, new Countdown(TIMER));
+                countdown = new Timer(1000, new Countdown(timer));
 
                 countdown.start();
-
 
                 inputWord.setVisible(true);
                 traduciButton.setVisible(true);
@@ -137,9 +135,9 @@ public class Challenge extends JPanel implements ActionListener,Costanti {
     }
 
 
+    //Metodo che si occupa di inviare la parola tradotta al server e parsare la risposta
     private void serverComunication(String word){
         sendWord(word);
-//        System.out.println("[SEND] "+word);
         String[] response = readResponse();
 
         if(response != null){
@@ -162,14 +160,13 @@ public class Challenge extends JPanel implements ActionListener,Costanti {
                 this.response.setText("<html>"+response[1]+".<br/>In attesa che finisca il tuo avversario.</html>");
                 this.word.setVisible(false);
 
-//                window.validate();
-
                 finishChallenge();
             }
         }
     }
 
 
+    ///Metodo che si occupa di inviare la response al server
     private void sendWord(String response){
         ByteBuffer buffer = ByteBuffer.allocate(response.length());
 
@@ -181,7 +178,7 @@ public class Challenge extends JPanel implements ActionListener,Costanti {
             try {
                 client.write(buffer);
             } catch (Exception e) {
-                System.out.println("[ERROR] Errore scrittura del buffer nella socket del server (LOGIN)");
+                System.out.println("[ERROR] Errore scrittura del buffer nella socket del server (CHALLENGE)");
                 UDPListener.getInstance().serverError();
                 return;
             }

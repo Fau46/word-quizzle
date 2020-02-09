@@ -1,5 +1,3 @@
-import Database.Costants;
-
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
@@ -15,11 +13,10 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.concurrent.*;
 
 
-public class MainClassServer implements Costants,TCPConnection {
+public class MainClassServer implements TCPConnection {
     public MainClassServer(){}
 
     public static void main(String[] args) {
-        ServerSocket serverSocket;
         Selector selector;
         ThreadPoolExecutor executor;
         MainClassServer mainClassServer = new MainClassServer();
@@ -49,7 +46,8 @@ public class MainClassServer implements Costants,TCPConnection {
             return;
         }
 
-        executor = new ThreadPoolExecutor(2, 10, 100L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>()); //TODO trasformare in modo da fare un multithread multiplexer
+        //Configurazione ThreadPool
+        executor = (ThreadPoolExecutor) Executors.newCachedThreadPool();
         System.out.println("[START] Threadpool avviato");
 
         System.out.println("[START] Server ready");
@@ -59,6 +57,7 @@ public class MainClassServer implements Costants,TCPConnection {
 
     }
 
+
     //Configurazione server RMI
     private void RMIConfiguration() throws ExportException, AlreadyBoundException, RemoteException {
         RMIRegistrationImpl reg = RMIRegistrationImpl.getServerRMI();
@@ -66,6 +65,7 @@ public class MainClassServer implements Costants,TCPConnection {
         RMIRegistrationInterface stub = (RMIRegistrationInterface) UnicastRemoteObject.exportObject(reg, 0);
         registry.bind(RMIRegistrationInterface.REMOTE_OBJECT_NAME, stub);
     }
+
 
     //Configurazione socket TCP
     private Selector TCPConfiguration() throws IOException {

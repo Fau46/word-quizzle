@@ -1,5 +1,6 @@
 package Database;
 
+import Costanti.Costanti;
 import User.User;
 import com.google.gson.Gson;
 
@@ -10,16 +11,16 @@ import java.nio.file.Paths;
 import java.nio.channels.FileChannel;
 import java.nio.file.StandardOpenOption;
 
-public class DBMS implements Costants{
+public class DBMS implements Costanti {
     private static DBMS dbms;
-//    private CrunchifyInMemoryCache<String, String> cache;
+
 
     private DBMS(){
-        if(!Files.exists(Paths.get(PATH))){
-            new File(PATH).mkdir();
+        if(!Files.exists(Paths.get(DATA_PATH))){
+            new File(DATA_PATH).mkdir();
         }
-//        cache = new CrunchifyInMemoryCache<>(10,10,100); //TODO FIXARE MEGLIO
     }
+
 
     //Metodo per ottenere l'istanza singleton della classe
     public static DBMS getIstance(){
@@ -29,32 +30,24 @@ public class DBMS implements Costants{
 
 
     public synchronized boolean existUser(String nick){ 
-//        if(cache.get(nick) != null){ //se il nickname è già in cache ritorno true
-//            return true;
-//        }
-        String path = PATH+nick+EXTENSION;
-        if(Files.exists(Paths.get(path))){ //oppure se è già registrato
-//            cache.put(nick,nick); //metto in cache il nickname
+        String path = DATA_PATH+nick+EXTENSION;
+
+        if(Files.exists(Paths.get(path))){
             return true;
         }
-
         return false;
     }
 
 
-    public boolean registerUser(User user){
+    //Metoodo che permette di registrare user.
+    //Ritorna se è andato a buon fine, false altrimenti.
+    public synchronized boolean registerUser(User user){
         try{
             FileChannel writer;
-            StringBuilder userPath = new StringBuilder(PATH+user.getNickname()+EXTENSION);
+            StringBuilder userPath = new StringBuilder(DATA_PATH+user.getNickname()+EXTENSION);
             StringBuilder strinJson = new StringBuilder();
             Gson gson = new Gson();
 
-
-//            new File(userPath.toString()).mkdir(); //Creo la cartella dell'utente
-//            System.out.println("Directory "+userPath+" creata"); //TODO elimina
-
-            //creo il file login dell'utente e lo inserisco nella sua cartella
-//            userPath.append("/"+LOGIN_DB);
             new File(userPath.toString()).createNewFile();
             System.out.println("[REGISTRATION] Utente "+user.getNickname()+" registrato");
 
@@ -64,7 +57,6 @@ public class DBMS implements Costants{
             writer.write(ByteBuffer.wrap(strinJson.toString().getBytes())); //scrivo l'oggetto utente serializzato sul file json
             writer.close();
 
-//            cache.put(user.getNickname(),user.getNickname()); //metto l'utente in cache per un eventuale login
         } catch (IOException e) {
             System.out.println("IOException");
             return false;
@@ -73,8 +65,9 @@ public class DBMS implements Costants{
     }
 
 
+    //Metodo che restituisce l'oggetto associato a nick, null se l'oggetto non esiste
     public User getUser(String nick){
-        String path = new String(PATH+nick+EXTENSION);
+        String path = new String(DATA_PATH+nick+EXTENSION);
 
         if(!existUser(nick)) return null; //Se l'utente non esiste ritorno null
 
@@ -90,9 +83,11 @@ public class DBMS implements Costants{
         return user;
     }
 
+
+    //Metodo che serializza l'oggetto user nella cartella Dati
     public void serializeUser(User user){
         FileChannel writer;
-        StringBuilder userPath = new StringBuilder(PATH+user.getNickname()+EXTENSION);
+        StringBuilder userPath = new StringBuilder(DATA_PATH+user.getNickname()+EXTENSION);
         StringBuilder strinJson = new StringBuilder();
         Gson gson = new Gson();
 

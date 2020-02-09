@@ -65,12 +65,6 @@ public class Challenge implements Costanti {
             italian_words_list = wordsList.keySet().toArray();
             String italianWord = (String) italian_words_list[0]; //prendo la prima parola da tradurre
 
-//            System.out.print("KEYSET: "); //TODO elimina
-//            for(Object i : italian_words_list){
-//                System.out.print((String) i+" ");
-//            }
-//            System.out.println();
-
             //Setup utenti per l'inizio della sfida
             ConChallenge keyAttachmentUser = new ConChallenge();
             keyAttachmentUser.response = "OK\nSfida cominciata\n"+italianWord+"\n"+CHALLENGE_TIMER+"\n";
@@ -101,7 +95,7 @@ public class Challenge implements Costanti {
     private void noInternet(SelectionKey key){
         ConKey keyAttachment = (ConKey) key.attachment();
 
-        keyAttachment.response = "KO\nNessuna connessione a internet\n";
+        keyAttachment.response = "KO\nNessuna connessione a internet\n"; //TODO provare se funziona visto che è stato cambiato il protocollo server - client
         keyAttachment.challenge = false;
 
         key.interestOps(SelectionKey.OP_WRITE);
@@ -123,7 +117,7 @@ public class Challenge implements Costanti {
         return key1;
     }
 
-
+    //Metodoc che si occupa della sfida
     private void run(Selector selector){
         while (count_word_user > 0 || count_word_friend > 0){ //Finchè entrambi gli utenti hanno parole da tradurre
             try {
@@ -183,6 +177,7 @@ public class Challenge implements Costanti {
     private void Writable(SelectionKey key) throws IOException{
         SocketChannel client = (SocketChannel) key.channel();
         ConChallenge keyAttachment = (ConChallenge) key.attachment();
+
         String string = keyAttachment.response.length()+"\n"+keyAttachment.response;
         ByteBuffer buffer = ByteBuffer.allocate(string.length());
 

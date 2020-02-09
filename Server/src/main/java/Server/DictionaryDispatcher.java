@@ -14,17 +14,18 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
+import Costanti.*;
 
-public class DictionaryDispatcher {
+public class DictionaryDispatcher implements Costanti {
     private static final int RANDOM_LINES = 5;
     private static DictionaryDispatcher dictionaryDispatcher;
     private List<String> dictionary;
-    private String DICTIONARY_PATH = "src/main/resources/words.italian.txt";
+
 
     private DictionaryDispatcher(){
 
         try {
-            dictionary = Files.readAllLines(Paths.get("src/main/resources/words.italian.txt"), StandardCharsets.UTF_8);
+            dictionary = Files.readAllLines(Paths.get(DICTIONARY_PATH), StandardCharsets.UTF_8);
 
         } catch (IOException e) {
             e.printStackTrace();

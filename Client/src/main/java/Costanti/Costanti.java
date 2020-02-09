@@ -2,8 +2,9 @@ package Costanti;
 
 public interface Costanti {
     //GENERAL COSTANTS
-    String IMAGEPATH = "src/main/resources/Immagini/";
-    int BUF_SIZE = 512;
+    String IMAGEPATH = "./Client/src/main/resources/Immagini/";
+//    String IMAGEPATH = "src/main/resources/Immagini/";
+    int BUF_SIZE = 4;
 
     //GUI COSTANTS
     int BUTTONWIDTH = 100;

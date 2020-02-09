@@ -47,7 +47,6 @@ public class ShowRank extends JPanel implements ActionListener,Costanti {
 
         int i = 1;
         for(String username : listaAmici.keySet()){
-//            friendList.append(username+" "+listaAmici.get(username)+"\n");
             try {
                 doc.insertString(doc.getLength(),i+") "+username+"  "+listaAmici.get(username)+"\n\n",attribs);
                 i++;
@@ -82,7 +81,6 @@ public class ShowRank extends JPanel implements ActionListener,Costanti {
     public void actionPerformed(ActionEvent actionEvent) {
         if(actionEvent.getActionCommand().equals("HOME")){
             HomePage startGUI = new HomePage(nickname,window,client);
-//            HomePage startGUI = HomePage.getHomePage(nickname,window,client);
             window.setContentPane(startGUI);
             window.validate();
         }

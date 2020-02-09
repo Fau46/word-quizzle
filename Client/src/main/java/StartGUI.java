@@ -2,9 +2,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import Costanti.*;
 
@@ -23,7 +20,6 @@ public class StartGUI extends JPanel implements ActionListener,Costanti {
 
         JLabel title = new JLabel();
 
-//        title.setMaximumSize(new Dimension(10,10));
         ImageIcon imageIcon = new ImageIcon(new ImageIcon(IMAGEPATH+"logo.png").getImage().getScaledInstance(350, 170, Image.SCALE_DEFAULT));
 
         title.setIcon(imageIcon);

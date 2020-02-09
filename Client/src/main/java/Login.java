@@ -51,7 +51,7 @@ public class Login extends JPanel implements ActionListener,Costanti{
         headPanel.add(Box.createHorizontalStrut(50));
         headPanel.add(connectAnswer);
 
-        nickInput = new JTextField("fausto",10);
+        nickInput = new JTextField("fausto",10); //TODO togliere
         nickInput.setBackground(Color.WHITE);
 
         pwdInput = new JTextField("faustofausto",10);
@@ -112,8 +112,9 @@ public class Login extends JPanel implements ActionListener,Costanti{
         try{
             if(client!= null && client.isOpen()) {
                 System.out.println("[RECONNECTION] Chiudo la socket");
-                client.close();// todo elimina
+                client.close();
             }
+
             client = SocketChannel.open(address);
         } catch (IOException e) {
             System.out.println("[ERROR] Server non disponibile");
@@ -218,8 +219,6 @@ public class Login extends JPanel implements ActionListener,Costanti{
                         }
                     }
 
-
-//                    String aux[] = (new String(buffer.array())).split("\n");
                     String aux[] = (responseServer.toString().split("\n"));
 
                     System.out.println("[RESPONSE] "+aux[1]);
@@ -227,7 +226,7 @@ public class Login extends JPanel implements ActionListener,Costanti{
 
                     if(aux[0].equals("OK")){ //se il login è andato a buon fine mostro la homepage
                         int socketPort = client.socket().getLocalPort();
-                        Thread t = new Thread(UDPListener.getInstance(socketPort,window,client,nick));
+                        Thread t = new Thread(UDPListener.getInstance(socketPort,window,client,nick));//Thread per le richieste UDP
                         t.start();
 
                         HomePage homePage = new HomePage(nick,window,client);
