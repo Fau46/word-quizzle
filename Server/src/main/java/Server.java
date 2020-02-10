@@ -179,7 +179,7 @@ public class Server implements Costanti {
 
 
     //Funzione che effettua il login
-    private void login(String[] aux, SelectionKey key) throws IOException { //TODO forse da delegare a un thread
+    private void login(String[] aux, SelectionKey key) throws IOException { //TODO forse da delegare a un thread (Delegare assolutamente)
         ConKey keyAttachment = (ConKey) key.attachment();
         keyAttachment.nickname = null;
 
