@@ -103,7 +103,7 @@ public class Server implements Costanti {
         int read=client.read(intput); //Leggo dalla socket
 
         if (read ==- 1) throw new IOException("Canale chiuso"); //Mi accerto che il canale non sia chiuso
-        else if(read == 0){ //Se ho finito di leggere parso la request TODO e se non sono arrivati tutti i pacchetti? (suggerimento nicola)
+        else if(read == 0){ //Se ho finito di leggere parso la request
             parser(key);
             iterator.remove();
         }
@@ -179,7 +179,7 @@ public class Server implements Costanti {
 
 
     //Funzione che effettua il login
-    private void login(String[] aux, SelectionKey key) throws IOException { //TODO forse da delegare a un thread (Delegare assolutamente)
+    private void login(String[] aux, SelectionKey key) throws IOException {
         ConKey keyAttachment = (ConKey) key.attachment();
         keyAttachment.nickname = null;
 
@@ -239,6 +239,7 @@ public class Server implements Costanti {
         else{
             user.incrementUse();
             friend.incrementUse();
+
             AddFriend task = new AddFriend(user,friend,key);
             executor.execute(task);
         }

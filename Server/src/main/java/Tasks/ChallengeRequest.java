@@ -47,7 +47,7 @@ public class ChallengeRequest implements Runnable, Costanti {
             datagramSocket = new DatagramSocket();
             address = InetAddress.getByName(HOSTNAME);
 
-            String request = "CHALLENGE\n"+user.getNickname()+"\n"+(SELECTOR_TIMEOUT/1000)+"\n"; //Invio la richiesta indicando quanto tempo il server attende per la risposta (intervallo di tempo T1) //TODO mettere la lunghezza
+            String request = "CHALLENGE\n"+user.getNickname()+"\n"+(SELECTOR_TIMEOUT/1000)+"\n"; //Invio la richiesta indicando quanto tempo il server attende per la risposta (intervallo di tempo T1)
             byte[] byteRequest = request.getBytes();
 
             int friendSocketPort = ((SocketChannel) friendKey.channel()).socket().getPort(); //Reperisco la porta della socket di friend dalla sua key
