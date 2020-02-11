@@ -213,7 +213,7 @@ public class Challenge extends JPanel implements ActionListener,Costanti {
 
 
                     if(read == - 1){//Se riscontro un errore nella lettura
-                        System.out.println("[ERROR] Errore lettura della socket del server (CHALLENGE//2)");
+                        System.out.println("[ERROR] Errore lettura della socket del server (CHALLENGE/2)");
                         UDPListener.getInstance().serverError();
                         return null;
                     }

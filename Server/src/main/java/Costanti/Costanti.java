@@ -30,5 +30,5 @@ public interface Costanti {
 
 
     //------- userDispatcher -------
-    int SLEEP_TIMER = 3;
+    int SLEEP_TIMER = 3; //Timer di sleep del thread cleaner in userDispatcher
 }

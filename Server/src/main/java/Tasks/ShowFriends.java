@@ -4,10 +4,7 @@ import Server.ConKey;
 import User.User;
 import com.google.gson.Gson;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
-import java.nio.channels.SocketChannel;
 import java.util.Vector;
 
 public class ShowFriends implements Runnable{

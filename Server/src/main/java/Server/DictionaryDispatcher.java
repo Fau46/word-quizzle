@@ -58,47 +58,17 @@ public class DictionaryDispatcher implements Costanti {
         }
 
         return translatedWords;
-//
-//        List<CompletableFuture<Void>> traduzione = list.stream().map(
-//                parola ->  myMemoryTanslator(parola))
-//                .collect(Collectors.toList());
-//
-//        CompletableFuture<Void> traduzione1 = CompletableFuture.allOf(traduzione.toArray(new CompletableFuture[0]));
-//
-//        System.out.printf("TRADUZIONE 1 "+traduzione1.toString());
-
-//        CompletableFuture<List<String>> tuttoTradotto = traduzione1.thenApply(
-//                v -> {
-//                    return traduzione.stream().map(t -> t.join()).collect(Collectors.toList());
-//                }
-//        );
-
-//        try {
-//            System.out.println(tuttoTradotto.get());
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        } catch (ExecutionException e) {
-//            e.printStackTrace();
-//        }
-
-//        double finish = (double) (System.currentTimeMillis() - start) / 1000.0;
-//        System.out.println("TEMPO IMPIEGATO "+finish);
-//        return null;
     }
 
 
     //Ritorna la traduzione di word oppure null se non riesce a collegarsi al sito internet
     private String myMemoryTanslator(String word){
-//    private CompletableFuture<Void> myMemoryTanslator(String word){
-//        CompletableFuture.supplyAsync(
-//                () -> {
                     String reqMyMemory = "https://api.mymemory.translated.net/get?q=" + word + "&langpair=it|en";
                     String reqYandex = "https://translate.yandex.net/api/v1.5/tr.json/translate?key=trnsl.1.1.20200201T115631Z.c3b0cdde609dde53.2228d16c158e2da155316068ad1bee64e3af99f5&text=" + word + "&lang=it-en";
                     String yardTranslate = null;
                     Gson gson = new Gson();
                     URL url;
                     Reader reader;
-//                    String wordTanslated = null;
 
                     try {
                         url = new URL(reqYandex);
@@ -108,9 +78,6 @@ public class DictionaryDispatcher implements Costanti {
 
                         yardTranslate = (jsonObject.getAsJsonArray("text")).get(0).toString();
                         yardTranslate = yardTranslate.replace("\"","");
-//                        System.out.println("word: " + word + " " + yardTranslate);
-
-//                        wordTanslated = yardTranslate;
 
                     } catch (MalformedURLException | UnknownHostException e) {
                         e.printStackTrace();
@@ -131,13 +98,9 @@ public class DictionaryDispatcher implements Costanti {
                         for (int i = 0; i < auxArray.size(); i++) {
                             myMemoryTranslate = (auxArray.get(i)).getAsJsonObject().get("translation").toString();
                             myMemoryTranslate = myMemoryTranslate.replace("\"","");
-//                            System.out.println("RESPONSE[" + word + "] " + myMemoryTranslate);
 
-                            if (yardTranslate.equalsIgnoreCase(myMemoryTranslate)) {
-//                                System.out.println("ritorno mymemory");
+                            if (yardTranslate.equalsIgnoreCase(myMemoryTranslate)) { //Se le parole tradotte dai due sistemi combaciano allora ritorno la traduzione
                                 return myMemoryTranslate;
-//                                wordTanslated = myMemoryTranslate;
-//                                break;
                             }
                         }
                     } catch (MalformedURLException | UnknownHostException e) {
@@ -148,12 +111,6 @@ public class DictionaryDispatcher implements Costanti {
                     }
 
                     return yardTranslate;
-//                    createDictionary(word,wordTanslated);
-//                }
-//        );
     }
 
-//    private void createDictionary(String word, String translatedWord){
-//        dictionaryList.put(word,translatedWord);
-//    }
 }
