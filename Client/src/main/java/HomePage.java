@@ -178,7 +178,7 @@ public class HomePage extends JPanel implements ActionListener, Costanti {
     private void showFriends(){
         Gson gson = new Gson();
         String request = "SHOWFRIENDS\n"+nickname+"\n";
-        String aux[] = ReadWrite(request,"SHOWRANK");
+        String aux[] = ReadWrite(request,"SHOWFRIENDS");
 
         if(aux != null){
             Type listType = new TypeToken<Vector<String>>(){}.getType();
