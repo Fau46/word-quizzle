@@ -133,9 +133,9 @@ public class UDPListener implements Runnable,TCPConnection,Costanti {
             }
         }
 
-        buffer = ByteBuffer.allocate(BUF_SIZE);
 
         if(!response.contains("Utente occupato")){
+            buffer = ByteBuffer.allocate(BUF_SIZE);
 
             try {
                 int read = client.read(buffer);

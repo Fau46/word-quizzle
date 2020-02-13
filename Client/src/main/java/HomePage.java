@@ -218,8 +218,6 @@ public class HomePage extends JPanel implements ActionListener, Costanti {
         String aux[] = ReadWrite(request,"SHOWRANK");
 
         if(aux != null){
-            System.out.println("[RESPONSE] "+aux[1]);
-
             Type listType = new TypeToken<Map<String,Integer>>(){}.getType();
             Map<String,Integer> listaAmici = gson.fromJson(aux[1],listType);
 

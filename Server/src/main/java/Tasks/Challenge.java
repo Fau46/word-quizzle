@@ -95,7 +95,7 @@ public class Challenge implements Costanti {
     private void noInternet(SelectionKey key){
         ConKey keyAttachment = (ConKey) key.attachment();
 
-        keyAttachment.response = "KO\nNessuna connessione a internet\n"; //TODO provare se funziona visto che è stato cambiato il protocollo server - client
+        keyAttachment.response = "KO\nNessuna connessione a internet\n";
         keyAttachment.challenge = false;
 
         key.interestOps(SelectionKey.OP_WRITE);

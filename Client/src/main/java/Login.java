@@ -51,10 +51,10 @@ public class Login extends JPanel implements ActionListener,Costanti{
         headPanel.add(Box.createHorizontalStrut(50));
         headPanel.add(connectAnswer);
 
-        nickInput = new JTextField("fausto",10); //TODO togliere
+        nickInput = new JTextField("",10); 
         nickInput.setBackground(Color.WHITE);
 
-        pwdInput = new JTextField("faustofausto",10);
+        pwdInput = new JTextField("",10);
         pwdInput.setBackground(Color.WHITE);
 
         JPanel nickPanel = new JPanel();

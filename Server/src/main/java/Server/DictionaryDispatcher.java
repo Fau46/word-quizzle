@@ -51,7 +51,7 @@ public class DictionaryDispatcher implements Costanti {
             y = random.nextInt(dictionaryLen);
             String word = dictionary.get(y);
             String translatedWord = myMemoryTanslator(word);
-            System.out.println(word+" "+translatedWord);
+//            System.out.println(word+" "+translatedWord);
             if(translatedWord == null) return null;
 
             translatedWords.put(word, translatedWord);
